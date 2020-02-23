@@ -2,6 +2,8 @@ package com.twoplayers.legend.screen;
 
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImageOthers;
+import com.twoplayers.legend.assets.sound.AllMusics;
+import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.util.Logger;
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
@@ -15,16 +17,22 @@ public class SplashLoadingScreen extends Screen {
     public static final int HEIGHT_SCREEN = 480;
 
     private ImageOthers imageOthers;
+    private AllSoundEffects allSoundEffects;
+    private AllMusics allMusics;
 
     public SplashLoadingScreen(Game game) {
         super(game);
         Logger.info("Entering SplashLoadingScreen.");
         imageOthers = ((MainActivity) game).getAllImages().getImageOthers();
+        allSoundEffects = ((MainActivity) game).getAllSoundEffects();
+        allMusics = ((MainActivity) game).getAllMusics();
     }
 
     @Override
     public void update(float deltaTime) {
         imageOthers.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+        allSoundEffects.load(((MainActivity) game).getAssetManager(), game.getAudio());
+        allMusics.load(((MainActivity) game).getAssetManager(), game.getAudio());
         game.setScreen(new IntroScreen(game));
     }
 

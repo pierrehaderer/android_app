@@ -4,7 +4,8 @@ import android.content.res.AssetManager;
 import android.view.View;
 
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.sound.AllSounds;
+import com.twoplayers.legend.assets.sound.AllMusics;
+import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.LinkManager;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.MapManager;
@@ -17,20 +18,22 @@ public class MainActivity extends AndroidGame {
 
     private AssetManager assetManager;
     private AllImages allImages;
-    private AllSounds allSounds;
     private MapManager mapManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
+    private AllSoundEffects allSoundEffects;
+    private AllMusics allMusics;
 
     @Override
     public Screen getInitScreen() {
         // THIS IS WHERE IT ALL STARTS !!!!!
         assetManager = getAssets();
         allImages = new AllImages();
-        allSounds = new AllSounds();
         mapManager = new MapManager();
         linkManager = new LinkManager();
         guiManager = new GuiManager();
+        allSoundEffects = new AllSoundEffects();
+        allMusics = new AllMusics();
         hideNavigationBar();
         allImages.getImageOthers().loadSplashLoadingScreen(this.getGraphics());
         return new SplashLoadingScreen(this);
@@ -79,10 +82,6 @@ public class MainActivity extends AndroidGame {
         return allImages;
     }
 
-    public AllSounds getAllSounds() {
-        return allSounds;
-    }
-
     public LinkManager getLinkManager() {
         return linkManager;
     }
@@ -93,5 +92,13 @@ public class MainActivity extends AndroidGame {
 
     public GuiManager getGuiManager() {
         return guiManager;
+    }
+
+    public AllSoundEffects getAllSoundEffects() {
+        return allSoundEffects;
+    }
+
+    public AllMusics getAllMusics() {
+        return allMusics;
     }
 }

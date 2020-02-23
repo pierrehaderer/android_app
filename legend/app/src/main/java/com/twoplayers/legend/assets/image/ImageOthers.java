@@ -24,7 +24,7 @@ public class ImageOthers {
     }
 
     /**
-     * Load all images and sounds.
+     * Load all images.
      */
     public void load(AssetManager assetManager, Graphics g) {
         Logger.info("Loading all other screens images.");

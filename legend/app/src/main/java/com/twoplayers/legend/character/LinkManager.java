@@ -6,6 +6,7 @@ import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImageLink;
+import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.MapManager;
 import com.twoplayers.legend.map.Orientation;
@@ -15,6 +16,8 @@ public class LinkManager implements IManager {
 
     private GuiManager guiManager;
     private MapManager mapManager;
+
+    private AllSoundEffects allSoundEffects;
 
     private Link link;
 
@@ -27,6 +30,7 @@ public class LinkManager implements IManager {
 
         ImageLink imageLink = ((MainActivity) game).getAllImages().getImageLink();
         imageLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+        allSoundEffects = ((MainActivity) game).getAllSoundEffects();
 
         link = new Link(imageLink, game.getGraphics());
         link.x = LocationUtil.getXFromGrid(8);
@@ -91,6 +95,8 @@ public class LinkManager implements IManager {
                 link.isAttacking = true;
                 link.currentAnimation = link.attackAnimations.get(link.orientation);
                 link.currentAnimation.reset();
+                allSoundEffects.get("sword").play(0.75f);
+
             }
         }
         if (link.isAttacking) {

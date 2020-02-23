@@ -16,7 +16,7 @@ public class ImageGui {
     private Map<String, Image> images = new HashMap<>();
 
     /**
-     * Load all images and sounds.
+     * Load all images.
      */
     public void load(AssetManager assetManager, Graphics g) {
         Logger.info("Loading all gui images.");
