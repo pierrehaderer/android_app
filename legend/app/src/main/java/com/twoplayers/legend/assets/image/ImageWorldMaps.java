@@ -18,8 +18,22 @@ public class ImageWorldMaps {
     public void load(Graphics g) {
         Logger.info("Loading world map images.");
         images.put("empty", g.newImage("other/empty.png", ImageFormat.RGB565));
-        images.put("map_8_8", g.newImage("map/map_8_8.png", ImageFormat.RGB565));
-        images.put("map_8_7", g.newImage("map/map_8_7.png", ImageFormat.RGB565));
+        addMapImage(g, "1_1");
+        addMapImage(g, "2_1");
+        addMapImage(g, "3_1");
+        addMapImage(g, "4_1");
+        addMapImage(g, "5_1");
+        addMapImage(g, "6_1");
+        addMapImage(g, "7_1");
+        addMapImage(g, "8_7");
+        addMapImage(g, "8_8");
+    }
+
+    /**
+     * Helper to add an image from asset folder "map"
+     */
+    private void addMapImage(Graphics g, String name) {
+        images.put(name, g.newImage("map/" + name + ".png", ImageFormat.RGB565));
     }
 
     /**

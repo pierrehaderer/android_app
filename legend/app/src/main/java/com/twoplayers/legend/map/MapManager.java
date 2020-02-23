@@ -48,7 +48,7 @@ public class MapManager implements IManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        g.drawScaledImage(imageWorldMaps.get("map_" + currentAbsisse + "_" + currentOrdinate), LEFT_MAP, TOP_MAP, AllImages.COEF);
+        g.drawScaledImage(imageWorldMaps.get(currentAbsisse + "_" + currentOrdinate), LEFT_MAP, TOP_MAP, AllImages.COEF);
         g.drawRect(0, 0, LEFT_MAP, HEIGHT_PHONE_SCREEN, Color.BLACK);
         g.drawRect(0, 0, WIDTH_PHONE_SCREEN, TOP_MAP, Color.BLACK);
         g.drawRect(LEFT_MAP + WIDTH_MAP, 0, WIDTH_PHONE_SCREEN - LEFT_MAP - WIDTH_MAP + 1, HEIGHT_PHONE_SCREEN, Color.BLACK);
