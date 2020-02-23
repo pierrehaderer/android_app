@@ -5,6 +5,7 @@ import java.util.HashMap;
 public enum MapTile {
 
     PATH(' ', true),
+    LADDER('l', true),
     BLOC('x', false),
     BLOC_TOP_UPPER('u', false),
     BLOC_TOP_LOWER('d', false),
