@@ -57,6 +57,14 @@ public class AndroidAnimation implements Animation {
     }
 
     @Override
+    public synchronized void addFrame(Image image, int leftOffset, int topOffset, float coef, float duration) {
+        totalDuration += duration;
+        int width = Math.round(image.getWidth() * coef);
+        int height = Math.round(image.getHeight() * coef);
+        frames.add(new AndroidAnimationFrame(image, leftOffset, topOffset, width, height, totalDuration));
+    }
+
+    @Override
     public synchronized void addFrame(Image image, int width, int height, float duration) {
         totalDuration += duration;
         frames.add(new AndroidAnimationFrame(image, width, height, totalDuration));

@@ -1,10 +1,13 @@
 package com.twoplayers.legend.assets.image;
 
+import android.content.res.AssetManager;
+
 import com.twoplayers.legend.util.Logger;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.kilobolt.framework.ImageFormat;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,9 +26,17 @@ public class ImageOthers {
     /**
      * Load all images and sounds.
      */
-    public void load(Graphics g) {
+    public void load(AssetManager assetManager, Graphics g) {
         Logger.info("Loading all other screens images.");
-        images.put("intro_screen", g.newImage("other/intro_screen.png", ImageFormat.RGB565));
+        try {
+            for (String fileName : assetManager.list("other")) {
+                if (fileName.endsWith(".png")) {
+                    images.put(fileName.substring(0, fileName.length() - 4), g.newImage("other/" + fileName, ImageFormat.RGB565));
+                }
+            }
+        } catch (IOException exception) {
+            Logger.error("Could not load other images.");
+        }
     }
 
     /**

@@ -59,7 +59,7 @@ public class MapManager implements IManager {
         linkManager = ((MainActivity) game).getLinkManager();
 
         imageWorldMaps = ((MainActivity) game).getAllImages().getImageWorldMaps();
-        imageWorldMaps.load(game.getGraphics());
+        imageWorldMaps.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         MapTile.initHashMap();
         processWorldMapFile(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));

@@ -26,65 +26,85 @@ public class LinkManager implements IManager {
         mapManager = ((MainActivity) game).getMapManager();
 
         ImageLink imageLink = ((MainActivity) game).getAllImages().getImageLink();
-        imageLink.load(game.getGraphics());
+        imageLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         link = new Link(imageLink, game.getGraphics());
         link.x = LocationUtil.getXFromGrid(8);
         link.y = LocationUtil.getYFromGrid(6);
         link.orientation = Orientation.UP;
+        link.currentAnimation = link.moveAnimations.get(link.orientation);
+        link.isAttacking = false;
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (guiManager.isUpPressed()) {
-            link.orientation = Orientation.UP;
-            link.getMoveAnimations().get(link.orientation).update(deltaTime);
-            float nextY = link.y - Link.LINK_SPEED * deltaTime;
-            if (isUpValid(link.x, nextY)) {
-                link.y = nextY;
+        if (!link.isAttacking) {
+            if (guiManager.isUpPressed()) {
+                link.orientation = Orientation.UP;
+                link.currentAnimation = link.moveAnimations.get(link.orientation);
+                link.currentAnimation.update(deltaTime);
+                float nextY = link.y - Link.LINK_SPEED * deltaTime;
+                if (isUpValid(link.x, nextY)) {
+                    link.y = nextY;
+                }
+                if (isUpOutOfMap(nextY)) {
+                    mapManager.changeMapScreeen(Orientation.UP);
+                }
             }
-            if (isUpOutOfMap(nextY)) {
-                mapManager.changeMapScreeen(Orientation.UP);
+            if (guiManager.isDownPressed()) {
+                link.orientation = Orientation.DOWN;
+                link.currentAnimation = link.moveAnimations.get(link.orientation);
+                link.currentAnimation.update(deltaTime);
+                float nextY = link.y + Link.LINK_SPEED * deltaTime;
+                if (isDownValid(link.x, nextY)) {
+                    link.y = nextY;
+                }
+                if (isDownOutOfMap(nextY)) {
+                    mapManager.changeMapScreeen(Orientation.DOWN);
+                }
+            }
+            if (guiManager.isLeftPressed()) {
+                link.orientation = Orientation.LEFT;
+                link.currentAnimation = link.moveAnimations.get(link.orientation);
+                link.currentAnimation.update(deltaTime);
+                float nextX = link.x - Link.LINK_SPEED * deltaTime;
+                if (isLeftValid(nextX, link.y)) {
+                    link.x = nextX;
+                }
+                if (isLeftOutOfMap(nextX)) {
+                    mapManager.changeMapScreeen(Orientation.LEFT);
+                }
+            }
+            if (guiManager.isRightPressed()) {
+                link.orientation = Orientation.RIGHT;
+                link.currentAnimation = link.moveAnimations.get(link.orientation);
+                link.currentAnimation.update(deltaTime);
+                float nextX = link.x + Link.LINK_SPEED * deltaTime;
+                if (isRightValid(nextX, link.y)) {
+                    link.x = nextX;
+                }
+                if (isRightOutOfMap(nextX)) {
+                    mapManager.changeMapScreeen(Orientation.RIGHT);
+                }
+            }
+            if (guiManager.isaPressed()) {
+                link.isAttacking = true;
+                link.currentAnimation = link.attackAnimations.get(link.orientation);
+                link.currentAnimation.reset();
             }
         }
-        if (guiManager.isDownPressed()) {
-            link.orientation = Orientation.DOWN;
-            link.getMoveAnimations().get(link.orientation).update(deltaTime);
-            float nextY = link.y + Link.LINK_SPEED * deltaTime;
-            if (isDownValid(link.x, nextY)) {
-                link.y = nextY;
-            }
-            if (isDownOutOfMap(nextY)) {
-                mapManager.changeMapScreeen(Orientation.DOWN);
-            }
-        }
-        if (guiManager.isLeftPressed()) {
-            link.orientation = Orientation.LEFT;
-            link.getMoveAnimations().get(link.orientation).update(deltaTime);
-            float nextX = link.x - Link.LINK_SPEED * deltaTime;
-            if (isLeftValid(nextX, link.y)) {
-                link.x = nextX;
-            }
-            if (isLeftOutOfMap(nextX)) {
-                mapManager.changeMapScreeen(Orientation.LEFT);
-            }
-        }
-        if (guiManager.isRightPressed()) {
-            link.orientation = Orientation.RIGHT;
-            link.getMoveAnimations().get(link.orientation).update(deltaTime);
-            float nextX = link.x + Link.LINK_SPEED * deltaTime;
-            if (isRightValid(nextX, link.y)) {
-                link.x = nextX;
-            }
-            if (isRightOutOfMap(nextX)) {
-                mapManager.changeMapScreeen(Orientation.RIGHT);
+        if (link.isAttacking) {
+            link.currentAnimation.update(deltaTime);
+            if (link.currentAnimation.isAnimationOver()) {
+                link.isAttacking = false;
+                link.currentAnimation = link.moveAnimations.get(link.orientation);
             }
         }
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        link.paint(deltaTime, g);
+        g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
     }
 
     /**
@@ -92,11 +112,20 @@ public class LinkManager implements IManager {
      */
     public void moveLink(float deltaX, float deltaY) {
         float nextX = link.x + deltaX;
-        if (!isLeftOutOfMap(nextX) && !isRightOutOfMap(nextX)) {
+        if (isLeftOutOfMap(nextX)) {
+            link.x = MapManager.LEFT_MAP;
+        } else if (isRightOutOfMap(nextX)) {
+            link.x = MapManager.LEFT_MAP + MapManager.WIDTH_MAP - 16 * AllImages.COEF;
+        } else {
             link.x = nextX;
         }
+
         float nextY = link.y + deltaY;
-        if (!isUpOutOfMap(nextY) && !isDownOutOfMap(nextY)) {
+        if (isUpOutOfMap(nextY)) {
+            link.y = MapManager.TOP_MAP;
+        } else if (isDownOutOfMap(nextY)) {
+            link.y = MapManager.TOP_MAP + MapManager.HEIGHT_MAP - 16 * AllImages.COEF;
+        } else {
             link.y = nextY;
         }
     }

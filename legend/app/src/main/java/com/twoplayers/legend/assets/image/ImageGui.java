@@ -1,10 +1,13 @@
 package com.twoplayers.legend.assets.image;
 
+import android.content.res.AssetManager;
+
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.kilobolt.framework.ImageFormat;
 import com.twoplayers.legend.util.Logger;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,10 +18,18 @@ public class ImageGui {
     /**
      * Load all images and sounds.
      */
-    public void load(Graphics g) {
+    public void load(AssetManager assetManager, Graphics g) {
         Logger.info("Loading all gui images.");
-        images.put("empty", g.newImage("other/empty.png", ImageFormat.RGB565));
-        images.put("button_arrows", g.newImage("gui/button_arrows.png", ImageFormat.RGB565));
+        try {
+            images.put("empty", g.newImage("other/empty.png", ImageFormat.RGB565));
+            for (String fileName : assetManager.list("gui")) {
+                if (fileName.endsWith(".png")) {
+                    images.put(fileName.substring(0, fileName.length() - 4), g.newImage("gui/" + fileName, ImageFormat.RGB565));
+                }
+            }
+        } catch (IOException exception) {
+            Logger.error("Could not load gui images.");
+        }
     }
 
     /**

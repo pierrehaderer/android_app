@@ -1,5 +1,7 @@
 package com.twoplayers.legend.gui;
 
+import android.graphics.Color;
+
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Input;
@@ -14,20 +16,35 @@ import java.util.List;
 public class GuiManager implements IManager {
 
     public static final int LEFT_ARROWS = 0;
-    public static final int TOP_ARROWS = 330;
-    public static final int WIDTH_ARROWS = 150;
-    public static final int HEIGHT_ARROWS = 150;
+    public static final int TOP_ARROWS = 240;
+    public static final int WIDTH_ARROWS = 300;
+    public static final int HEIGHT_ARROWS = 240;
 
     public static final int LEFT_UP = 50;
-    public static final int TOP_UP = 330;
+    public static final int TOP_UP = 325;
     public static final int LEFT_DOWN = 50;
-    public static final int TOP_DOWN = 430;
+    public static final int TOP_DOWN = 425;
     public static final int LEFT_LEFT = 0;
-    public static final int TOP_LEFT = 380;
+    public static final int TOP_LEFT = 375;
     public static final int LEFT_RIGHT = 100;
-    public static final int TOP_RIGHT = 380;
+    public static final int TOP_RIGHT = 375;
     public static final int WIDTH_ARROW = 50;
     public static final int HEIGHT_ARROW = 50;
+
+    public static final int LEFT_BUTTONS = 600;
+    public static final int TOP_BUTTONS = 120;
+    public static final int WIDTH_BUTTONS = 255;
+    public static final int HEIGHT_BUTTONS = 365;
+
+    public static final int LEFT_A = 705;
+    public static final int TOP_A = 385;
+    public static final int LEFT_B = 705;
+    public static final int TOP_B = 295;
+    public static final int LEFT_C = 705;
+    public static final int TOP_C = 205;
+    public static final int WIDTH_BUTTON = 150;
+    public static final int HEIGHT_BUTTON = 90;
+    public static final int HEIGHT_BUTTON_A = 100;
 
     private Game game;
     private ImageGui imageGui;
@@ -38,19 +55,26 @@ public class GuiManager implements IManager {
     private boolean leftPressed;
     private boolean rightPressed;
 
+    private boolean aPressed;
+    private boolean bPressed;
+    private boolean cPressed;
+
     /**
      * Initialise this manager
      */
     public void init(Game game) {
         this.game = game;
         imageGui = ((MainActivity) game).getAllImages().getImageGui();
-        imageGui.load(game.getGraphics());
+        imageGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         buttonActivated = true;
         upPressed = false;
         downPressed = false;
         leftPressed = false;
         rightPressed = false;
+        aPressed = false;
+        bPressed = false;
+        cPressed = false;
     }
 
     @Override
@@ -71,6 +95,15 @@ public class GuiManager implements IManager {
                     if (LocationUtil.inBounds(event, LEFT_RIGHT, TOP_RIGHT, WIDTH_ARROW, HEIGHT_ARROW)) {
                         rightPressed = true;
                     }
+                    if (LocationUtil.inBounds(event, LEFT_A, TOP_A, WIDTH_BUTTON, HEIGHT_BUTTON_A)) {
+                        aPressed = true;
+                    }
+                    if (LocationUtil.inBounds(event, LEFT_B, TOP_B, WIDTH_BUTTON, HEIGHT_BUTTON)) {
+                        bPressed = true;
+                    }
+                    if (LocationUtil.inBounds(event, LEFT_C, TOP_C, WIDTH_BUTTON, HEIGHT_BUTTON)) {
+                        cPressed = true;
+                    }
                 }
                 if (event.type == Input.TouchEvent.TOUCH_UP) {
                     if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
@@ -79,6 +112,11 @@ public class GuiManager implements IManager {
                         leftPressed = false;
                         rightPressed = false;
                     }
+                    if (LocationUtil.inBounds(event, LEFT_BUTTONS, TOP_BUTTONS, WIDTH_BUTTONS, HEIGHT_BUTTONS)) {
+                        aPressed = false;
+                        bPressed = false;
+                        cPressed = false;
+                    }
                 }
             }
         }
@@ -86,7 +124,7 @@ public class GuiManager implements IManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        g.drawImage(imageGui.get("button_arrows"), LEFT_ARROWS, TOP_ARROWS);
+        g.drawImage(imageGui.get("gui"), 0, 0);
     }
 
     /**
@@ -121,5 +159,17 @@ public class GuiManager implements IManager {
 
     public boolean isRightPressed() {
         return rightPressed;
+    }
+
+    public boolean isaPressed() {
+        return aPressed;
+    }
+
+    public boolean isbPressed() {
+        return bPressed;
+    }
+
+    public boolean iscPressed() {
+        return cPressed;
     }
 }
