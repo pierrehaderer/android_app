@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character;
+package com.twoplayers.legend.map;
 
 public enum Orientation {
     UP, DOWN, LEFT, RIGHT;

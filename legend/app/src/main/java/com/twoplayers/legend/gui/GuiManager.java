@@ -32,16 +32,21 @@ public class GuiManager implements IManager {
     private Game game;
     private ImageGui imageGui;
 
-    private boolean upPressed = false;
-    private boolean downPressed = false;
-    private boolean leftPressed = false;
-    private boolean rightPressed = false;
+    private boolean buttonActivated;
+    private boolean upPressed;
+    private boolean downPressed;
+    private boolean leftPressed;
+    private boolean rightPressed;
 
+    /**
+     * Initialise this manager
+     */
     public void init(Game game) {
         this.game = game;
         imageGui = ((MainActivity) game).getAllImages().getImageGui();
         imageGui.load(game.getGraphics());
 
+        buttonActivated = true;
         upPressed = false;
         downPressed = false;
         leftPressed = false;
@@ -50,38 +55,56 @@ public class GuiManager implements IManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
-            Logger.debug("Touch event : " + event.type + "-" + event.x + "-" + event.y);
-            if (event.type == Input.TouchEvent.TOUCH_DOWN) {
-                if (LocationUtil.inBounds(event, LEFT_UP, TOP_UP, WIDTH_ARROW, HEIGHT_ARROW)) {
-                    upPressed = true;
+        if (buttonActivated) {
+            for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
+                Logger.debug("Touch event : " + event.type + "-" + event.x + "-" + event.y);
+                if (event.type == Input.TouchEvent.TOUCH_DOWN) {
+                    if (LocationUtil.inBounds(event, LEFT_UP, TOP_UP, WIDTH_ARROW, HEIGHT_ARROW)) {
+                        upPressed = true;
+                    }
+                    if (LocationUtil.inBounds(event, LEFT_DOWN, TOP_DOWN, WIDTH_ARROW, HEIGHT_ARROW)) {
+                        downPressed = true;
+                    }
+                    if (LocationUtil.inBounds(event, LEFT_LEFT, TOP_LEFT, WIDTH_ARROW, HEIGHT_ARROW)) {
+                        leftPressed = true;
+                    }
+                    if (LocationUtil.inBounds(event, LEFT_RIGHT, TOP_RIGHT, WIDTH_ARROW, HEIGHT_ARROW)) {
+                        rightPressed = true;
+                    }
                 }
-                if (LocationUtil.inBounds(event, LEFT_DOWN, TOP_DOWN, WIDTH_ARROW, HEIGHT_ARROW)) {
-                    downPressed = true;
-                }
-                if (LocationUtil.inBounds(event, LEFT_LEFT, TOP_LEFT, WIDTH_ARROW, HEIGHT_ARROW)) {
-                    leftPressed = true;
-                }
-                if (LocationUtil.inBounds(event, LEFT_RIGHT, TOP_RIGHT, WIDTH_ARROW, HEIGHT_ARROW)) {
-                    rightPressed = true;
-                }
-            }
-            if (event.type == Input.TouchEvent.TOUCH_UP) {
-                if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
-                    upPressed = false;
-                    downPressed = false;
-                    leftPressed = false;
-                    rightPressed = false;
+                if (event.type == Input.TouchEvent.TOUCH_UP) {
+                    if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
+                        upPressed = false;
+                        downPressed = false;
+                        leftPressed = false;
+                        rightPressed = false;
+                    }
                 }
             }
         }
-
-
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         g.drawImage(imageGui.get("button_arrows"), LEFT_ARROWS, TOP_ARROWS);
+    }
+
+    /**
+     * Activate the buttons
+     */
+    public void activateButtons() {
+        buttonActivated = true;
+    }
+
+    /**
+     * Deactivate the buttons
+     */
+    public void deactivateButtons() {
+        buttonActivated = false;
+        upPressed = false;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
     }
 
     public boolean isUpPressed() {

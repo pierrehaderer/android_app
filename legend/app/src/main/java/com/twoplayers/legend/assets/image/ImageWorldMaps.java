@@ -26,6 +26,7 @@ public class ImageWorldMaps {
         addMapImage(g, "6_1");
         addMapImage(g, "7_1");
         addMapImage(g, "8_7");
+        addMapImage(g, "7_8");
         addMapImage(g, "8_8");
     }
 

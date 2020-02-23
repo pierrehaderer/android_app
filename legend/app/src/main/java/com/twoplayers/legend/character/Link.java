@@ -4,19 +4,19 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImageLink;
+import com.twoplayers.legend.map.Orientation;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Link {
 
-    private static final float LINK_SPEED = 1.3f;
+    public static final float LINK_SPEED = 1.3f;
 
     private ImageLink imageLink;
 
     public float x;
     public float y;
-    public float speed = LINK_SPEED;
     public Orientation orientation;
 
     private Map<Orientation, Animation> moveAnimations;

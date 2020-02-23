@@ -8,6 +8,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImageLink;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.MapManager;
+import com.twoplayers.legend.map.Orientation;
 import com.twoplayers.legend.util.LocationUtil;
 
 public class LinkManager implements IManager {
@@ -17,6 +18,9 @@ public class LinkManager implements IManager {
 
     private Link link;
 
+    /**
+     * Initialise this manager
+     */
     public void init(Game game) {
         guiManager = ((MainActivity) game).getGuiManager();
         mapManager = ((MainActivity) game).getMapManager();
@@ -33,38 +37,68 @@ public class LinkManager implements IManager {
     @Override
     public void update(float deltaTime, Graphics g) {
         if (guiManager.isUpPressed()) {
-            if (isUpValid(link.x, link.y - link.speed * deltaTime)) {
-                link.y -= link.speed * deltaTime;
-            }
             link.orientation = Orientation.UP;
             link.getMoveAnimations().get(link.orientation).update(deltaTime);
+            float nextY = link.y - Link.LINK_SPEED * deltaTime;
+            if (isUpValid(link.x, nextY)) {
+                link.y = nextY;
+            }
+            if (isUpOutOfMap(nextY)) {
+                mapManager.changeMapScreeen(Orientation.UP);
+            }
         }
         if (guiManager.isDownPressed()) {
-            if (isDownValid(link.x, link.y + link.speed * deltaTime)) {
-                link.y += link.speed * deltaTime;
-            }
             link.orientation = Orientation.DOWN;
             link.getMoveAnimations().get(link.orientation).update(deltaTime);
+            float nextY = link.y + Link.LINK_SPEED * deltaTime;
+            if (isDownValid(link.x, nextY)) {
+                link.y = nextY;
+            }
+            if (isDownOutOfMap(nextY)) {
+                mapManager.changeMapScreeen(Orientation.DOWN);
+            }
         }
         if (guiManager.isLeftPressed()) {
-            if (isLeftValid(link.x - link.speed * deltaTime, link.y)) {
-                link.x -= link.speed * deltaTime;
-            }
             link.orientation = Orientation.LEFT;
             link.getMoveAnimations().get(link.orientation).update(deltaTime);
+            float nextX = link.x - Link.LINK_SPEED * deltaTime;
+            if (isLeftValid(nextX, link.y)) {
+                link.x = nextX;
+            }
+            if (isLeftOutOfMap(nextX)) {
+                mapManager.changeMapScreeen(Orientation.LEFT);
+            }
         }
         if (guiManager.isRightPressed()) {
-            if (isRightValid(link.x + link.speed * deltaTime, link.y)) {
-                link.x += link.speed * deltaTime;
-            }
             link.orientation = Orientation.RIGHT;
             link.getMoveAnimations().get(link.orientation).update(deltaTime);
+            float nextX = link.x + Link.LINK_SPEED * deltaTime;
+            if (isRightValid(nextX, link.y)) {
+                link.x = nextX;
+            }
+            if (isRightOutOfMap(nextX)) {
+                mapManager.changeMapScreeen(Orientation.RIGHT);
+            }
         }
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         link.paint(deltaTime, g);
+    }
+
+    /**
+     * Ask LinkManager to move link
+     */
+    public void moveLink(float deltaX, float deltaY) {
+        float nextX = link.x + deltaX;
+        if (!isLeftOutOfMap(nextX) && !isRightOutOfMap(nextX)) {
+            link.x = nextX;
+        }
+        float nextY = link.y + deltaY;
+        if (!isUpOutOfMap(nextY) && !isDownOutOfMap(nextY)) {
+            link.y = nextY;
+        }
     }
 
     /**
@@ -106,5 +140,35 @@ public class LinkManager implements IManager {
         float linkRight = linkLeft + 16 * AllImages.COEF;
         // -2 so that link can enter narrow path
         return mapManager.isTileWalkable(linkRight - 2, linkMiddle) && mapManager.isTileWalkable(linkRight - 2, linkBottom);
+    }
+
+    /**
+     * Check if link is going to the next screen up
+     */
+    private boolean isUpOutOfMap(float linkTop) {
+        return linkTop < MapManager.TOP_MAP;
+    }
+
+    /**
+     * Check if link is going to the next screen down
+     */
+    private boolean isDownOutOfMap(float linkTop) {
+        float linkBottom = linkTop + 16 * AllImages.COEF;
+        return linkBottom > MapManager.TOP_MAP + MapManager.HEIGHT_MAP;
+    }
+
+    /**
+     * Check if link is going to the next screen left
+     */
+    private boolean isLeftOutOfMap(float linkLeft) {
+        return linkLeft < MapManager.LEFT_MAP;
+    }
+
+    /**
+     * Check if link is going to the next screen right
+     */
+    private boolean isRightOutOfMap(float linkLeft) {
+        float linkRight = linkLeft + 16 * AllImages.COEF;
+        return linkRight > MapManager.LEFT_MAP + MapManager.WIDTH_MAP;
     }
 }
