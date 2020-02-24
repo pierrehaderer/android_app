@@ -8,6 +8,7 @@ import com.kilobolt.framework.Input;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImageGui;
+import com.twoplayers.legend.character.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -46,8 +47,14 @@ public class GuiManager implements IManager {
     public static final int HEIGHT_BUTTON = 90;
     public static final int HEIGHT_BUTTON_A = 100;
 
+    public static final int LEFT_SWORD = 460;
+    public static final int TOP_SWORD = 28;
+    public static final float COEF_SWORD = 3;
+
     private Game game;
     private ImageGui imageGui;
+
+    private LinkManager linkManager;
 
     private boolean buttonActivated;
     private boolean upPressed;
@@ -66,6 +73,8 @@ public class GuiManager implements IManager {
         this.game = game;
         imageGui = ((MainActivity) game).getAllImages().getImageGui();
         imageGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+
+        linkManager = ((MainActivity) game).getLinkManager();
 
         buttonActivated = true;
         upPressed = false;
@@ -125,6 +134,7 @@ public class GuiManager implements IManager {
     @Override
     public void paint(float deltaTime, Graphics g) {
         g.drawImage(imageGui.get("gui"), 0, 0);
+        g.drawScaledImage(imageGui.get(linkManager.getLinkSword().name),LEFT_SWORD, TOP_SWORD, COEF_SWORD);
     }
 
     /**

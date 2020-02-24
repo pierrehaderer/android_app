@@ -23,7 +23,9 @@ public class Link {
 
     protected Animation currentAnimation;
     protected Map<Orientation, Animation> moveAnimations;
-    protected Map<Orientation, Animation> attackAnimations;
+    protected Map<Sword, Map<Orientation, Animation>> attackAnimations;
+
+    protected Sword sword;
 
     public Link(ImageLink imageLink, Graphics g) {
         this.imageLink = imageLink;
@@ -59,33 +61,43 @@ public class Link {
      */
     private void initAttackAnimation(Graphics g) {
         attackAnimations = new HashMap<>();
+
+        attackAnimations.put(Sword.NONE, new HashMap<Orientation, Animation>());
+        Animation emptyAnimation = g.newAnimation();
+        emptyAnimation.setOccurrences(1);
+        attackAnimations.get(Sword.NONE).put(Orientation.UP, emptyAnimation);
+        attackAnimations.get(Sword.NONE).put(Orientation.DOWN, emptyAnimation);
+        attackAnimations.get(Sword.NONE).put(Orientation.LEFT, emptyAnimation);
+        attackAnimations.get(Sword.NONE).put(Orientation.RIGHT, emptyAnimation);
+
+        attackAnimations.put(Sword.WOOD, new HashMap<Orientation, Animation>());
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imageLink.get("link_wood_sword_up_1"), AllImages.COEF, 8);
         animationUp.addFrame(imageLink.get("link_wood_sword_up_2"), 0, Math.round(-12 * AllImages.COEF), AllImages.COEF, 25);
         animationUp.addFrame(imageLink.get("link_wood_sword_up_3"), 0, Math.round(-11 * AllImages.COEF), AllImages.COEF, 4);
         animationUp.addFrame(imageLink.get("link_wood_sword_up_4"), 0, Math.round(-3 * AllImages.COEF), AllImages.COEF, 4);
         animationUp.setOccurrences(1);
-        attackAnimations.put(Orientation.UP, animationUp);
+        attackAnimations.get(Sword.WOOD).put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
         animationDown.addFrame(imageLink.get("link_wood_sword_down_1"), AllImages.COEF, 8);
         animationDown.addFrame(imageLink.get("link_wood_sword_down_2"), AllImages.COEF, 25);
         animationDown.addFrame(imageLink.get("link_wood_sword_down_3"), AllImages.COEF, 4);
         animationDown.addFrame(imageLink.get("link_wood_sword_down_4"), AllImages.COEF, 4);
         animationDown.setOccurrences(1);
-        attackAnimations.put(Orientation.DOWN, animationDown);
+        attackAnimations.get(Sword.WOOD).put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
         animationLeft.addFrame(imageLink.get("link_wood_sword_left_1"), AllImages.COEF, 8);
         animationLeft.addFrame(imageLink.get("link_wood_sword_left_2"), Math.round(-11 * AllImages.COEF), 0, AllImages.COEF, 25);
         animationLeft.addFrame(imageLink.get("link_wood_sword_left_3"), Math.round(-7 * AllImages.COEF), 0, AllImages.COEF, 4);
         animationLeft.addFrame(imageLink.get("link_wood_sword_left_4"), Math.round(-3 * AllImages.COEF), 0, AllImages.COEF, 4);
         animationLeft.setOccurrences(1);
-        attackAnimations.put(Orientation.LEFT, animationLeft);
+        attackAnimations.get(Sword.WOOD).put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
         animationRight.addFrame(imageLink.get("link_wood_sword_right_1"), AllImages.COEF, 8);
         animationRight.addFrame(imageLink.get("link_wood_sword_right_2"), AllImages.COEF, 25);
         animationRight.addFrame(imageLink.get("link_wood_sword_right_3"), AllImages.COEF, 4);
         animationRight.addFrame(imageLink.get("link_wood_sword_right_4"), AllImages.COEF, 4);
         animationRight.setOccurrences(1);
-        attackAnimations.put(Orientation.RIGHT, animationRight);
+        attackAnimations.get(Sword.WOOD).put(Orientation.RIGHT, animationRight);
     }
 }

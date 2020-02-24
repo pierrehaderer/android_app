@@ -38,6 +38,7 @@ public class LinkManager implements IManager {
         link.orientation = Orientation.UP;
         link.currentAnimation = link.moveAnimations.get(link.orientation);
         link.isAttacking = false;
+        link.sword = Sword.WOOD; //TODO Change it when it can be collected
     }
 
     @Override
@@ -91,9 +92,9 @@ public class LinkManager implements IManager {
                     mapManager.changeMapScreeen(Orientation.RIGHT);
                 }
             }
-            if (guiManager.isaPressed()) {
+            if (guiManager.isaPressed() && link.sword != Sword.NONE) {
                 link.isAttacking = true;
-                link.currentAnimation = link.attackAnimations.get(link.orientation);
+                link.currentAnimation = link.attackAnimations.get(link.sword).get(link.orientation);
                 link.currentAnimation.reset();
                 allSoundEffects.get("sword").play(0.75f);
 
@@ -205,5 +206,12 @@ public class LinkManager implements IManager {
     private boolean isRightOutOfMap(float linkLeft) {
         float linkRight = linkLeft + 16 * AllImages.COEF;
         return linkRight > MapManager.LEFT_MAP + MapManager.WIDTH_MAP;
+    }
+
+    /**
+     * Provide the sword of link
+     */
+    public Sword getLinkSword() {
+        return link.sword;
     }
 }

@@ -18,6 +18,9 @@ public enum MapTile {
 
     private static HashMap<Character, MapTile> hashMap;
 
+    /**
+     * Constructor
+     */
     private MapTile(char character, boolean walkable) {
         this.character = character;
         this.walkable = walkable;
