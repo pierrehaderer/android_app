@@ -7,6 +7,23 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImageLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.character.object.Arrow;
+import com.twoplayers.legend.character.object.Boomerang;
+import com.twoplayers.legend.character.object.Bow;
+import com.twoplayers.legend.character.object.Bracelet;
+import com.twoplayers.legend.character.object.Compass;
+import com.twoplayers.legend.character.object.DungeonMap;
+import com.twoplayers.legend.character.object.Flute;
+import com.twoplayers.legend.character.object.InfiniteKey;
+import com.twoplayers.legend.character.object.Ladder;
+import com.twoplayers.legend.character.object.Light;
+import com.twoplayers.legend.character.object.Meat;
+import com.twoplayers.legend.character.object.Potion;
+import com.twoplayers.legend.character.object.Raft;
+import com.twoplayers.legend.character.object.Ring;
+import com.twoplayers.legend.character.object.Scepter;
+import com.twoplayers.legend.character.object.SpellBook;
+import com.twoplayers.legend.character.object.Sword;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.MapManager;
 import com.twoplayers.legend.map.Orientation;
@@ -38,6 +55,24 @@ public class LinkManager implements IManager {
         link.orientation = Orientation.UP;
         link.currentAnimation = link.moveAnimations.get(link.orientation);
         link.isAttacking = false;
+
+        link.arrow = Arrow.WOOD;
+        link.bomb = 4;
+        link.boomerang = Boomerang.WOOD; //TODO Change it when it can be collected
+        link.bow = Bow.BOW;
+        link.bracelet = Bracelet.BRACELET;
+        link.compass = Compass.COMPASS;
+        link.dungeonMap = DungeonMap.MAP;
+        link.flute = Flute.FLUTE;
+        link.infiniteKey = InfiniteKey.KEY;
+        link.ladder = Ladder.LADDER;
+        link.light = Light.BLUE; //TODO Change it when it can be collected
+        link.meat = Meat.MEAT;
+        link.potion = Potion.NOTE;
+        link.raft = Raft.RAFT;
+        link.ring = Ring.RED;
+        link.scepter = Scepter.SCEPTER;
+        link.spellBook = SpellBook.BOOK;
         link.sword = Sword.WOOD; //TODO Change it when it can be collected
     }
 
@@ -209,9 +244,9 @@ public class LinkManager implements IManager {
     }
 
     /**
-     * Provide the sword of link
+     * Provide link to access his objects
      */
-    public Sword getLinkSword() {
-        return link.sword;
+    public Link getLink() {
+        return link;
     }
 }

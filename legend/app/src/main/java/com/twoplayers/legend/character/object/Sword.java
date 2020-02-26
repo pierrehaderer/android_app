@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character;
+package com.twoplayers.legend.character.object;
 
 public enum Sword {
 

@@ -4,6 +4,23 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImageLink;
+import com.twoplayers.legend.character.object.Arrow;
+import com.twoplayers.legend.character.object.Boomerang;
+import com.twoplayers.legend.character.object.Bow;
+import com.twoplayers.legend.character.object.Bracelet;
+import com.twoplayers.legend.character.object.Compass;
+import com.twoplayers.legend.character.object.DungeonMap;
+import com.twoplayers.legend.character.object.Flute;
+import com.twoplayers.legend.character.object.InfiniteKey;
+import com.twoplayers.legend.character.object.Ladder;
+import com.twoplayers.legend.character.object.Light;
+import com.twoplayers.legend.character.object.Meat;
+import com.twoplayers.legend.character.object.Potion;
+import com.twoplayers.legend.character.object.Raft;
+import com.twoplayers.legend.character.object.Ring;
+import com.twoplayers.legend.character.object.Scepter;
+import com.twoplayers.legend.character.object.SpellBook;
+import com.twoplayers.legend.character.object.Sword;
 import com.twoplayers.legend.map.Orientation;
 
 import java.util.HashMap;
@@ -25,6 +42,23 @@ public class Link {
     protected Map<Orientation, Animation> moveAnimations;
     protected Map<Sword, Map<Orientation, Animation>> attackAnimations;
 
+    protected Arrow arrow;
+    protected int bomb;
+    protected Boomerang boomerang;
+    protected Bow bow;
+    protected Bracelet bracelet;
+    protected Compass compass;
+    protected DungeonMap dungeonMap;
+    protected Flute flute;
+    protected InfiniteKey infiniteKey;
+    protected Ladder ladder;
+    protected Light light;
+    protected Meat meat;
+    protected Potion potion;
+    protected Raft raft;
+    protected Ring ring;
+    protected Scepter scepter;
+    protected SpellBook spellBook;
     protected Sword sword;
 
     public Link(ImageLink imageLink, Graphics g) {
@@ -99,5 +133,77 @@ public class Link {
         animationRight.addFrame(imageLink.get("link_wood_sword_right_4"), AllImages.COEF, 4);
         animationRight.setOccurrences(1);
         attackAnimations.get(Sword.WOOD).put(Orientation.RIGHT, animationRight);
+    }
+
+    public Arrow getArrow() {
+        return arrow;
+    }
+
+    public int getBomb() {
+        return bomb;
+    }
+
+    public Boomerang getBoomerang() {
+        return boomerang;
+    }
+
+    public Bow getBow() {
+        return bow;
+    }
+
+    public Bracelet getBracelet() {
+        return bracelet;
+    }
+
+    public Compass getCompass() {
+        return compass;
+    }
+
+    public DungeonMap getDungeonMap() {
+        return dungeonMap;
+    }
+
+    public Flute getFlute() {
+        return flute;
+    }
+
+    public InfiniteKey getInfiniteKey() {
+        return infiniteKey;
+    }
+
+    public Ladder getLadder() {
+        return ladder;
+    }
+
+    public Light getLight() {
+        return light;
+    }
+
+    public Meat getMeat() {
+        return meat;
+    }
+
+    public Potion getPotion() {
+        return potion;
+    }
+
+    public Raft getRaft() {
+        return raft;
+    }
+
+    public Ring getRing() {
+        return ring;
+    }
+
+    public Scepter getScepter() {
+        return scepter;
+    }
+
+    public SpellBook getSpellBook() {
+        return spellBook;
+    }
+
+    public Sword getSword() {
+        return sword;
     }
 }
