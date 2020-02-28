@@ -3,7 +3,7 @@ package com.twoplayers.legend.screen;
 import android.graphics.Color;
 
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.assets.image.ImageOthers;
+import com.twoplayers.legend.assets.image.ImageOther;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 import com.kilobolt.framework.Game;
@@ -20,12 +20,12 @@ public class IntroScreen extends Screen {
     public static final int WIDTH_SCREEN = 548;
     public static final int HEIGHT_SCREEN = 480;
 
-    private ImageOthers imageOthers;
+    private ImageOther imageOther;
 
     public IntroScreen(Game game) {
         super(game);
         Logger.info("Entering IntroScreen.");
-        imageOthers = ((MainActivity) game).getAllImages().getImageOthers();
+        imageOther = ((MainActivity) game).getAllImages().getImageOther();
     }
 
     @Override
@@ -46,7 +46,7 @@ public class IntroScreen extends Screen {
     public void paint(float deltaTime) {
         Graphics g = game.getGraphics();
         g.drawRect(LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN, Color.BLACK);
-        g.drawScaledImage(imageOthers.get("intro_screen"), LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN);
+        g.drawScaledImage(imageOther.get("intro_screen"), LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN);
     }
 
     @Override
@@ -64,6 +64,6 @@ public class IntroScreen extends Screen {
     @Override
     public void backButton() {
         android.os.Process.killProcess(android.os.Process.myPid());
-        //imageOthers.theme.stop();
+        //imageOther.theme.stop();
     }
 }

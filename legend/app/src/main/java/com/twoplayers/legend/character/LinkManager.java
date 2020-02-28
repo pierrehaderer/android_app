@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.ImageLink;
+import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.object.Arrow;
 import com.twoplayers.legend.character.object.Boomerang;
@@ -25,14 +25,15 @@ import com.twoplayers.legend.character.object.Scepter;
 import com.twoplayers.legend.character.object.SpellBook;
 import com.twoplayers.legend.character.object.Sword;
 import com.twoplayers.legend.gui.GuiManager;
-import com.twoplayers.legend.map.MapManager;
+import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.map.Orientation;
 import com.twoplayers.legend.util.LocationUtil;
+import com.twoplayers.legend.util.Logger;
 
 public class LinkManager implements IManager {
 
     private GuiManager guiManager;
-    private MapManager mapManager;
+    private WorldMapManager worldMapManager;
 
     private AllSoundEffects allSoundEffects;
 
@@ -43,15 +44,16 @@ public class LinkManager implements IManager {
      */
     public void init(Game game) {
         guiManager = ((MainActivity) game).getGuiManager();
-        mapManager = ((MainActivity) game).getMapManager();
+        worldMapManager = ((MainActivity) game).getWorldMapManager();
 
-        ImageLink imageLink = ((MainActivity) game).getAllImages().getImageLink();
-        imageLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+        ImagesLink imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
+        imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         allSoundEffects = ((MainActivity) game).getAllSoundEffects();
 
-        link = new Link(imageLink, game.getGraphics());
+        link = new Link(imagesLink, game.getGraphics());
         link.x = LocationUtil.getXFromGrid(8);
         link.y = LocationUtil.getYFromGrid(6);
+        Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
         link.orientation = Orientation.UP;
         link.currentAnimation = link.moveAnimations.get(link.orientation);
         link.isAttacking = false;
@@ -88,7 +90,7 @@ public class LinkManager implements IManager {
                     link.y = nextY;
                 }
                 if (isUpOutOfMap(nextY)) {
-                    mapManager.changeMapScreeen(Orientation.UP);
+                    worldMapManager.changeMapScreeen(Orientation.UP);
                 }
             }
             if (guiManager.isDownPressed()) {
@@ -100,7 +102,7 @@ public class LinkManager implements IManager {
                     link.y = nextY;
                 }
                 if (isDownOutOfMap(nextY)) {
-                    mapManager.changeMapScreeen(Orientation.DOWN);
+                    worldMapManager.changeMapScreeen(Orientation.DOWN);
                 }
             }
             if (guiManager.isLeftPressed()) {
@@ -112,7 +114,7 @@ public class LinkManager implements IManager {
                     link.x = nextX;
                 }
                 if (isLeftOutOfMap(nextX)) {
-                    mapManager.changeMapScreeen(Orientation.LEFT);
+                    worldMapManager.changeMapScreeen(Orientation.LEFT);
                 }
             }
             if (guiManager.isRightPressed()) {
@@ -124,7 +126,7 @@ public class LinkManager implements IManager {
                     link.x = nextX;
                 }
                 if (isRightOutOfMap(nextX)) {
-                    mapManager.changeMapScreeen(Orientation.RIGHT);
+                    worldMapManager.changeMapScreeen(Orientation.RIGHT);
                 }
             }
             if (guiManager.isaPressed() && link.sword != Sword.NONE) {
@@ -155,18 +157,18 @@ public class LinkManager implements IManager {
     public void moveLink(float deltaX, float deltaY) {
         float nextX = link.x + deltaX;
         if (isLeftOutOfMap(nextX)) {
-            link.x = MapManager.LEFT_MAP;
+            link.x = WorldMapManager.LEFT_MAP;
         } else if (isRightOutOfMap(nextX)) {
-            link.x = MapManager.LEFT_MAP + MapManager.WIDTH_MAP - 16 * AllImages.COEF;
+            link.x = WorldMapManager.LEFT_MAP + WorldMapManager.WIDTH_MAP - LocationUtil.TILE_SIZE;
         } else {
             link.x = nextX;
         }
 
         float nextY = link.y + deltaY;
         if (isUpOutOfMap(nextY)) {
-            link.y = MapManager.TOP_MAP;
+            link.y = WorldMapManager.TOP_MAP;
         } else if (isDownOutOfMap(nextY)) {
-            link.y = MapManager.TOP_MAP + MapManager.HEIGHT_MAP - 16 * AllImages.COEF;
+            link.y = WorldMapManager.TOP_MAP + WorldMapManager.HEIGHT_MAP - LocationUtil.TILE_SIZE;
         } else {
             link.y = nextY;
         }
@@ -176,71 +178,71 @@ public class LinkManager implements IManager {
      * Check if link can go up
      */
     private boolean isUpValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + 8 * AllImages.COEF;
-        float linkRight = linkLeft + 16 * AllImages.COEF;
+        float linkMiddle = linkTop + LocationUtil.TILE_SIZE / 2;
+        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return mapManager.isTileWalkable(linkLeft + 2, linkMiddle) && mapManager.isTileWalkable(linkRight - 2, linkMiddle);
+        return worldMapManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && worldMapManager.isTileWalkable(linkRight - 2, linkMiddle, true);
     }
 
     /**
      * Check if link can go down
      */
     private boolean isDownValid(float linkLeft, float linkTop) {
-        float linkBottom = linkTop + 16 * AllImages.COEF;
-        float linkRight = linkLeft + 16 * AllImages.COEF;
+        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
+        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return mapManager.isTileWalkable(linkLeft + 2, linkBottom) && mapManager.isTileWalkable(linkRight - 2, linkBottom);
+        return worldMapManager.isTileWalkable(linkLeft + 2, linkBottom, true) && worldMapManager.isTileWalkable(linkRight - 2, linkBottom, true);
     }
 
     /**
      * Check if link can go left
      */
     private boolean isLeftValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + 8 * AllImages.COEF;
-        float linkBottom = linkTop + 16 * AllImages.COEF;
+        float linkMiddle = linkTop + LocationUtil.TILE_SIZE / 2;
+        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return mapManager.isTileWalkable(linkLeft + 2, linkMiddle) && mapManager.isTileWalkable(linkLeft + 2, linkBottom);
+        return worldMapManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && worldMapManager.isTileWalkable(linkLeft + 2, linkBottom, true);
     }
 
     /**
      * Check if link can go right
      */
     private boolean isRightValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + 8 * AllImages.COEF;
-        float linkBottom = linkTop + 16 * AllImages.COEF;
-        float linkRight = linkLeft + 16 * AllImages.COEF;
+        float linkMiddle = linkTop + LocationUtil.TILE_SIZE / 2;
+        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
+        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return mapManager.isTileWalkable(linkRight - 2, linkMiddle) && mapManager.isTileWalkable(linkRight - 2, linkBottom);
+        return worldMapManager.isTileWalkable(linkRight - 2, linkMiddle, true) && worldMapManager.isTileWalkable(linkRight - 2, linkBottom, true);
     }
 
     /**
      * Check if link is going to the next screen up
      */
     private boolean isUpOutOfMap(float linkTop) {
-        return linkTop < MapManager.TOP_MAP;
+        return linkTop < WorldMapManager.TOP_MAP;
     }
 
     /**
      * Check if link is going to the next screen down
      */
     private boolean isDownOutOfMap(float linkTop) {
-        float linkBottom = linkTop + 16 * AllImages.COEF;
-        return linkBottom > MapManager.TOP_MAP + MapManager.HEIGHT_MAP;
+        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
+        return linkBottom > WorldMapManager.TOP_MAP + WorldMapManager.HEIGHT_MAP;
     }
 
     /**
      * Check if link is going to the next screen left
      */
     private boolean isLeftOutOfMap(float linkLeft) {
-        return linkLeft < MapManager.LEFT_MAP;
+        return linkLeft < WorldMapManager.LEFT_MAP;
     }
 
     /**
      * Check if link is going to the next screen right
      */
     private boolean isRightOutOfMap(float linkLeft) {
-        float linkRight = linkLeft + 16 * AllImages.COEF;
-        return linkRight > MapManager.LEFT_MAP + MapManager.WIDTH_MAP;
+        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
+        return linkRight > WorldMapManager.LEFT_MAP + WorldMapManager.WIDTH_MAP;
     }
 
     /**

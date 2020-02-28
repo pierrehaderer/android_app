@@ -11,7 +11,8 @@ public enum MapTile {
     BLOC_TOP_LOWER('d', false),
     BLOC_BOT_UPPER('U', false),
     BLOC_BOT_LOWER('D', false),
-    CAVE('g', true);
+    CAVE('g', true),
+    OUT_OF_BOUNDS('%', false);
 
     public char character;
     public boolean walkable;

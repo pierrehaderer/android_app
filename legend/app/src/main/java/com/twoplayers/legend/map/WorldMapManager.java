@@ -8,15 +8,19 @@ import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.ImageWorldMaps;
+import com.twoplayers.legend.assets.image.ImagesWorldMap;
 import com.twoplayers.legend.character.LinkManager;
+import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
+import com.twoplayers.legend.util.LocationUtil;
+import com.twoplayers.legend.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapManager implements IManager {
+public class WorldMapManager implements IManager {
 
     public static final int LEFT_MAP = 150;
     public static final int TOP_MAP = 103;
@@ -27,10 +31,11 @@ public class MapManager implements IManager {
 
     public static final float TRANSITION_SPEED = 4.0f;
 
-    private ImageWorldMaps imageWorldMaps;
+    private ImagesWorldMap imagesWorldMap;
 
     private GuiManager guiManager;
     private LinkManager linkManager;
+    private WorldMapEnemyManager worldMapEnemyManager;
 
     /** 8x16 MapScreens that represent the whole worldMap in this game */
     private List<List<MapScreen>> worldMap;
@@ -57,9 +62,10 @@ public class MapManager implements IManager {
     public void init(Game game) {
         guiManager = ((MainActivity) game).getGuiManager();
         linkManager = ((MainActivity) game).getLinkManager();
+        worldMapEnemyManager = ((MainActivity) game).getWorldMapEnemyManager();
 
-        imageWorldMaps = ((MainActivity) game).getAllImages().getImageWorldMaps();
-        imageWorldMaps.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+        imagesWorldMap = ((MainActivity) game).getAllImages().getImagesWorldMap();
+        imagesWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         MapTile.initHashMap();
         processWorldMapFile(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));
@@ -72,10 +78,10 @@ public class MapManager implements IManager {
         transitionRunning = false;
         leftCurrentMapScreen = LEFT_MAP;
         topCurrentMapScreen = TOP_MAP;
-        imageCurrentMapScreen = imageWorldMaps.get(currentAbsisse + "_" + currentOrdinate);
+        imageCurrentMapScreen = imagesWorldMap.get(currentAbsisse + "_" + currentOrdinate);
         leftNextMapScreen = LEFT_MAP;
         topNextMapScreen = TOP_MAP;
-        imageNextMapScreen = imageWorldMaps.get("empty");
+        imageNextMapScreen = imagesWorldMap.get("empty");
     }
 
     @Override
@@ -98,10 +104,11 @@ public class MapManager implements IManager {
                 topCurrentMapScreen = TOP_MAP;
                 currentAbsisse = nextAbsisse;
                 currentOrdinate = nextOrdinate;
-                imageNextMapScreen = imageWorldMaps.get("empty");
+                imageNextMapScreen = imagesWorldMap.get("empty");
                 leftNextMapScreen = LEFT_MAP;
                 topNextMapScreen = TOP_MAP;
                 transitionRunning = false;
+                worldMapEnemyManager.willLoadEnemies();
                 guiManager.activateButtons();
             }
         }
@@ -156,19 +163,24 @@ public class MapManager implements IManager {
 //        }
     }
 
-    public boolean isTileWalkable(float x, float y) {
+    public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
         MapScreen currentMapScreen = worldMap.get(currentOrdinate).get(currentAbsisse);
         int tileX = (int) Math.ceil((x - LEFT_MAP) / AllImages.COEF / 16f);
         int tileY = (int) Math.ceil((y - TOP_MAP) / AllImages.COEF / 16f);
         //Logger.debug("Tile checked (" + tileX + ", " + tileY + ")");
-        return currentMapScreen.getTile(tileX, tileY).walkable;
+        MapTile tile = currentMapScreen.getTile(tileX, tileY);
+        if (tile == MapTile.OUT_OF_BOUNDS && authorizeOutOfBound) {
+            return true;
+        }
+        return tile.walkable;
     }
 
     /**
-     * Execute a transition between two mapScreens
+     * Ask for a transition between two mapScreens
      */
     public void changeMapScreeen(Orientation orientation) {
         guiManager.deactivateButtons();
+        worldMapEnemyManager.unloadEnemies();
         switch (orientation) {
             case UP :
                 transitionCount = 176 * AllImages.COEF;
@@ -207,7 +219,29 @@ public class MapManager implements IManager {
                 transitionSpeedY = 0;
                 break;
         }
-        imageNextMapScreen = imageWorldMaps.get(nextAbsisse + "_" + nextOrdinate);
+        imageNextMapScreen = imagesWorldMap.get(nextAbsisse + "_" + nextOrdinate);
+        Logger.info("Starting screen transition to " + nextAbsisse + "_" + nextOrdinate);
         transitionRunning = true;
+    }
+
+    /**
+     * Find a tile where a enemy can spawn
+     */
+    public Coordinate findSpawnableCoordinate() {
+        float x = (float) (Math.floor(Math.random() * 16) * LocationUtil.TILE_SIZE + LEFT_MAP);
+        float y = (float) (Math.floor(Math.random() * 11) * LocationUtil.TILE_SIZE + TOP_MAP);
+        while (!isTileWalkable(x, y, false)) {
+            x = (float) (Math.floor(Math.random() * 16) * LocationUtil.TILE_SIZE + LEFT_MAP);
+            y = (float) (Math.floor(Math.random() * 11) * LocationUtil.TILE_SIZE + TOP_MAP);
+        }
+        return new Coordinate(x, y);
+    }
+
+    public int getCurrentAbsisse() {
+        return currentAbsisse;
+    }
+
+    public int getCurrentOrdinate() {
+        return currentOrdinate;
     }
 }

@@ -7,8 +7,9 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.sound.AllMusics;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.LinkManager;
+import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
-import com.twoplayers.legend.map.MapManager;
+import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.screen.SplashLoadingScreen;
 import com.kilobolt.framework.Screen;
 import com.kilobolt.framework.implementation.AndroidGame;
@@ -18,7 +19,8 @@ public class MainActivity extends AndroidGame {
 
     private AssetManager assetManager;
     private AllImages allImages;
-    private MapManager mapManager;
+    private WorldMapManager worldMapManager;
+    private WorldMapEnemyManager worldMapEnemyManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
     private AllSoundEffects allSoundEffects;
@@ -29,13 +31,14 @@ public class MainActivity extends AndroidGame {
         // THIS IS WHERE IT ALL STARTS !!!!!
         assetManager = getAssets();
         allImages = new AllImages();
-        mapManager = new MapManager();
+        worldMapManager = new WorldMapManager();
+        worldMapEnemyManager = new WorldMapEnemyManager();
         linkManager = new LinkManager();
         guiManager = new GuiManager();
         allSoundEffects = new AllSoundEffects();
         allMusics = new AllMusics();
         hideNavigationBar();
-        allImages.getImageOthers().loadSplashLoadingScreen(this.getGraphics());
+        allImages.getImageOther().loadSplashLoadingScreen(this.getGraphics());
         return new SplashLoadingScreen(this);
     }
 
@@ -82,12 +85,16 @@ public class MainActivity extends AndroidGame {
         return allImages;
     }
 
-    public LinkManager getLinkManager() {
-        return linkManager;
+    public WorldMapManager getWorldMapManager() {
+        return worldMapManager;
     }
 
-    public MapManager getMapManager() {
-        return mapManager;
+    public WorldMapEnemyManager getWorldMapEnemyManager() {
+        return worldMapEnemyManager;
+    }
+
+    public LinkManager getLinkManager() {
+        return linkManager;
     }
 
     public GuiManager getGuiManager() {

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ImageGui {
+public class ImagesGui {
 
     private Map<String, Image> images = new HashMap<>();
 

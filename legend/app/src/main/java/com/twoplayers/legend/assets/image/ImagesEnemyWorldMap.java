@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ImageLink {
+public class ImagesEnemyWorldMap {
 
     private Map<String, Image> images = new HashMap<>();
 
@@ -19,16 +19,16 @@ public class ImageLink {
      * Load all images.
      */
     public void load(AssetManager assetManager, Graphics g) {
-        Logger.info("Loading all link images.");
+        Logger.info("Loading all enemy images of world map.");
         try {
             images.put("empty", g.newImage("other/empty.png", ImageFormat.RGB565));
-            for (String fileName : assetManager.list("link")) {
+            for (String fileName : assetManager.list("enemy/world_map")) {
                 if (fileName.endsWith(".png")) {
-                    images.put(fileName.substring(0, fileName.length() - 4), g.newImage("link/" + fileName, ImageFormat.RGB565));
+                    images.put(fileName.substring(0, fileName.length() - 4), g.newImage("enemy/world_map/" + fileName, ImageFormat.RGB565));
                 }
             }
         } catch (IOException exception) {
-            Logger.error("Could not load link images.");
+            Logger.error("Could not load enemy images of world map.");
         }
     }
 

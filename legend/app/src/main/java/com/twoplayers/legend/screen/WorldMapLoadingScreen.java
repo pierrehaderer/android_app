@@ -20,7 +20,8 @@ public class WorldMapLoadingScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getMapManager().init(game);
+        ((MainActivity) game).getWorldMapManager().init(game);
+        ((MainActivity) game).getWorldMapEnemyManager().init(game);
         ((MainActivity) game).getLinkManager().init(game);
         ((MainActivity) game).getGuiManager().init(game);
         game.setScreen(new WorldMapScreen(game));

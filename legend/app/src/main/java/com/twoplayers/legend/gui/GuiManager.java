@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Input;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.assets.image.ImageGui;
+import com.twoplayers.legend.assets.image.ImagesGui;
 import com.twoplayers.legend.character.LinkManager;
 import com.twoplayers.legend.character.object.Arrow;
 import com.twoplayers.legend.character.object.Boomerang;
@@ -105,7 +105,7 @@ public class GuiManager implements IManager {
     private static final int TOP_DUNGEONMAP = 80;
 
     private Game game;
-    private ImageGui imageGui;
+    private ImagesGui imagesGui;
 
     private LinkManager linkManager;
 
@@ -128,10 +128,11 @@ public class GuiManager implements IManager {
      */
     public void init(Game game) {
         this.game = game;
-        imageGui = ((MainActivity) game).getAllImages().getImageGui();
-        imageGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         linkManager = ((MainActivity) game).getLinkManager();
+
+        imagesGui = ((MainActivity) game).getAllImages().getImagesGui();
+        imagesGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         buttonActivated = true;
         upPressed = false;
@@ -195,92 +196,92 @@ public class GuiManager implements IManager {
     @Override
     public void paint(float deltaTime, Graphics g) {
         // Draw background GUI
-        g.drawImage(imageGui.get("gui"), 0, 0);
+        g.drawImage(imagesGui.get("gui"), 0, 0);
 
         // Draw selected items
         if (linkManager.getLink().getSword() != Sword.NONE) {
-            g.drawScaledImage(imageGui.get(linkManager.getLink().getSword().name),LEFT_SWORD, TOP_SWORD, COEF_SELECTED_ITEMS);
+            g.drawScaledImage(imagesGui.get(linkManager.getLink().getSword().name),LEFT_SWORD, TOP_SWORD, COEF_SELECTED_ITEMS);
         }
         switch (cursor_position) {
             case 1:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getBoomerang().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getBoomerang().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 2:
-                g.drawScaledImage(imageGui.get("bomb"),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get("bomb"),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 3:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getBow().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getBow().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 4:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getLight().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getLight().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 5:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getFlute().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getFlute().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 6:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getMeat().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getMeat().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 7:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getPotion().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getPotion().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 8:
-                g.drawScaledImage(imageGui.get(linkManager.getLink().getScepter().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(linkManager.getLink().getScepter().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
         }
 
         // Draw inventory items
         if (linkManager.getLink().getBomb() > 0) {
-            g.drawImage(imageGui.get("bomb"), LEFT_BOMB, TOP_BOMB);
+            g.drawImage(imagesGui.get("bomb"), LEFT_BOMB, TOP_BOMB);
         }
         if (linkManager.getLink().getArrow() != Arrow.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getArrow().name),LEFT_ARROW, TOP_ARROW);
+            g.drawImage(imagesGui.get(linkManager.getLink().getArrow().name),LEFT_ARROW, TOP_ARROW);
         }
         if (linkManager.getLink().getBoomerang() != Boomerang.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getBoomerang().name),LEFT_BOOMERANG, TOP_BOOMERANG);
+            g.drawImage(imagesGui.get(linkManager.getLink().getBoomerang().name),LEFT_BOOMERANG, TOP_BOOMERANG);
         }
         if (linkManager.getLink().getBow() != Bow.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getBow().name),LEFT_BOW, TOP_BOW);
+            g.drawImage(imagesGui.get(linkManager.getLink().getBow().name),LEFT_BOW, TOP_BOW);
         }
         if (linkManager.getLink().getBracelet() != Bracelet.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getBracelet().name),LEFT_BRACELET, TOP_BRACELET);
+            g.drawImage(imagesGui.get(linkManager.getLink().getBracelet().name),LEFT_BRACELET, TOP_BRACELET);
         }
         if (linkManager.getLink().getCompass() != Compass.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getCompass().name),LEFT_COMPASS, TOP_COMPASS);
+            g.drawImage(imagesGui.get(linkManager.getLink().getCompass().name),LEFT_COMPASS, TOP_COMPASS);
         }
         if (linkManager.getLink().getDungeonMap() != DungeonMap.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getDungeonMap().name),LEFT_DUNGEONMAP, TOP_DUNGEONMAP);
+            g.drawImage(imagesGui.get(linkManager.getLink().getDungeonMap().name),LEFT_DUNGEONMAP, TOP_DUNGEONMAP);
         }
         if (linkManager.getLink().getFlute() != Flute.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getFlute().name),LEFT_FLUTE, TOP_FLUTE);
+            g.drawImage(imagesGui.get(linkManager.getLink().getFlute().name),LEFT_FLUTE, TOP_FLUTE);
         }
         if (linkManager.getLink().getInfiniteKey() != InfiniteKey.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getInfiniteKey().name),LEFT_INFINITEKEY, TOP_INFINITEKEY);
+            g.drawImage(imagesGui.get(linkManager.getLink().getInfiniteKey().name),LEFT_INFINITEKEY, TOP_INFINITEKEY);
         }
         if (linkManager.getLink().getLadder() != Ladder.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getLadder().name),LEFT_LADDER, TOP_LADDER);
+            g.drawImage(imagesGui.get(linkManager.getLink().getLadder().name),LEFT_LADDER, TOP_LADDER);
         }
         if (linkManager.getLink().getLight() != Light.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getLight().name),LEFT_LIGHT, TOP_LIGHT);
+            g.drawImage(imagesGui.get(linkManager.getLink().getLight().name),LEFT_LIGHT, TOP_LIGHT);
         }
         if (linkManager.getLink().getMeat() != Meat.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getMeat().name),LEFT_MEAT, TOP_MEAT);
+            g.drawImage(imagesGui.get(linkManager.getLink().getMeat().name),LEFT_MEAT, TOP_MEAT);
         }
         if (linkManager.getLink().getPotion() != Potion.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getPotion().name),LEFT_POTION, TOP_POTION);
+            g.drawImage(imagesGui.get(linkManager.getLink().getPotion().name),LEFT_POTION, TOP_POTION);
         }
         if (linkManager.getLink().getRaft() != Raft.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getRaft().name),LEFT_RAFT, TOP_RAFT);
+            g.drawImage(imagesGui.get(linkManager.getLink().getRaft().name),LEFT_RAFT, TOP_RAFT);
         }
         if (linkManager.getLink().getRing() != Ring.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getRing().name),LEFT_RING, TOP_RING);
+            g.drawImage(imagesGui.get(linkManager.getLink().getRing().name),LEFT_RING, TOP_RING);
         }
         if (linkManager.getLink().getScepter() != Scepter.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getScepter().name),LEFT_SCEPTER, TOP_SCEPTER);
+            g.drawImage(imagesGui.get(linkManager.getLink().getScepter().name),LEFT_SCEPTER, TOP_SCEPTER);
         }
         if (linkManager.getLink().getSpellBook() != SpellBook.NONE) {
-            g.drawImage(imageGui.get(linkManager.getLink().getSpellBook().name),LEFT_SPELLBOOK, TOP_SPELLBOOK);
+            g.drawImage(imagesGui.get(linkManager.getLink().getSpellBook().name),LEFT_SPELLBOOK, TOP_SPELLBOOK);
         }
-        g.drawImage(imageGui.get("cursor"),left_cursor, top_cursor);
+        g.drawImage(imagesGui.get("cursor"),left_cursor, top_cursor);
     }
 
     /**

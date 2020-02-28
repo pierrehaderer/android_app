@@ -1,7 +1,7 @@
 package com.twoplayers.legend.screen;
 
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.assets.image.ImageOthers;
+import com.twoplayers.legend.assets.image.ImageOther;
 import com.twoplayers.legend.assets.sound.AllMusics;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.util.Logger;
@@ -16,21 +16,21 @@ public class SplashLoadingScreen extends Screen {
     public static final int WIDTH_SCREEN = 548;
     public static final int HEIGHT_SCREEN = 480;
 
-    private ImageOthers imageOthers;
+    private ImageOther imageOther;
     private AllSoundEffects allSoundEffects;
     private AllMusics allMusics;
 
     public SplashLoadingScreen(Game game) {
         super(game);
         Logger.info("Entering SplashLoadingScreen.");
-        imageOthers = ((MainActivity) game).getAllImages().getImageOthers();
+        imageOther = ((MainActivity) game).getAllImages().getImageOther();
         allSoundEffects = ((MainActivity) game).getAllSoundEffects();
         allMusics = ((MainActivity) game).getAllMusics();
     }
 
     @Override
     public void update(float deltaTime) {
-        imageOthers.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+        imageOther.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         allSoundEffects.load(((MainActivity) game).getAssetManager(), game.getAudio());
         allMusics.load(((MainActivity) game).getAssetManager(), game.getAudio());
         game.setScreen(new IntroScreen(game));
@@ -39,7 +39,7 @@ public class SplashLoadingScreen extends Screen {
     @Override
     public void paint(float deltaTime) {
         Graphics g = game.getGraphics();
-        g.drawScaledImage(imageOthers.get("splash_screen"), LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN);
+        g.drawScaledImage(imageOther.get("splash_screen"), LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN);
     }
 
     @Override

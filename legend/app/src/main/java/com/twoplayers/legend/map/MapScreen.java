@@ -1,7 +1,5 @@
 package com.twoplayers.legend.map;
 
-import com.twoplayers.legend.util.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,21 +17,8 @@ public class MapScreen {
     }
 
     public MapTile getTile(int x, int y) {
-        if (x < 1) {
-            Logger.warn("Link is out of the map.");
-            x = 1;
-        }
-        if (x > 16) {
-            Logger.warn("Link is out of the map.");
-            x = 16;
-        }
-        if (y < 1) {
-            Logger.warn("Link is out of the map.");
-            y = 1;
-        }
-        if (y > 11) {
-            Logger.warn("Link is out of the map.");
-            y = 11;
+        if (x < 1 || x > 16 || y < 1 || y > 11) {
+            return MapTile.OUT_OF_BOUNDS;
         }
         return content.get(y).get(x);
     }
