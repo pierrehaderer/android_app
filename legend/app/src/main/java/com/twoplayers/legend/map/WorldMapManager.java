@@ -163,16 +163,30 @@ public class WorldMapManager implements IManager {
 //        }
     }
 
+    /**
+     * Check if a tile is walkable
+     */
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
         MapScreen currentMapScreen = worldMap.get(currentOrdinate).get(currentAbsisse);
-        int tileX = (int) Math.ceil((x - LEFT_MAP) / AllImages.COEF / 16f);
-        int tileY = (int) Math.ceil((y - TOP_MAP) / AllImages.COEF / 16f);
+        int tileX = (int) Math.ceil((x - LEFT_MAP) / LocationUtil.TILE_SIZE);
+        int tileY = (int) Math.ceil((y - TOP_MAP) / LocationUtil.TILE_SIZE);
         //Logger.debug("Tile checked (" + tileX + ", " + tileY + ")");
         MapTile tile = currentMapScreen.getTile(tileX, tileY);
         if (tile == MapTile.OUT_OF_BOUNDS && authorizeOutOfBound) {
             return true;
         }
         return tile.walkable;
+    }
+
+    /**
+     * Check if a tile is on the border of the map
+     */
+    public boolean isTileAtBorder(float x, float y) {
+        int tileX = (int) Math.ceil((x - LEFT_MAP) / LocationUtil.TILE_SIZE);
+        if (tileX == 1 || tileX == 16) return true;
+        int tileY = (int) Math.ceil((y - TOP_MAP) / LocationUtil.TILE_SIZE);
+        if (tileY == 1 || tileY == 11) return true;
+        return false;
     }
 
     /**
@@ -225,14 +239,18 @@ public class WorldMapManager implements IManager {
     }
 
     /**
-     * Find a tile where a enemy can spawn
+     * Find a tile where a enemy can spawn avoid map borders
      */
     public Coordinate findSpawnableCoordinate() {
-        float x = (float) (Math.floor(Math.random() * 16) * LocationUtil.TILE_SIZE + LEFT_MAP);
-        float y = (float) (Math.floor(Math.random() * 11) * LocationUtil.TILE_SIZE + TOP_MAP);
-        while (!isTileWalkable(x, y, false)) {
-            x = (float) (Math.floor(Math.random() * 16) * LocationUtil.TILE_SIZE + LEFT_MAP);
-            y = (float) (Math.floor(Math.random() * 11) * LocationUtil.TILE_SIZE + TOP_MAP);
+        /**  A counter to avoid infinite loop. */
+        int counter = 50;
+        float x = (float) (Math.floor(1 + Math.random() * 14) * LocationUtil.TILE_SIZE + LEFT_MAP + 1);
+        float y = (float) (Math.floor(1 + Math.random() * 9) * LocationUtil.TILE_SIZE + TOP_MAP + 1);
+        Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
+        while (counter-- > 0 && !isTileWalkable(x, y, false)) {
+            x = (float) (Math.floor(1 + Math.random() * 14) * LocationUtil.TILE_SIZE + LEFT_MAP + 1);
+            y = (float) (Math.floor(1 + Math.random() * 9) * LocationUtil.TILE_SIZE + TOP_MAP + 1);
+            Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
         }
         return new Coordinate(x, y);
     }

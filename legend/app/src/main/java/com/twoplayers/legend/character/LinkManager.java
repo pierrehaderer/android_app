@@ -178,7 +178,7 @@ public class LinkManager implements IManager {
      * Check if link can go up
      */
     private boolean isUpValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + LocationUtil.TILE_SIZE / 2;
+        float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
         return worldMapManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && worldMapManager.isTileWalkable(linkRight - 2, linkMiddle, true);
@@ -198,7 +198,7 @@ public class LinkManager implements IManager {
      * Check if link can go left
      */
     private boolean isLeftValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + LocationUtil.TILE_SIZE / 2;
+        float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
         return worldMapManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && worldMapManager.isTileWalkable(linkLeft + 2, linkBottom, true);
@@ -208,7 +208,7 @@ public class LinkManager implements IManager {
      * Check if link can go right
      */
     private boolean isRightValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + LocationUtil.TILE_SIZE / 2;
+        float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path

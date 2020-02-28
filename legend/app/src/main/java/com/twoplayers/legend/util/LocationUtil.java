@@ -7,6 +7,7 @@ import com.twoplayers.legend.map.WorldMapManager;
 public class LocationUtil {
 
     public static final float TILE_SIZE = 16 * AllImages.COEF;
+    public static final float HALF_TILE_SIZE = 8 * AllImages.COEF;
 
     public static boolean inBounds(TouchEvent event, int x, int y, int width, int height) {
         return (event.x > x && event.x < x + width - 1 && event.y > y && event.y < y + height - 1);

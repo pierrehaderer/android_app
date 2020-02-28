@@ -10,22 +10,26 @@ import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Octorok extends Enemy {
 
     public static final float RED_SPEED = 0.6f;
     public static final float BLUE_SPEED = 1.1f;
-    private static final float PAUSE_BEFORE_FIRST_MOVE = 100f;
+    private static final float PAUSE_BEFORE_FIRST_MOVE = 300f;
     private static final float PAUSE_BEFORE_ATTACK = 100f;
     private static final float MIN_TIME_BEFORE_ATTACK = 500.0f;
     private static final float MAX_TIME_BEFORE_ATTACK = 1000.0f;
 
-    private float timeBeforeAttack;
+    private static Map<Orientation, Orientation[][]> directionTree;
+
+    private boolean initNotDone;
     private float timeBeforeFirstMove;
+    private float timeBeforeAttack;
     private boolean isAttacking;
 
-    public Orientation orientation;
-    public Orientation nextOrientation;
+    private Orientation orientation;
+    private Orientation nextOrientation;
     private float speed;
     private float remainingMoves;
     private float nextTileX;
@@ -35,20 +39,105 @@ public class Octorok extends Enemy {
 
     public Octorok(ImagesEnemyWorldMap imagesEnemyWorldMap, Graphics g) {
         super(imagesEnemyWorldMap, g);
-        initMoveAnimation(g);
-        speed = RED_SPEED;
+        initAnimations(g);
+        initDirectionTree();
+        initNotDone = true;
+        timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
+        chooseTimeBeforeAttack();
         isAttacking = false;
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
-        currentAnimation = animations.get(orientation);
-        timeBeforeFirstMove = PAUSE_BEFORE_FIRST_MOVE;
+        speed = RED_SPEED;
+        currentAnimation = animations.get(Orientation.INIT);
+    }
+
+    /**
+     * Initialize the tree of direction which will ease direction decision
+     */
+    private void initDirectionTree() {
+        if(directionTree == null) {
+            directionTree = new HashMap<>();
+            Orientation[][] orientationUp = new Orientation[3][5];
+            orientationUp[0][0] = Orientation.DOWN;
+            orientationUp[1][0] = Orientation.LEFT;
+            orientationUp[2][0] = Orientation.RIGHT;
+            orientationUp[0][1] = Orientation.LEFT;
+            orientationUp[0][2] = Orientation.RIGHT;
+            orientationUp[1][1] = Orientation.DOWN;
+            orientationUp[1][2] = Orientation.RIGHT;
+            orientationUp[2][1] = Orientation.DOWN;
+            orientationUp[2][2] = Orientation.LEFT;
+            orientationUp[0][3] = Orientation.RIGHT;
+            orientationUp[0][4] = Orientation.LEFT;
+            orientationUp[1][3] = Orientation.RIGHT;
+            orientationUp[1][4] = Orientation.DOWN;
+            orientationUp[2][3] = Orientation.LEFT;
+            orientationUp[2][4] = Orientation.DOWN;
+            directionTree.put(Orientation.UP, orientationUp);
+            Orientation[][] orientationDown = new Orientation[3][5];
+            orientationDown[0][0] = Orientation.UP;
+            orientationDown[1][0] = Orientation.LEFT;
+            orientationDown[2][0] = Orientation.RIGHT;
+            orientationDown[0][1] = Orientation.LEFT;
+            orientationDown[0][2] = Orientation.RIGHT;
+            orientationDown[1][1] = Orientation.UP;
+            orientationDown[1][2] = Orientation.RIGHT;
+            orientationDown[2][1] = Orientation.UP;
+            orientationDown[2][2] = Orientation.LEFT;
+            orientationDown[0][3] = Orientation.RIGHT;
+            orientationDown[0][4] = Orientation.LEFT;
+            orientationDown[1][3] = Orientation.RIGHT;
+            orientationDown[1][4] = Orientation.UP;
+            orientationDown[2][3] = Orientation.LEFT;
+            orientationDown[2][4] = Orientation.UP;
+            directionTree.put(Orientation.DOWN, orientationDown);
+            Orientation[][] orientationLeft = new Orientation[3][5];
+            orientationLeft[0][0] = Orientation.UP;
+            orientationLeft[1][0] = Orientation.DOWN;
+            orientationLeft[2][0] = Orientation.RIGHT;
+            orientationLeft[0][1] = Orientation.DOWN;
+            orientationLeft[0][2] = Orientation.RIGHT;
+            orientationLeft[1][1] = Orientation.UP;
+            orientationLeft[1][2] = Orientation.RIGHT;
+            orientationLeft[2][1] = Orientation.UP;
+            orientationLeft[2][2] = Orientation.DOWN;
+            orientationLeft[0][3] = Orientation.RIGHT;
+            orientationLeft[0][4] = Orientation.DOWN;
+            orientationLeft[1][3] = Orientation.RIGHT;
+            orientationLeft[1][4] = Orientation.UP;
+            orientationLeft[2][3] = Orientation.DOWN;
+            orientationLeft[2][4] = Orientation.UP;
+            directionTree.put(Orientation.LEFT, orientationLeft);
+            Orientation[][] orientationRight = new Orientation[3][5];
+            orientationRight[0][0] = Orientation.UP;
+            orientationRight[1][0] = Orientation.DOWN;
+            orientationRight[2][0] = Orientation.LEFT;
+            orientationRight[0][1] = Orientation.DOWN;
+            orientationRight[0][2] = Orientation.LEFT;
+            orientationRight[1][1] = Orientation.UP;
+            orientationRight[1][2] = Orientation.LEFT;
+            orientationRight[2][1] = Orientation.UP;
+            orientationRight[2][2] = Orientation.DOWN;
+            orientationRight[0][3] = Orientation.LEFT;
+            orientationRight[0][4] = Orientation.DOWN;
+            orientationRight[1][3] = Orientation.LEFT;
+            orientationRight[1][4] = Orientation.UP;
+            orientationRight[2][3] = Orientation.DOWN;
+            orientationRight[2][4] = Orientation.UP;
+            directionTree.put(Orientation.RIGHT, orientationRight);
+        }
     }
 
     /**
      * Initialise the move animations
      */
-    private void initMoveAnimation(Graphics g) {
+    private void initAnimations(Graphics g) {
         animations = new HashMap<>();
+        Animation animationNone = g.newAnimation();
+        animationNone.addFrame(imagesEnemyWorldMap.get("cloud_1"), AllImages.COEF, 36);
+        animationNone.addFrame(imagesEnemyWorldMap.get("cloud_2"), AllImages.COEF, 12);
+        animationNone.addFrame(imagesEnemyWorldMap.get("cloud_3"), AllImages.COEF, 12);
+        animations.put(Orientation.INIT, animationNone);
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imagesEnemyWorldMap.get("red_octorok_up_1"), AllImages.COEF, 15);
         animationUp.addFrame(imagesEnemyWorldMap.get("red_octorok_up_2"), AllImages.COEF, 15);
@@ -70,22 +159,25 @@ public class Octorok extends Enemy {
     @Override
     public void update(float deltaTime, Graphics g, WorldMapManager worldMapManager) {
         // Init
-        if (timeBeforeFirstMove == PAUSE_BEFORE_FIRST_MOVE) {
+        if (initNotDone) {
+            initNotDone = false;
             nextTileX = x;
             nextTileY = y;
             chooseNextNextTile(worldMapManager);
-            chooseTimeBeforeAttack();
         }
 
         if (timeBeforeFirstMove > 0) {
             timeBeforeFirstMove -= deltaTime;
+            if (timeBeforeFirstMove <= 60) {
+                currentAnimation.update(deltaTime);
+            }
         } else {
             if (!isAttacking) {
                 // The enemy moves
                 remainingMoves = deltaTime * speed;
                 goToNextTile();
                 while (remainingMoves > 0) {
-                    Logger.debug("Octorok is on a new Tile (" + x + "," + y + ", " + timeBeforeAttack + ", " + timeBeforeFirstMove + ")");
+                    Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
                     nextTileX = nextNextTileX;
                     nextTileY = nextNextTileY;
                     orientation = nextOrientation;
@@ -101,15 +193,15 @@ public class Octorok extends Enemy {
                 // The enemy attacks
                 timeBeforeAttack -= deltaTime;
                 if (timeBeforeAttack < 0) {
-                    Logger.debug("Octorok is attacking (" + x + "," + y + ", " + timeBeforeAttack + ", " + timeBeforeFirstMove + ")");
+                    Logger.info("Octorok is attacking (" + x + "," + y + ")");
                     isAttacking = false;
                     // TODO ATTACK !!!!!
                     chooseTimeBeforeAttack();
                 }
             }
+            currentAnimation.update(deltaTime);
         }
 
-        currentAnimation.update(deltaTime);
     }
 
     /**
@@ -172,85 +264,68 @@ public class Octorok extends Enemy {
      * Randomly choose the next tile to go
      */
     private void chooseNextNextTile(WorldMapManager worldMapManager) {
-        int direction = (int) Math.floor(4 * Math.random());
-        switch (direction) {
-            case 0:
-                if (tryToChooseUpForNextNextTile(worldMapManager)) return;
-                if (tryToChooseDownForNextNextTile(worldMapManager)) return;
-                if (tryToChooseLeftForNextNextTile(worldMapManager)) return;
-                if (tryToChooseRightForNextNextTile(worldMapManager)) return;
-            case 1:
-                if (tryToChooseDownForNextNextTile(worldMapManager)) return;
-                if (tryToChooseLeftForNextNextTile(worldMapManager)) return;
-                if (tryToChooseRightForNextNextTile(worldMapManager)) return;
-                if (tryToChooseUpForNextNextTile(worldMapManager)) return;
-            case 2:
-                if (tryToChooseLeftForNextNextTile(worldMapManager)) return;
-                if (tryToChooseRightForNextNextTile(worldMapManager)) return;
-                if (tryToChooseUpForNextNextTile(worldMapManager)) return;
-                if (tryToChooseDownForNextNextTile(worldMapManager)) return;
-            case 3:
-                if (tryToChooseRightForNextNextTile(worldMapManager)) return;
-                if (tryToChooseUpForNextNextTile(worldMapManager)) return;
-                if (tryToChooseDownForNextNextTile(worldMapManager)) return;
-                if (tryToChooseLeftForNextNextTile(worldMapManager)) return;
-            default:
-                // Should never happen, it means monster is stuck somewhere
-                remainingMoves = 0;
+        // 1 chance out of 2 to continue if possible.
+        if (Math.random() > 0.5) {
+            if (tryToChooseThisOrientationForNextNextTile(orientation, worldMapManager)) return;
         }
+        // Either the enemy has chosen to change direction or continue is not possible
+        int direction1 = (int) (Math.floor(3 * Math.random()));
+        int direction2 = (int) (Math.floor(2 * Math.random()));
+        Orientation orientation1 = directionTree.get(orientation)[direction1][0];
+        if (tryToChooseThisOrientationForNextNextTile(orientation1, worldMapManager)) return;
+        Orientation orientation2 = directionTree.get(orientation)[direction1][direction2 + 1];
+        if (tryToChooseThisOrientationForNextNextTile(orientation2, worldMapManager)) return;
+        Orientation orientation3 = directionTree.get(orientation)[direction1][direction2 + 3];
+        if (tryToChooseThisOrientationForNextNextTile(orientation3, worldMapManager)) return;
+
+        // Should never happen, it means monster is stuck somewhere
+        remainingMoves = 0;
     }
 
     /**
-     * Try to choose up. +2 to be sure we are not at the boundaries of 2 tiles.
+     * Try to choose an orientation. +HALF_TILE_SIZE to be sure we are not at the boundaries of 2 tiles.
      */
-    private boolean tryToChooseUpForNextNextTile(WorldMapManager worldMapManager) {
-        if (worldMapManager.isTileWalkable(nextTileX + 2, nextTileY - LocationUtil.TILE_SIZE + 2, false)) {
-            nextNextTileX = nextTileX;
-            nextNextTileY = nextTileY - LocationUtil.TILE_SIZE;
-            nextOrientation = Orientation.UP;
-            return true;
+    private boolean tryToChooseThisOrientationForNextNextTile(Orientation chosenOrientation, WorldMapManager worldMapManager) {
+        float nextTileXCandidate = nextTileX;
+        float nextTileYCandidate = nextTileY;
+        switch (chosenOrientation) {
+            case UP:
+                nextTileYCandidate = nextTileY - LocationUtil.TILE_SIZE;
+                break;
+            case DOWN:
+                nextTileYCandidate = nextTileY + LocationUtil.TILE_SIZE;
+                break;
+            case LEFT:
+                nextTileXCandidate = nextTileX - LocationUtil.TILE_SIZE;
+                break;
+            case RIGHT:
+                nextTileXCandidate = nextTileX + LocationUtil.TILE_SIZE;
+        }
+        switch (chosenOrientation) {
+            case UP:
+            case DOWN:
+                if ((worldMapManager.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
+                        || !worldMapManager.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE))
+                        && worldMapManager.isTileWalkable(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE, false)) {
+                    nextNextTileX = nextTileX;
+                    nextNextTileY = nextTileYCandidate;
+                    nextOrientation = chosenOrientation;
+                    return true;
+                }
+                break;
+            case LEFT:
+            case RIGHT:
+                if ((worldMapManager.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
+                        || !worldMapManager.isTileAtBorder(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE))
+                        && worldMapManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE, false)) {
+                    nextNextTileX = nextTileXCandidate;
+                    nextNextTileY = nextTileY;
+                    nextOrientation = chosenOrientation;
+                    return true;
+                }
+                break;
         }
         return false;
     }
 
-    /**
-     * Try to choose down. +2 to be sure we are not at the boundaries of 2 tiles.
-     */
-    private boolean tryToChooseDownForNextNextTile(WorldMapManager worldMapManager) {
-        // Try to go down. +2 to be sure we are not at the boundaries of 2 tiles.
-        if (worldMapManager.isTileWalkable(nextTileX + 2, nextTileY + LocationUtil.TILE_SIZE + 2, false)) {
-            nextNextTileX = nextTileX;
-            nextNextTileY = nextTileY + LocationUtil.TILE_SIZE;
-            nextOrientation = Orientation.DOWN;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Try to choose left. +2 to be sure we are not at the boundaries of 2 tiles.
-     */
-    private boolean tryToChooseLeftForNextNextTile(WorldMapManager worldMapManager) {
-        // Try to go left. +2 to be sure we are not at the boundaries of 2 tiles.
-        if (worldMapManager.isTileWalkable(nextTileX - LocationUtil.TILE_SIZE + 2, nextTileY + 2, false)) {
-            nextNextTileX = nextTileX - LocationUtil.TILE_SIZE;
-            nextNextTileY = nextTileY;
-            nextOrientation = Orientation.LEFT;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Try to choose right. +2 to be sure we are not at the boundaries of 2 tiles.
-     */
-    private boolean tryToChooseRightForNextNextTile(WorldMapManager worldMapManager) {
-        if (worldMapManager.isTileWalkable(nextTileX + LocationUtil.TILE_SIZE + 2, nextTileY + 2, false)) {
-            nextNextTileX = nextTileX + LocationUtil.TILE_SIZE;
-            nextNextTileY = nextTileY;
-            nextOrientation = Orientation.RIGHT;
-            return true;
-        }
-        return false;
-    }
 }

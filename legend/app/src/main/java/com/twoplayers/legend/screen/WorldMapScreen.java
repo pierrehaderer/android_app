@@ -42,8 +42,8 @@ public class WorldMapScreen extends Screen {
     public void paint(float deltaTime) {
         game.getGraphics().drawRect(0, 0, WIDTH_PHONE_SCREEN + 1, HEIGHT_PHONE_SCREEN + 1, Color.BLACK);
         worldMapManager.paint(deltaTime, game.getGraphics());
-        linkManager.paint(deltaTime, game.getGraphics());
         worldMapEnemyManager.paint(deltaTime, game.getGraphics());
+        linkManager.paint(deltaTime, game.getGraphics());
         guiManager.paint(deltaTime, game.getGraphics());
     }
 
