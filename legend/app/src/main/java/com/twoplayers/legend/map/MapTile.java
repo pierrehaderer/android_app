@@ -12,6 +12,9 @@ public enum MapTile {
     BLOC_BOT_UPPER('U', false),
     BLOC_BOT_LOWER('D', false),
     CAVE('g', true),
+    WATER('w', false),
+    STATUE('s', false),
+    TOMB('t', false),
     OUT_OF_BOUNDS('%', false);
 
     public char character;

@@ -17,7 +17,6 @@ import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WorldMapManager implements IManager {
@@ -37,13 +36,16 @@ public class WorldMapManager implements IManager {
     private LinkManager linkManager;
     private WorldMapEnemyManager worldMapEnemyManager;
 
-    /** 8x16 MapScreens that represent the whole worldMap in this game */
-    private List<List<MapScreen>> worldMap;
+    /** 16x8 MapScreens that represent the whole worldMap in this game */
+    private MapScreen[][] worldMap;
+    private Boolean[][] exploredWorldMap;
 
     private int currentAbsisse;
     private int currentOrdinate;
     private int nextAbsisse;
     private int nextOrdinate;
+    private float currentMiniAbsisse;
+    private float currentMiniOrdinate;
 
     private boolean transitionRunning;
     private float transitionCount;
@@ -68,17 +70,19 @@ public class WorldMapManager implements IManager {
         imagesWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         MapTile.initHashMap();
-        processWorldMapFile(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));
+        initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));
 
-        currentAbsisse = 8;
-        currentOrdinate = 8;
-        nextAbsisse = 8;
-        nextOrdinate = 8;
+        currentAbsisse = 7;
+        currentOrdinate = 7;
+        nextAbsisse = 7;
+        nextOrdinate = 7;
+        currentMiniAbsisse = 16 * currentAbsisse;
+        currentMiniOrdinate = 11 * currentOrdinate;
 
         transitionRunning = false;
         leftCurrentMapScreen = LEFT_MAP;
         topCurrentMapScreen = TOP_MAP;
-        imageCurrentMapScreen = imagesWorldMap.get(currentAbsisse + "_" + currentOrdinate);
+        imageCurrentMapScreen = imagesWorldMap.get(String.valueOf(currentAbsisse) + currentOrdinate);
         leftNextMapScreen = LEFT_MAP;
         topNextMapScreen = TOP_MAP;
         imageNextMapScreen = imagesWorldMap.get("empty");
@@ -90,10 +94,12 @@ public class WorldMapManager implements IManager {
             float transitionDeltaX = transitionSpeedX * deltaTime;
             float transitionDeltaY = transitionSpeedY * deltaTime;
             transitionCount -= Math.abs(transitionDeltaX + transitionDeltaY);
-            this.leftCurrentMapScreen += transitionDeltaX;
-            leftNextMapScreen += transitionDeltaX;
+            leftCurrentMapScreen += transitionDeltaX;
             topCurrentMapScreen += transitionDeltaY;
+            leftNextMapScreen += transitionDeltaX;
             topNextMapScreen += transitionDeltaY;
+            currentMiniAbsisse -= transitionDeltaX * 16 / WIDTH_MAP;
+            currentMiniOrdinate -= transitionDeltaY * 16 / WIDTH_MAP;
 
             linkManager.moveLink(transitionDeltaX, transitionDeltaY);
 
@@ -104,9 +110,9 @@ public class WorldMapManager implements IManager {
                 topCurrentMapScreen = TOP_MAP;
                 currentAbsisse = nextAbsisse;
                 currentOrdinate = nextOrdinate;
+                currentMiniAbsisse = 16 * currentAbsisse;
+                currentMiniOrdinate = 11 * currentOrdinate;
                 imageNextMapScreen = imagesWorldMap.get("empty");
-                leftNextMapScreen = LEFT_MAP;
-                topNextMapScreen = TOP_MAP;
                 transitionRunning = false;
                 worldMapEnemyManager.willLoadEnemies();
                 guiManager.activateButtons();
@@ -126,25 +132,25 @@ public class WorldMapManager implements IManager {
     /**
      * Create all the MapScreen objects from the world_map file
      */
-    private void processWorldMapFile(List<String> worldMapFileContent) {
-        worldMap = new ArrayList<>();
+    private void initWorldMap(List<String> worldMapFileContent) {
+        worldMap = new MapScreen[16][8];
+        exploredWorldMap = new Boolean[16][8];
 
         // Initialise the mapScreens
-        for (int index1 = 0; index1 <= 8; index1++) {
-            List<MapScreen> mapScreens = new ArrayList<>();
-            for (int index2 = 0; index2 <= 16; index2++) {
-                mapScreens.add(new MapScreen());
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 8; j++) {
+                worldMap[i][j] = (new MapScreen());
+                exploredWorldMap[i][j] = false;
             }
-            worldMap.add(mapScreens);
         }
+        exploredWorldMap[7][7] = true;
 
         // Fill the mapScreens, line by line
         int indexLine = 0;
         for (int index1 = 0; index1 < 8; index1 = index1) {
             String line = worldMapFileContent.get(indexLine++);
             for (int index2 = 0; index2 < 16; index2++) {
-                // +1 are added to avoid using the index 0.
-                worldMap.get(index1 + 1).get(index2 + 1).addALine(line.substring(17 * index2, 17 * index2 + 16));
+                worldMap[index2][index1].addALine(line.substring(17 * index2, 17 * index2 + 16));
             }
             // Jump over the delimiter line and go to next line of mapScreens
             if (indexLine % 12 == 11) {
@@ -152,22 +158,13 @@ public class WorldMapManager implements IManager {
                 index1++;
             }
         }
-
-// Log the content of a mapScreen if necessary
-//        for (int i = 1; i <= 11; i++) {
-//            String line = "";
-//            for (int j = 1; j <= 16; j++) {
-//                line += getMapScreen(8, 8).getContent().get(i).get(j).character;
-//            }
-//            Logger.debug(line);
-//        }
     }
 
     /**
      * Check if a tile is walkable
      */
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
-        MapScreen currentMapScreen = worldMap.get(currentOrdinate).get(currentAbsisse);
+        MapScreen currentMapScreen = worldMap[currentAbsisse][currentOrdinate];
         int tileX = (int) Math.ceil((x - LEFT_MAP) / LocationUtil.TILE_SIZE);
         int tileY = (int) Math.ceil((y - TOP_MAP) / LocationUtil.TILE_SIZE);
         //Logger.debug("Tile checked (" + tileX + ", " + tileY + ")");
@@ -233,8 +230,9 @@ public class WorldMapManager implements IManager {
                 transitionSpeedY = 0;
                 break;
         }
-        imageNextMapScreen = imagesWorldMap.get(nextAbsisse + "_" + nextOrdinate);
-        Logger.info("Starting screen transition to " + nextAbsisse + "_" + nextOrdinate);
+        imageNextMapScreen = imagesWorldMap.get(String.valueOf(nextAbsisse) + nextOrdinate);
+        Logger.info("Starting screen transition to " + nextAbsisse + nextOrdinate);
+        exploredWorldMap[nextAbsisse][nextOrdinate] = true;
         transitionRunning = true;
     }
 
@@ -255,11 +253,26 @@ public class WorldMapManager implements IManager {
         return new Coordinate(x, y);
     }
 
+    /**
+     * Return true if the mapScreen has been explored
+     */
+    public boolean isExplored(int x, int y) {
+        return exploredWorldMap[x][y];
+    }
+
     public int getCurrentAbsisse() {
         return currentAbsisse;
     }
 
     public int getCurrentOrdinate() {
         return currentOrdinate;
+    }
+
+    public float getCurrentMiniAbsisse() {
+        return currentMiniAbsisse;
+    }
+
+    public float getCurrentMiniOrdinate() {
+        return currentMiniOrdinate;
     }
 }

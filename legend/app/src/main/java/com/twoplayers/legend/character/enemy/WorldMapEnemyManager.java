@@ -70,7 +70,7 @@ public class WorldMapEnemyManager implements IManager {
     @Override
     public void update(float deltaTime, Graphics g) {
         if (loadingEnemies) {
-            String enemiesAsString = enemiesProperties.getProperty(worldMapManager.getCurrentAbsisse() + "_" + worldMapManager.getCurrentOrdinate());
+            String enemiesAsString = enemiesProperties.getProperty(String.valueOf(worldMapManager.getCurrentAbsisse()) + worldMapManager.getCurrentOrdinate());
             Logger.info("Enemies in properties : " + enemiesAsString);
             if (enemiesAsString != null) {
                 for (String enemyAsString : enemiesAsString.split("\\|")) {

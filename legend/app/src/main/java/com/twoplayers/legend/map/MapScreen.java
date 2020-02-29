@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 11x16 Tiles that represent a screen in this game
+ * 16x11 Tiles that represent a screen in this game
  */
 public class MapScreen {
 
