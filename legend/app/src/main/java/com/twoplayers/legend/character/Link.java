@@ -32,16 +32,18 @@ public class Link {
 
     private ImagesLink imagesLink;
 
+    protected Animation currentAnimation;
+    protected Map<Orientation, Animation> moveAnimations;
+    protected Map<Sword, Map<Orientation, Animation>> attackAnimations;
+
     public float x;
     public float y;
     public Orientation orientation;
 
     public boolean isAttacking;
 
-    protected Animation currentAnimation;
-    protected Map<Orientation, Animation> moveAnimations;
-    protected Map<Sword, Map<Orientation, Animation>> attackAnimations;
-
+    protected float life;
+    protected float lifeMax;
     protected Arrow arrow;
     protected int bomb;
     protected Boomerang boomerang;
@@ -133,6 +135,14 @@ public class Link {
         animationRight.addFrame(imagesLink.get("link_wood_sword_right_4"), AllImages.COEF, 4);
         animationRight.setOccurrences(1);
         attackAnimations.get(Sword.WOOD).put(Orientation.RIGHT, animationRight);
+    }
+
+    public float getLife() {
+        return life;
+    }
+
+    public float getLifeMax() {
+        return lifeMax;
     }
 
     public Arrow getArrow() {

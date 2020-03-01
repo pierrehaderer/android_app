@@ -58,6 +58,9 @@ public class LinkManager implements IManager {
         link.currentAnimation = link.moveAnimations.get(link.orientation);
         link.isAttacking = false;
 
+        link.life = 3;
+        link.lifeMax = 3;
+
         link.arrow = Arrow.WOOD;
         link.bomb = 4;
         link.boomerang = Boomerang.WOOD; //TODO Change it when it can be collected
@@ -250,5 +253,21 @@ public class LinkManager implements IManager {
      */
     public Link getLink() {
         return link;
+    }
+
+    /**
+     * Increase Link life max by 1
+     */
+    public void increaseLinkLifeMax() {
+        if (link.lifeMax < 16) {
+            link.lifeMax++;
+        }
+    }
+
+    /**
+     * Increase Link life
+     */
+    public void changeLinkLife(float value) {
+        link.life = Math.min(link.lifeMax, link.life + value);
     }
 }
