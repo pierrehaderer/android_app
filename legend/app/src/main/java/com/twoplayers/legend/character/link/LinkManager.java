@@ -1,12 +1,15 @@
-package com.twoplayers.legend.character;
+package com.twoplayers.legend.character.link;
+
+import android.graphics.Color;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.character.object.Arrow;
 import com.twoplayers.legend.character.object.Boomerang;
 import com.twoplayers.legend.character.object.Bow;
@@ -34,6 +37,7 @@ public class LinkManager implements IManager {
 
     private GuiManager guiManager;
     private WorldMapManager worldMapManager;
+    private WorldMapEnemyManager worldMapEnemyManager;
 
     private AllSoundEffects allSoundEffects;
 
@@ -45,6 +49,7 @@ public class LinkManager implements IManager {
     public void init(Game game) {
         guiManager = ((MainActivity) game).getGuiManager();
         worldMapManager = ((MainActivity) game).getWorldMapManager();
+        worldMapEnemyManager = ((MainActivity) game).getWorldMapEnemyManager();
 
         ImagesLink imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
         imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
@@ -53,6 +58,7 @@ public class LinkManager implements IManager {
         link = new Link(imagesLink, game.getGraphics());
         link.x = LocationUtil.getXFromGrid(8);
         link.y = LocationUtil.getYFromGrid(6);
+        link.hitbox.relocate(link.x, link.y);
         Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
         link.orientation = Orientation.UP;
         link.currentAnimation = link.moveAnimations.get(link.orientation);
@@ -61,9 +67,10 @@ public class LinkManager implements IManager {
         link.life = 3;
         link.lifeMax = 3;
 
+        //TODO Change it when it can be collected
         link.arrow = Arrow.WOOD;
         link.bomb = 4;
-        link.boomerang = Boomerang.WOOD; //TODO Change it when it can be collected
+        link.boomerang = Boomerang.WOOD;
         link.bow = Bow.BOW;
         link.bracelet = Bracelet.BRACELET;
         link.compass = Compass.COMPASS;
@@ -71,28 +78,29 @@ public class LinkManager implements IManager {
         link.flute = Flute.FLUTE;
         link.infiniteKey = InfiniteKey.KEY;
         link.ladder = Ladder.LADDER;
-        link.light = Light.BLUE; //TODO Change it when it can be collected
+        link.light = Light.BLUE;
         link.meat = Meat.MEAT;
         link.potion = Potion.NOTE;
         link.raft = Raft.RAFT;
         link.ring = Ring.RED;
         link.scepter = Scepter.SCEPTER;
         link.spellBook = SpellBook.BOOK;
-        link.sword = Sword.WOOD; //TODO Change it when it can be collected
+        link.sword = Sword.WOOD;
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (!link.isAttacking) {
+        if (!link.isAttacking && !link.isPushed) {
+            // Movement of Link
             if (guiManager.isUpPressed()) {
                 link.orientation = Orientation.UP;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float nextY = link.y - Link.LINK_SPEED * deltaTime;
-                if (isUpValid(link.x, nextY)) {
-                    link.y = nextY;
+                float deltaY = -1 * Link.LINK_SPEED * deltaTime;
+                if (isUpValid(link.x, link.y + deltaY)) {
+                    moveLinkY(deltaY);
                 }
-                if (isUpOutOfMap(nextY)) {
+                if (isUpOutOfMap(link.y + deltaY)) {
                     worldMapManager.changeMapScreeen(Orientation.UP);
                 }
             }
@@ -100,11 +108,11 @@ public class LinkManager implements IManager {
                 link.orientation = Orientation.DOWN;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float nextY = link.y + Link.LINK_SPEED * deltaTime;
-                if (isDownValid(link.x, nextY)) {
-                    link.y = nextY;
+                float deltaY = Link.LINK_SPEED * deltaTime;
+                if (isDownValid(link.x, link.y + deltaY)) {
+                    moveLinkY(deltaY);
                 }
-                if (isDownOutOfMap(nextY)) {
+                if (isDownOutOfMap(link.y + deltaY)) {
                     worldMapManager.changeMapScreeen(Orientation.DOWN);
                 }
             }
@@ -112,11 +120,11 @@ public class LinkManager implements IManager {
                 link.orientation = Orientation.LEFT;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float nextX = link.x - Link.LINK_SPEED * deltaTime;
-                if (isLeftValid(nextX, link.y)) {
-                    link.x = nextX;
+                float deltaX = -1 * Link.LINK_SPEED * deltaTime;
+                if (isLeftValid(link.x + deltaX, link.y)) {
+                    moveLinkX(deltaX);
                 }
-                if (isLeftOutOfMap(nextX)) {
+                if (isLeftOutOfMap(link.x + deltaX)) {
                     worldMapManager.changeMapScreeen(Orientation.LEFT);
                 }
             }
@@ -124,20 +132,24 @@ public class LinkManager implements IManager {
                 link.orientation = Orientation.RIGHT;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float nextX = link.x + Link.LINK_SPEED * deltaTime;
-                if (isRightValid(nextX, link.y)) {
-                    link.x = nextX;
+                float deltaX = Link.LINK_SPEED * deltaTime;
+                if (isRightValid(link.x + deltaX, link.y)) {
+                    moveLinkX(deltaX);
                 }
-                if (isRightOutOfMap(nextX)) {
+                if (isRightOutOfMap(link.x + deltaX)) {
                     worldMapManager.changeMapScreeen(Orientation.RIGHT);
                 }
             }
+        }
+
+        // Attack of link
+        if (!link.isAttacking) {
+            // Start of link's attack
             if (guiManager.isaPressed() && link.sword != Sword.NONE) {
                 link.isAttacking = true;
                 link.currentAnimation = link.attackAnimations.get(link.sword).get(link.orientation);
                 link.currentAnimation.reset();
                 allSoundEffects.get("sword").play(0.75f);
-
             }
         }
         if (link.isAttacking) {
@@ -147,17 +159,67 @@ public class LinkManager implements IManager {
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
             }
         }
+
+        // Link is wounded
+        if (link.isInvincible) {
+            Logger.info("Link is invincible, remaining counter : " + link.invicibleCounter);
+            link.invicibleCounter -= deltaTime;
+            if (link.invicibleCounter < 0) {
+                link.isInvincible = false;
+            }
+        }
+        if (!link.isInvincible) {
+            for (Enemy enemy : worldMapEnemyManager.getEnemies()) {
+                if (enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
+                    Logger.info("Link has collided with enemy : " + enemy.getClass());
+                    Logger.info("Hitbox link : " + link.hitbox.x + "," + link.hitbox.y + "," + link.hitbox.width + "," + link.hitbox.height);
+                    Logger.info("Hitbox enemy : " + enemy.getHitbox().x + "," + enemy.getHitbox().y + "," + enemy.getHitbox().width + "," + enemy.getHitbox().height);
+                    updateLinkLife(enemy.getContactDamage());
+                    link.isInvincible = true;
+                    link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
+                    link.isPushed = true;
+                    link.pushCounter = Link.INITIAL_PUSH_COUNT;
+                    Float[] pushDirections = LocationUtil.computePushDirections(enemy.getHitbox(), link.hitbox);
+                    link.pushX = pushDirections[0];
+                    link.pushY = pushDirections[1];
+                    Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
+                    break;
+                }
+            }
+        }
+        if (link.isPushed) {
+            Logger.info("Link is pushed, remaining counter : " + link.pushCounter);
+            if (link.orientation == Orientation.UP || link.orientation == Orientation.DOWN) {
+                float deltaY = Link.PUSH_SPEED * link.pushY * deltaTime;
+                if ((deltaY > 0 && isDownValid(link.x, link.y + deltaY))
+                        || (deltaY < 0 && isUpValid(link.x, link.y + deltaY))) {
+                    moveLinkY(deltaY);
+                }
+            }
+            if (link.orientation == Orientation.LEFT || link.orientation == Orientation.RIGHT) {
+                float deltaX = Link.PUSH_SPEED * link.pushX * deltaTime;
+                if ((deltaX > 0 && isRightValid(link.x + deltaX, link.y))
+                        || (deltaX < 0 && isLeftValid(link.x + deltaX, link.y))) {
+                    moveLinkX(deltaX);
+                }
+            }
+            link.pushCounter -= deltaTime;
+            if (link.pushCounter < 0) {
+                link.isPushed = false;
+            }
+        }
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+        //g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Color.GREEN);
     }
 
     /**
      * Ask LinkManager to move link
      */
-    public void moveLink(float deltaX, float deltaY) {
+    public void moveLinkX(float deltaX) {
         float nextX = link.x + deltaX;
         if (isLeftOutOfMap(nextX)) {
             link.x = WorldMapManager.LEFT_MAP;
@@ -166,7 +228,13 @@ public class LinkManager implements IManager {
         } else {
             link.x = nextX;
         }
+        link.hitbox.x = link.x + link.hitbox.x_offset;
+    }
 
+    /**
+     * Ask LinkManager to move link
+     */
+    public void moveLinkY(float deltaY) {
         float nextY = link.y + deltaY;
         if (isUpOutOfMap(nextY)) {
             link.y = WorldMapManager.TOP_MAP;
@@ -175,6 +243,7 @@ public class LinkManager implements IManager {
         } else {
             link.y = nextY;
         }
+        link.hitbox.y = link.y + link.hitbox.y_offset;
     }
 
     /**
@@ -198,7 +267,7 @@ public class LinkManager implements IManager {
     }
 
     /**
-     * Check if link can go left
+     * Check if link can go x
      */
     private boolean isLeftValid(float linkLeft, float linkTop) {
         float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
@@ -234,7 +303,7 @@ public class LinkManager implements IManager {
     }
 
     /**
-     * Check if link is going to the next screen left
+     * Check if link is going to the next screen x
      */
     private boolean isLeftOutOfMap(float linkLeft) {
         return linkLeft < WorldMapManager.LEFT_MAP;
@@ -267,7 +336,7 @@ public class LinkManager implements IManager {
     /**
      * Increase Link life
      */
-    public void changeLinkLife(float value) {
+    public void updateLinkLife(float value) {
         link.life = Math.min(link.lifeMax, link.life + value);
     }
 }

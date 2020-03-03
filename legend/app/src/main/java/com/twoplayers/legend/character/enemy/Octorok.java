@@ -4,6 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.map.Orientation;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.LocationUtil;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 public class Octorok extends Enemy {
 
+//    public static final float RED_SPEED = 0.1f;
     public static final float RED_SPEED = 0.6f;
     public static final float BLUE_SPEED = 1.1f;
     private static final float PAUSE_BEFORE_FIRST_MOVE = 300f;
@@ -47,6 +49,8 @@ public class Octorok extends Enemy {
         isAttacking = false;
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
+        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        contactDamage = -0.5f;
         speed = RED_SPEED;
         currentAnimation = animations.get(Orientation.INIT);
     }
@@ -171,13 +175,16 @@ public class Octorok extends Enemy {
             if (timeBeforeFirstMove <= 60) {
                 currentAnimation.update(deltaTime);
             }
+            if (timeBeforeFirstMove <= 0) {
+                isContactLethal = true;
+            }
         } else {
             if (!isAttacking) {
                 // The enemy moves
                 remainingMoves = deltaTime * speed;
                 goToNextTile();
                 while (remainingMoves > 0) {
-                    Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
+                    //Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
                     nextTileX = nextNextTileX;
                     nextTileY = nextNextTileY;
                     orientation = nextOrientation;
@@ -226,6 +233,7 @@ public class Octorok extends Enemy {
                     y -= remainingMoves;
                     remainingMoves = 0;
                 }
+                hitbox.y = y + hitbox.y_offset;
                 break;
             case DOWN:
                 nextTileIsReachable = (y + remainingMoves > nextTileY);
@@ -236,6 +244,7 @@ public class Octorok extends Enemy {
                     y += remainingMoves;
                     remainingMoves = 0;
                 }
+                hitbox.y = y + hitbox.y_offset;
                 break;
             case LEFT:
                 nextTileIsReachable = (x - remainingMoves < nextTileX);
@@ -246,6 +255,7 @@ public class Octorok extends Enemy {
                     x -= remainingMoves;
                     remainingMoves = 0;
                 }
+                hitbox.x = x + hitbox.x_offset;
                 break;
             case RIGHT:
                 nextTileIsReachable = (x + remainingMoves > nextTileX);
@@ -256,6 +266,7 @@ public class Octorok extends Enemy {
                     x += remainingMoves;
                     remainingMoves = 0;
                 }
+                hitbox.x = x + hitbox.x_offset;
                 break;
         }
     }

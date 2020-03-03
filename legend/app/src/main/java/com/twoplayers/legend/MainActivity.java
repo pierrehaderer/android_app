@@ -6,7 +6,7 @@ import android.view.View;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.sound.AllMusics;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
-import com.twoplayers.legend.character.LinkManager;
+import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.WorldMapManager;

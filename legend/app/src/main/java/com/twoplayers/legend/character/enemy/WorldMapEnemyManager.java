@@ -1,41 +1,18 @@
 package com.twoplayers.legend.character.enemy;
 
+import android.graphics.Color;
+
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
-import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
-import com.twoplayers.legend.character.Link;
-import com.twoplayers.legend.character.enemy.Enemy;
-import com.twoplayers.legend.character.object.Arrow;
-import com.twoplayers.legend.character.object.Boomerang;
-import com.twoplayers.legend.character.object.Bow;
-import com.twoplayers.legend.character.object.Bracelet;
-import com.twoplayers.legend.character.object.Compass;
-import com.twoplayers.legend.character.object.DungeonMap;
-import com.twoplayers.legend.character.object.Flute;
-import com.twoplayers.legend.character.object.InfiniteKey;
-import com.twoplayers.legend.character.object.Ladder;
-import com.twoplayers.legend.character.object.Light;
-import com.twoplayers.legend.character.object.Meat;
-import com.twoplayers.legend.character.object.Potion;
-import com.twoplayers.legend.character.object.Raft;
-import com.twoplayers.legend.character.object.Ring;
-import com.twoplayers.legend.character.object.Scepter;
-import com.twoplayers.legend.character.object.SpellBook;
-import com.twoplayers.legend.character.object.Sword;
-import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.WorldMapManager;
-import com.twoplayers.legend.map.Orientation;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
-import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -82,6 +59,7 @@ public class WorldMapEnemyManager implements IManager {
                             Logger.debug("Spawning " + enemyAsString + " at (" + coordinate.x + "," + coordinate.y + ")");
                             enemy.x = coordinate.x;
                             enemy.y = coordinate.y;
+                            enemy.hitbox.relocate(enemy.x, enemy.y);
                             enemies.add(enemy);
                         } else {
                             Logger.error("Could not find the enemy type : " + enemyAsString);
@@ -102,6 +80,7 @@ public class WorldMapEnemyManager implements IManager {
     public void paint(float deltaTime, Graphics g) {
         for (Enemy enemy : enemies) {
             g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+            //g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Color.GREEN);
         }
     }
 
@@ -118,5 +97,9 @@ public class WorldMapEnemyManager implements IManager {
     public void unloadEnemies() {
         loadingEnemies = false;
         enemies.clear();
+    }
+
+    public List<Enemy> getEnemies() {
+        return enemies;
     }
 }

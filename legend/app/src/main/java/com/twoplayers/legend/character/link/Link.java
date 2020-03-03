@@ -1,9 +1,10 @@
-package com.twoplayers.legend.character;
+package com.twoplayers.legend.character.link;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.object.Arrow;
 import com.twoplayers.legend.character.object.Boomerang;
 import com.twoplayers.legend.character.object.Bow;
@@ -29,6 +30,9 @@ import java.util.Map;
 public class Link {
 
     public static final float LINK_SPEED = 1.3f;
+    public static final float PUSH_SPEED = 9f;
+    public static final float INITIAL_PUSH_COUNT = 9f;
+    public static final float INITIAL_INVINCIBLE_COUNT = 150f;
 
     private ImagesLink imagesLink;
 
@@ -38,9 +42,16 @@ public class Link {
 
     public float x;
     public float y;
+    protected Hitbox hitbox;
     public Orientation orientation;
 
     public boolean isAttacking;
+    protected boolean isPushed;
+    protected float pushX;
+    protected float pushY;
+    protected float pushCounter;
+    protected boolean isInvincible;
+    protected float invicibleCounter;
 
     protected float life;
     protected float lifeMax;
@@ -67,6 +78,7 @@ public class Link {
         this.imagesLink = imagesLink;
         initMoveAnimation(g);
         initAttackAnimation(g);
+        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
     }
 
     /**
