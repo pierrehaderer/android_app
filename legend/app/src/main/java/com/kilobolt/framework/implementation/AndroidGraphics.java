@@ -6,6 +6,9 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
@@ -150,6 +153,13 @@ public class AndroidGraphics implements Graphics {
     @Override
     public void drawImage(Image image, int x, int y) {
         canvas.drawBitmap(((AndroidImage) image).bitmap, x, y, null);
+    }
+
+    @Override
+    public void drawImage(Image image, int x, int y, ColorMatrix colorMatrix) {
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        canvas.drawBitmap(((AndroidImage) image).bitmap, x, y, paint);
     }
 
     @Override
