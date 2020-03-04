@@ -6,6 +6,8 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
@@ -161,6 +163,20 @@ public class AndroidGraphics implements Graphics {
             canvas.drawBitmap(((AndroidImage) frame.image).bitmap, left, top, null);
         } else {
             canvas.drawBitmap(Bitmap.createScaledBitmap(((AndroidImage) frame.image).bitmap, frame.width, frame.height, true), left, top, null);
+        }
+    }
+
+    @Override
+    public void drawAnimation(Animation animation, int x, int y, ColorMatrix colorMatrix) {
+        AndroidAnimationFrame frame = ((AndroidAnimation) animation).getFrame();
+        int left = x + frame.leftOffset;
+        int top = y + frame.topOffset;
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        if (frame.width <= 0 || frame.height <= 0) {
+            canvas.drawBitmap(((AndroidImage) frame.image).bitmap, left, top, paint);
+        } else {
+            canvas.drawBitmap(Bitmap.createScaledBitmap(((AndroidImage) frame.image).bitmap, frame.width, frame.height, true), left, top, paint);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.kilobolt.framework;
 
+import android.graphics.ColorMatrix;
 import android.graphics.Paint;
 
 public interface Graphics {
@@ -15,6 +16,7 @@ public interface Graphics {
     public void drawImage(Image image, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight);
     public void drawImage(Image Image, int x, int y);
     public void drawAnimation(Animation animation, int x, int y);
+    public void drawAnimation(Animation animation, int x, int y, ColorMatrix colorMatrix);
     public void drawScaledImage(Image Image, int x, int y, int width, int height);
     public void drawScaledImage(Image image, int x, int y, float coef);
     public void drawString(String text, int x, int y, Paint paint);

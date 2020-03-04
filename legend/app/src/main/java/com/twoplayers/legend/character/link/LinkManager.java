@@ -1,7 +1,5 @@
 package com.twoplayers.legend.character.link;
 
-import android.graphics.Color;
-
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
@@ -42,6 +40,7 @@ public class LinkManager implements IManager {
     private AllSoundEffects allSoundEffects;
 
     private Link link;
+    private LinkInvincibleColorMatrix linkInvincibleColorMatrix;
 
     /**
      * Initialise this manager
@@ -86,6 +85,8 @@ public class LinkManager implements IManager {
         link.scepter = Scepter.SCEPTER;
         link.spellBook = SpellBook.BOOK;
         link.sword = Sword.WOOD;
+
+        linkInvincibleColorMatrix = new LinkInvincibleColorMatrix();
     }
 
     @Override
@@ -167,6 +168,7 @@ public class LinkManager implements IManager {
             if (link.invicibleCounter < 0) {
                 link.isInvincible = false;
             }
+            linkInvincibleColorMatrix.update(deltaTime);
         }
         if (!link.isInvincible) {
             for (Enemy enemy : worldMapEnemyManager.getEnemies()) {
@@ -212,7 +214,11 @@ public class LinkManager implements IManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+        if (link.isInvincible) {
+            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
+        } else {
+            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+        }
         //g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Color.GREEN);
     }
 

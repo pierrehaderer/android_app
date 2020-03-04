@@ -32,7 +32,7 @@ public class Link {
     public static final float LINK_SPEED = 1.3f;
     public static final float PUSH_SPEED = 9f;
     public static final float INITIAL_PUSH_COUNT = 9f;
-    public static final float INITIAL_INVINCIBLE_COUNT = 150f;
+    public static final float INITIAL_INVINCIBLE_COUNT = 100f;
 
     private ImagesLink imagesLink;
 
