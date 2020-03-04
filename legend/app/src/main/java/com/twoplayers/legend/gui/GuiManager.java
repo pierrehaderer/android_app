@@ -10,23 +10,23 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImagesGui;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.object.Arrow;
-import com.twoplayers.legend.character.object.Boomerang;
-import com.twoplayers.legend.character.object.Bow;
-import com.twoplayers.legend.character.object.Bracelet;
-import com.twoplayers.legend.character.object.Compass;
-import com.twoplayers.legend.character.object.DungeonMap;
-import com.twoplayers.legend.character.object.Flute;
-import com.twoplayers.legend.character.object.InfiniteKey;
-import com.twoplayers.legend.character.object.Ladder;
-import com.twoplayers.legend.character.object.Light;
-import com.twoplayers.legend.character.object.Meat;
-import com.twoplayers.legend.character.object.Potion;
-import com.twoplayers.legend.character.object.Raft;
-import com.twoplayers.legend.character.object.Ring;
-import com.twoplayers.legend.character.object.Scepter;
-import com.twoplayers.legend.character.object.SpellBook;
-import com.twoplayers.legend.character.object.Sword;
+import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.Boomerang;
+import com.twoplayers.legend.character.link.inventory.Bow;
+import com.twoplayers.legend.character.link.inventory.Bracelet;
+import com.twoplayers.legend.character.link.inventory.Compass;
+import com.twoplayers.legend.character.link.inventory.DungeonMap;
+import com.twoplayers.legend.character.link.inventory.Flute;
+import com.twoplayers.legend.character.link.inventory.InfiniteKey;
+import com.twoplayers.legend.character.link.inventory.Ladder;
+import com.twoplayers.legend.character.link.inventory.Light;
+import com.twoplayers.legend.character.link.inventory.Meat;
+import com.twoplayers.legend.character.link.inventory.Potion;
+import com.twoplayers.legend.character.link.inventory.Raft;
+import com.twoplayers.legend.character.link.inventory.Ring;
+import com.twoplayers.legend.character.link.inventory.Scepter;
+import com.twoplayers.legend.character.link.inventory.SpellBook;
+import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -249,8 +249,8 @@ public class GuiManager implements IManager {
         }
 
         // Draw selected items
-        if (link.getSword() != Sword.NONE) {
-            g.drawScaledImage(imagesGui.get(link.getSword().name),LEFT_SWORD, TOP_SWORD, COEF_SELECTED_ITEMS);
+        if (link.getSword().getType() != SwordType.NONE) {
+            g.drawScaledImage(imagesGui.get(link.getSword().getType().name),LEFT_SWORD, TOP_SWORD, COEF_SELECTED_ITEMS);
         }
         switch (cursor_position) {
             case 1:

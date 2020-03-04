@@ -5,23 +5,23 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.object.Arrow;
-import com.twoplayers.legend.character.object.Boomerang;
-import com.twoplayers.legend.character.object.Bow;
-import com.twoplayers.legend.character.object.Bracelet;
-import com.twoplayers.legend.character.object.Compass;
-import com.twoplayers.legend.character.object.DungeonMap;
-import com.twoplayers.legend.character.object.Flute;
-import com.twoplayers.legend.character.object.InfiniteKey;
-import com.twoplayers.legend.character.object.Ladder;
-import com.twoplayers.legend.character.object.Light;
-import com.twoplayers.legend.character.object.Meat;
-import com.twoplayers.legend.character.object.Potion;
-import com.twoplayers.legend.character.object.Raft;
-import com.twoplayers.legend.character.object.Ring;
-import com.twoplayers.legend.character.object.Scepter;
-import com.twoplayers.legend.character.object.SpellBook;
-import com.twoplayers.legend.character.object.Sword;
+import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.Boomerang;
+import com.twoplayers.legend.character.link.inventory.Bow;
+import com.twoplayers.legend.character.link.inventory.Bracelet;
+import com.twoplayers.legend.character.link.inventory.Compass;
+import com.twoplayers.legend.character.link.inventory.DungeonMap;
+import com.twoplayers.legend.character.link.inventory.Flute;
+import com.twoplayers.legend.character.link.inventory.InfiniteKey;
+import com.twoplayers.legend.character.link.inventory.Ladder;
+import com.twoplayers.legend.character.link.inventory.Light;
+import com.twoplayers.legend.character.link.inventory.Meat;
+import com.twoplayers.legend.character.link.inventory.Potion;
+import com.twoplayers.legend.character.link.inventory.Raft;
+import com.twoplayers.legend.character.link.inventory.Ring;
+import com.twoplayers.legend.character.link.inventory.Scepter;
+import com.twoplayers.legend.character.link.inventory.SpellBook;
+import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.map.Orientation;
 
 import java.util.HashMap;
@@ -34,11 +34,9 @@ public class Link {
     public static final float INITIAL_PUSH_COUNT = 9f;
     public static final float INITIAL_INVINCIBLE_COUNT = 100f;
 
-    private ImagesLink imagesLink;
-
     protected Animation currentAnimation;
     protected Map<Orientation, Animation> moveAnimations;
-    protected Map<Sword, Map<Orientation, Animation>> attackAnimations;
+    protected Map<Orientation, Animation> attackAnimations;
 
     public float x;
     public float y;
@@ -75,16 +73,15 @@ public class Link {
     protected Sword sword;
 
     public Link(ImagesLink imagesLink, Graphics g) {
-        this.imagesLink = imagesLink;
-        initMoveAnimation(g);
-        initAttackAnimation(g);
+        initMoveAnimations(imagesLink, g);
+        initAttackAnimations(imagesLink, g);
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
     }
 
     /**
      * Initialise the move animations
      */
-    private void initMoveAnimation(Graphics g) {
+    private void initMoveAnimations(ImagesLink imagesLink, Graphics g) {
         moveAnimations = new HashMap<>();
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imagesLink.get("link_up_1"), AllImages.COEF, 15);
@@ -107,46 +104,37 @@ public class Link {
     /**
      * Initialise the attack animations
      */
-    private void initAttackAnimation(Graphics g) {
+    private void initAttackAnimations(ImagesLink imagesLink, Graphics g) {
         attackAnimations = new HashMap<>();
 
-        attackAnimations.put(Sword.NONE, new HashMap<Orientation, Animation>());
-        Animation emptyAnimation = g.newAnimation();
-        emptyAnimation.setOccurrences(1);
-        attackAnimations.get(Sword.NONE).put(Orientation.UP, emptyAnimation);
-        attackAnimations.get(Sword.NONE).put(Orientation.DOWN, emptyAnimation);
-        attackAnimations.get(Sword.NONE).put(Orientation.LEFT, emptyAnimation);
-        attackAnimations.get(Sword.NONE).put(Orientation.RIGHT, emptyAnimation);
-
-        attackAnimations.put(Sword.WOOD, new HashMap<Orientation, Animation>());
         Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesLink.get("link_wood_sword_up_1"), AllImages.COEF, 8);
-        animationUp.addFrame(imagesLink.get("link_wood_sword_up_2"), 0, Math.round(-12 * AllImages.COEF), AllImages.COEF, 25);
-        animationUp.addFrame(imagesLink.get("link_wood_sword_up_3"), 0, Math.round(-11 * AllImages.COEF), AllImages.COEF, 4);
-        animationUp.addFrame(imagesLink.get("link_wood_sword_up_4"), 0, Math.round(-3 * AllImages.COEF), AllImages.COEF, 4);
+        animationUp.addFrame(imagesLink.get("link_sword_up_1"), AllImages.COEF, 8);
+        animationUp.addFrame(imagesLink.get("link_sword_up_2"), AllImages.COEF, 25);
+        animationUp.addFrame(imagesLink.get("link_sword_up_3"), AllImages.COEF, 4);
+        animationUp.addFrame(imagesLink.get("link_sword_up_4"), AllImages.COEF, 4);
         animationUp.setOccurrences(1);
-        attackAnimations.get(Sword.WOOD).put(Orientation.UP, animationUp);
+        attackAnimations.put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesLink.get("link_wood_sword_down_1"), AllImages.COEF, 8);
-        animationDown.addFrame(imagesLink.get("link_wood_sword_down_2"), AllImages.COEF, 25);
-        animationDown.addFrame(imagesLink.get("link_wood_sword_down_3"), AllImages.COEF, 4);
-        animationDown.addFrame(imagesLink.get("link_wood_sword_down_4"), AllImages.COEF, 4);
+        animationDown.addFrame(imagesLink.get("link_sword_down_1"), AllImages.COEF, 8);
+        animationDown.addFrame(imagesLink.get("link_sword_down_2"), AllImages.COEF, 25);
+        animationDown.addFrame(imagesLink.get("link_sword_down_3"), AllImages.COEF, 4);
+        animationDown.addFrame(imagesLink.get("link_sword_down_4"), AllImages.COEF, 4);
         animationDown.setOccurrences(1);
-        attackAnimations.get(Sword.WOOD).put(Orientation.DOWN, animationDown);
+        attackAnimations.put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesLink.get("link_wood_sword_left_1"), AllImages.COEF, 8);
-        animationLeft.addFrame(imagesLink.get("link_wood_sword_left_2"), Math.round(-11 * AllImages.COEF), 0, AllImages.COEF, 25);
-        animationLeft.addFrame(imagesLink.get("link_wood_sword_left_3"), Math.round(-7 * AllImages.COEF), 0, AllImages.COEF, 4);
-        animationLeft.addFrame(imagesLink.get("link_wood_sword_left_4"), Math.round(-3 * AllImages.COEF), 0, AllImages.COEF, 4);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_1"), AllImages.COEF, 8);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_2"), AllImages.COEF, 25);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_3"), AllImages.COEF, 4);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_4"), AllImages.COEF, 4);
         animationLeft.setOccurrences(1);
-        attackAnimations.get(Sword.WOOD).put(Orientation.LEFT, animationLeft);
+        attackAnimations.put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesLink.get("link_wood_sword_right_1"), AllImages.COEF, 8);
-        animationRight.addFrame(imagesLink.get("link_wood_sword_right_2"), AllImages.COEF, 25);
-        animationRight.addFrame(imagesLink.get("link_wood_sword_right_3"), AllImages.COEF, 4);
-        animationRight.addFrame(imagesLink.get("link_wood_sword_right_4"), AllImages.COEF, 4);
+        animationRight.addFrame(imagesLink.get("link_sword_right_1"), AllImages.COEF, 8);
+        animationRight.addFrame(imagesLink.get("link_sword_right_2"), AllImages.COEF, 25);
+        animationRight.addFrame(imagesLink.get("link_sword_right_3"), AllImages.COEF, 4);
+        animationRight.addFrame(imagesLink.get("link_sword_right_4"), AllImages.COEF, 4);
         animationRight.setOccurrences(1);
-        attackAnimations.get(Sword.WOOD).put(Orientation.RIGHT, animationRight);
+        attackAnimations.put(Orientation.RIGHT, animationRight);
     }
 
     public float getLife() {

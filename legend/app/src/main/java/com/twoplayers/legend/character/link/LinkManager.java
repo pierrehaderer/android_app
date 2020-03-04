@@ -4,27 +4,29 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
-import com.twoplayers.legend.character.object.Arrow;
-import com.twoplayers.legend.character.object.Boomerang;
-import com.twoplayers.legend.character.object.Bow;
-import com.twoplayers.legend.character.object.Bracelet;
-import com.twoplayers.legend.character.object.Compass;
-import com.twoplayers.legend.character.object.DungeonMap;
-import com.twoplayers.legend.character.object.Flute;
-import com.twoplayers.legend.character.object.InfiniteKey;
-import com.twoplayers.legend.character.object.Ladder;
-import com.twoplayers.legend.character.object.Light;
-import com.twoplayers.legend.character.object.Meat;
-import com.twoplayers.legend.character.object.Potion;
-import com.twoplayers.legend.character.object.Raft;
-import com.twoplayers.legend.character.object.Ring;
-import com.twoplayers.legend.character.object.Scepter;
-import com.twoplayers.legend.character.object.SpellBook;
-import com.twoplayers.legend.character.object.Sword;
+import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.Boomerang;
+import com.twoplayers.legend.character.link.inventory.Bow;
+import com.twoplayers.legend.character.link.inventory.Bracelet;
+import com.twoplayers.legend.character.link.inventory.Compass;
+import com.twoplayers.legend.character.link.inventory.DungeonMap;
+import com.twoplayers.legend.character.link.inventory.Flute;
+import com.twoplayers.legend.character.link.inventory.InfiniteKey;
+import com.twoplayers.legend.character.link.inventory.Ladder;
+import com.twoplayers.legend.character.link.inventory.Light;
+import com.twoplayers.legend.character.link.inventory.Meat;
+import com.twoplayers.legend.character.link.inventory.Potion;
+import com.twoplayers.legend.character.link.inventory.Raft;
+import com.twoplayers.legend.character.link.inventory.Ring;
+import com.twoplayers.legend.character.link.inventory.Scepter;
+import com.twoplayers.legend.character.link.inventory.SpellBook;
+import com.twoplayers.legend.character.link.inventory.sword.Sword;
+import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.map.Orientation;
@@ -84,7 +86,8 @@ public class LinkManager implements IManager {
         link.ring = Ring.RED;
         link.scepter = Scepter.SCEPTER;
         link.spellBook = SpellBook.BOOK;
-        link.sword = Sword.WOOD;
+        link.sword = new Sword(imagesLink, game.getGraphics());
+        link.sword.type = SwordType.WOOD;
 
         linkInvincibleColorMatrix = new LinkInvincibleColorMatrix();
     }
@@ -146,18 +149,24 @@ public class LinkManager implements IManager {
         // Attack of link
         if (!link.isAttacking) {
             // Start of link's attack
-            if (guiManager.isaPressed() && link.sword != Sword.NONE) {
-                link.isAttacking = true;
-                link.currentAnimation = link.attackAnimations.get(link.sword).get(link.orientation);
+            if (guiManager.isaPressed() && link.sword.type != SwordType.NONE) {
+                link.currentAnimation = link.attackAnimations.get(link.orientation);
                 link.currentAnimation.reset();
-                allSoundEffects.get("sword").play(0.75f);
+                link.sword.x = link.x;
+                link.sword.y = link.y;
+                link.sword.currentAnimation = link.sword.getAnimation(link.orientation);
+                link.sword.currentAnimation.reset();
+                allSoundEffects.get("swordType").play(0.75f);
+                link.isAttacking = true;
             }
         }
         if (link.isAttacking) {
             link.currentAnimation.update(deltaTime);
+            link.sword.currentAnimation.update(deltaTime);
             if (link.currentAnimation.isAnimationOver()) {
                 link.isAttacking = false;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
+                link.sword.currentAnimation.reset();
             }
         }
 
@@ -218,6 +227,9 @@ public class LinkManager implements IManager {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
         } else {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+        }
+        if (link.isAttacking) {
+            g.drawAnimation(link.sword.currentAnimation, Math.round(link.sword.x), Math.round(link.sword.y));
         }
         //g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Color.GREEN);
     }

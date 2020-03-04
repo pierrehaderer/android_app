@@ -22,6 +22,9 @@ public class LinkInvincibleColorMatrix {
         matrixList[7] = createColorMatrix(546); // Gris - 273 - 277
     }
 
+    /**
+     * Only 12 values are important in this matrix. Use numbers from 0 to 4095 written in binary to define these 12 values.
+     */
     private ColorMatrix createColorMatrix(int value) {
         char[] chars = Integer.toBinaryString(4096 + value).toCharArray();
         float[] colorTransform = {
