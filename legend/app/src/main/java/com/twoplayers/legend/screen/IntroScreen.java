@@ -23,40 +23,13 @@ public class IntroScreen extends Screen {
     public static final int HEIGHT_SCREEN = 480;
 
     private ImageOther imageOther;
-
-    private float count;
-    private ColorMatrix colorMatrix;
-    private float[] colorTransform;
+    private int offset = 0;
 
     public IntroScreen(Game game) {
         super(game);
         Logger.info("Entering IntroScreen.");
         imageOther = ((MainActivity) game).getAllImages().getImageOther();
 
-        colorTransform = new float[20];
-        colorTransform[0] = 0;
-        colorTransform[1] = 0;
-        colorTransform[2] = 0;
-        colorTransform[3] = 0;
-        colorTransform[4] = 0;
-        colorTransform[5] = 0;
-        colorTransform[6] = 0;
-        colorTransform[7] = 0;
-        colorTransform[8] = 0;
-        colorTransform[9] = 0;
-        colorTransform[10] = 0;
-        colorTransform[11] = 0;
-        colorTransform[12] = 0;
-        colorTransform[13] = 0;
-        colorTransform[14] = 0;
-        colorTransform[15] = 0;
-        colorTransform[16] = 0;
-        colorTransform[17] = 0;
-        colorTransform[18] = 1f;
-        colorTransform[19] = 0;
-        colorMatrix = new ColorMatrix();
-        colorMatrix.setSaturation(0f); //Remove Colour
-        colorMatrix.set(colorTransform); //Apply the Red
 
     }
 
@@ -66,83 +39,12 @@ public class IntroScreen extends Screen {
         int len = touchEvents.size();
         for (TouchEvent event : touchEvents) {
             if (event.type == TouchEvent.TOUCH_UP) {
-//                if (LocationUtil.inBounds(event, LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN)) {
-//                    game.setScreen(new WorldMapLoadingScreen(game));
-//                    break;
-//                }
-                if (LocationUtil.inBounds(event, 100, 0, 100, 100)) {
-                    colorTransform[0] = 1 - colorTransform[0];
-                }
-                if (LocationUtil.inBounds(event, 200, 0, 100, 100)) {
-                    colorTransform[1] = 1 - colorTransform[1];
-                }
-                if (LocationUtil.inBounds(event, 300, 0, 100, 100)) {
-                    colorTransform[2] = 1 - colorTransform[2];
-                }
-                if (LocationUtil.inBounds(event, 400, 0, 100, 100)) {
-                    colorTransform[3] = 1 - colorTransform[3];
-                }
-                if (LocationUtil.inBounds(event, 500, 0, 100, 100)) {
-                    colorTransform[4] = 1 - colorTransform[4];
+                if (LocationUtil.inBounds(event, LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN)) {
+                    offset = offset + 4096;
+                    break;
                 }
 
-                if (LocationUtil.inBounds(event, 100, 100, 100, 100)) {
-                    colorTransform[5] = 1 - colorTransform[5];
-                }
-                if (LocationUtil.inBounds(event, 200, 100, 100, 100)) {
-                    colorTransform[6] = 1 - colorTransform[6];
-                }
-                if (LocationUtil.inBounds(event, 300, 100, 100, 100)) {
-                    colorTransform[7] = 1 - colorTransform[7];
-                }
-                if (LocationUtil.inBounds(event, 400, 100, 100, 100)) {
-                    colorTransform[8] = 1 - colorTransform[8];
-                }
-                if (LocationUtil.inBounds(event, 500, 100, 100, 100)) {
-                    colorTransform[9] = 1 - colorTransform[9];
-                }
-
-                if (LocationUtil.inBounds(event, 100, 200, 100, 100)) {
-                    colorTransform[10] = 1 - colorTransform[10];
-                }
-                if (LocationUtil.inBounds(event, 200, 200, 100, 100)) {
-                    colorTransform[11] = 1 - colorTransform[11];
-                }
-                if (LocationUtil.inBounds(event, 300, 200, 100, 100)) {
-                    colorTransform[12] = 1 - colorTransform[12];
-                }
-                if (LocationUtil.inBounds(event, 400, 200, 100, 100)) {
-                    colorTransform[13] = 1 - colorTransform[13];
-                }
-                if (LocationUtil.inBounds(event, 500, 200, 100, 100)) {
-                    colorTransform[14] = 1 - colorTransform[14];
-                }
-
-                if (LocationUtil.inBounds(event, 100, 300, 100, 100)) {
-                    colorTransform[15] = 1 - colorTransform[15];
-                }
-                if (LocationUtil.inBounds(event, 200, 300, 100, 100)) {
-                    colorTransform[16] = 1 - colorTransform[16];
-                }
-                if (LocationUtil.inBounds(event, 300, 300, 100, 100)) {
-                    colorTransform[17] = 1 - colorTransform[17];
-                }
-                if (LocationUtil.inBounds(event, 400, 300, 100, 100)) {
-                    colorTransform[18] = 1 - colorTransform[18];
-                }
-                if (LocationUtil.inBounds(event, 500, 300, 100, 100)) {
-                    colorTransform[19] = 1 - colorTransform[19];
-                }
-                ColorMatrix colorMatrix = new ColorMatrix();
-                colorMatrix.setSaturation(0f); //Remove Colour
-                colorMatrix.set(colorTransform); //Apply the Red
-                this.colorMatrix = colorMatrix;
             }
-        }
-        if (count > 0) {
-            count -= deltaTime;
-        } else {
-            count = 200f;
         }
     }
 
@@ -151,53 +53,37 @@ public class IntroScreen extends Screen {
         Graphics g = game.getGraphics();
         g.drawRect(LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN, Color.BLACK);
         //g.drawScaledImage(imageOther.get("intro_screen"), LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN);
-        g.drawRect(100, 0, 100, 100, Color.GREEN);
-        g.drawRect(200, 0, 100, 100, Color.BLUE);
-        g.drawRect(300, 0, 100, 100, Color.GREEN);
-        g.drawRect(400, 0, 100, 100, Color.BLUE);
-        g.drawRect(500, 0, 100, 100, Color.GREEN);
-        g.drawRect(100, 100, 100, 100, Color.BLUE);
-        g.drawRect(200, 100, 100, 100, Color.GREEN);
-        g.drawRect(300, 100, 100, 100, Color.BLUE);
-        g.drawRect(400, 100, 100, 100, Color.GREEN);
-        g.drawRect(500, 100, 100, 100, Color.BLUE);
-        g.drawRect(100, 200, 100, 100, Color.GREEN);
-        g.drawRect(200, 200, 100, 100, Color.BLUE);
-        g.drawRect(300, 200, 100, 100, Color.GREEN);
-        g.drawRect(400, 200, 100, 100, Color.BLUE);
-        g.drawRect(500, 200, 100, 100, Color.GREEN);
-        g.drawRect(100, 300, 100, 100, Color.BLUE);
-        g.drawRect(200, 300, 100, 100, Color.GREEN);
-        g.drawRect(300, 300, 100, 100, Color.BLUE);
-        g.drawRect(400, 300, 100, 100, Color.GREEN);
-        g.drawRect(500, 300, 100, 100, Color.BLUE);
-        g.drawString(Float.toString(colorTransform[0]), 150, 50, new Paint());
-        g.drawString(Float.toString(colorTransform[1]), 250, 50, new Paint());
-        g.drawString(Float.toString(colorTransform[2]), 350, 50, new Paint());
-        g.drawString(Float.toString(colorTransform[3]), 450, 50, new Paint());
-        g.drawString(Float.toString(colorTransform[4]), 550, 50, new Paint());
-        g.drawString(Float.toString(colorTransform[5]), 150, 150, new Paint());
-        g.drawString(Float.toString(colorTransform[6]), 250, 150, new Paint());
-        g.drawString(Float.toString(colorTransform[7]), 350, 150, new Paint());
-        g.drawString(Float.toString(colorTransform[8]), 450, 150, new Paint());
-        g.drawString(Float.toString(colorTransform[9]), 550, 150, new Paint());
-        g.drawString(Float.toString(colorTransform[10]), 150, 250, new Paint());
-        g.drawString(Float.toString(colorTransform[11]), 250, 250, new Paint());
-        g.drawString(Float.toString(colorTransform[12]), 350, 250, new Paint());
-        g.drawString(Float.toString(colorTransform[13]), 450, 250, new Paint());
-        g.drawString(Float.toString(colorTransform[14]), 550, 250, new Paint());
-        g.drawString(Float.toString(colorTransform[15]), 150, 350, new Paint());
-        g.drawString(Float.toString(colorTransform[16]), 250, 350, new Paint());
-        g.drawString(Float.toString(colorTransform[17]), 350, 350, new Paint());
-        g.drawString(Float.toString(colorTransform[18]), 450, 350, new Paint());
-        g.drawString(Float.toString(colorTransform[19]), 550, 350, new Paint());
-        if (count > 100) {
-            g.drawImage(imageOther.get("link_down_1"), 5, 5);
-        } else {
-            g.drawImage(imageOther.get("link_down_1"), 5, 5, colorMatrix);
+        float coef = 0.1f  + (offset % 40960) / 40960f;
+        for (int i = 0; i < 512; i++) {
+            char[] chars = Integer.toBinaryString(4096 + i).toCharArray();
+            float[] colorTransform = {
+                    0, 0f, 0, 0, 0,
+                    0, 0, 0f, 0, 0,
+                    0, 0, 0, 0f, 0,
+                    0, 0, 0, 1f, 0};
+            colorTransform[0] = Float.parseFloat(Character.toString(chars[12]))*coef;
+            colorTransform[1] = Float.parseFloat(Character.toString(chars[11]))*coef;
+            colorTransform[2] = Float.parseFloat(Character.toString(chars[10]))*coef;
+            colorTransform[3] = Float.parseFloat(Character.toString(chars[9]))*coef;
+
+            colorTransform[5] = Float.parseFloat(Character.toString(chars[8]))*coef;
+            colorTransform[6] = Float.parseFloat(Character.toString(chars[7]))*coef;
+            colorTransform[7] = Float.parseFloat(Character.toString(chars[6]))*coef;
+            colorTransform[8] = Float.parseFloat(Character.toString(chars[5]))*coef;
+
+            colorTransform[10] = Float.parseFloat(Character.toString(chars[4]))*coef;
+            colorTransform[11] = Float.parseFloat(Character.toString(chars[3]))*coef;
+            colorTransform[12] = Float.parseFloat(Character.toString(chars[2]))*coef;
+            colorTransform[13] = Float.parseFloat(Character.toString(chars[1]))*coef;
+            ColorMatrix colorMatrix = new ColorMatrix();
+            colorMatrix.setSaturation(0f);
+            colorMatrix.set(colorTransform);
+            g.drawImage(imageOther.get("link_down_1"), 5 + (i % 32) * 16, 5 + (i / 32) * 16, colorMatrix);
+            Paint paint = new Paint();
+            paint.setColor(Color.BLUE);
+            g.drawRect(100, 380, 100, 100, Color.DKGRAY);
+            g.drawString(Integer.toString(offset), 100, 400, paint);
         }
-        g.drawImage(imageOther.get("link_down_1"), 5, 35);
-        g.drawImage(imageOther.get("link_down_1"), 35, 35, colorMatrix);
     }
 
     @Override
