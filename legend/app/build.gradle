@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.haderer.elemdel"
+        applicationId "com.twoplayers.legend"
         minSdkVersion 14
         targetSdkVersion 29
         versionCode 1
