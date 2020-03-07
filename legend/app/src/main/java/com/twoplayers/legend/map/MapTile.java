@@ -15,6 +15,7 @@ public enum MapTile {
     WATER('w', false),
     STATUE('s', false),
     TOMB('t', false),
+    BRIDGE('b', true),
     OUT_OF_BOUNDS('%', false);
 
     public char character;
