@@ -8,6 +8,7 @@ import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
@@ -27,6 +28,8 @@ public class WorldMapEnemyManager implements IManager {
     private boolean loadingEnemies;
     private List<Enemy> enemies;
 
+    private EnemyColorMatrix enemyColorMatrix;
+
     /**
      * Initialise this manager
      */
@@ -42,6 +45,7 @@ public class WorldMapEnemyManager implements IManager {
 
         loadingEnemies = false;
         enemies = new ArrayList<>();
+        enemyColorMatrix = new EnemyColorMatrix();
     }
 
     @Override
@@ -72,15 +76,24 @@ public class WorldMapEnemyManager implements IManager {
             loadingEnemies = false;
         }
         for (Enemy enemy : enemies) {
-            enemy.update(deltaTime, g, worldMapManager);
+            if (enemy.isDead) {
+                enemy.currentAnimation.update(deltaTime);
+            } else {
+                enemy.update(deltaTime, g, worldMapManager);
+            }
         }
+        enemyColorMatrix.update(deltaTime);
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         for (Enemy enemy : enemies) {
-            g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
-            //g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Color.GREEN);
+            if (!enemy.isDead) {
+                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+                g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
+            } else if (!enemy.currentAnimation.isAnimationOver()) {
+                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y), enemyColorMatrix.getCurrentColorMatrix());
+            }
         }
     }
 
@@ -97,6 +110,17 @@ public class WorldMapEnemyManager implements IManager {
     public void unloadEnemies() {
         loadingEnemies = false;
         enemies.clear();
+    }
+
+    /**
+     * enemy has been damaged.
+     */
+    public void damageEnemy(Enemy enemyDamaged, int damage) {
+        enemyDamaged.life -= damage;
+        if (enemyDamaged.life <= 0) {
+            enemyDamaged.isDead = true;
+            enemyDamaged.currentAnimation = enemyDamaged.deathAnimation;
+        }
     }
 
     public List<Enemy> getEnemies() {

@@ -2,18 +2,20 @@ package com.twoplayers.legend.character.link.inventory.sword;
 
 public enum SwordType {
 
-    NONE("empty"),
-    WOOD("wood_sword"),
-    WHITE("white_sword"),
-    MAGICAL("magical_sword");
+    NONE("empty", 0),
+    WOOD("wood_sword", 1),
+    WHITE("white_sword", 2),
+    MAGICAL("magical_sword", 4);
 
     public String name;
+    public int damage;
 
     /**
      * Constructor
      */
-    private SwordType(String name) {
+    private SwordType(String name, int damage) {
         this.name = name;
+        this.damage = damage;
     }
 
 }

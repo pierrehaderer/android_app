@@ -19,9 +19,14 @@ public abstract class Enemy {
 
     protected Animation currentAnimation;
     protected Map<Orientation, Animation> animations;
+    protected Animation deathAnimation;
 
     protected boolean isContactLethal;
     protected float contactDamage;
+
+    protected int life;
+    protected boolean isInvincible;
+    protected boolean isDead;
 
     public Enemy(ImagesEnemyWorldMap imagesEnemyWorldMap, Graphics g) {
         this.imagesEnemyWorldMap = imagesEnemyWorldMap;
@@ -39,5 +44,13 @@ public abstract class Enemy {
 
     public float getContactDamage() {
         return contactDamage;
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    public boolean isInvincible() {
+        return isInvincible;
     }
 }

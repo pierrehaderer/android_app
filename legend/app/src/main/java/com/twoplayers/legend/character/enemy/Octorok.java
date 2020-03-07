@@ -15,9 +15,9 @@ import java.util.Map;
 
 public class Octorok extends Enemy {
 
-//    public static final float RED_SPEED = 0.1f;
-    public static final float RED_SPEED = 0.6f;
-    public static final float BLUE_SPEED = 1.1f;
+//    public static final float LOW_SPEED = 0.1f;
+    public static final float LOW_SPEED = 0.6f;
+    public static final float HIGH_SPEED = 1.1f;
     private static final float PAUSE_BEFORE_FIRST_MOVE = 300f;
     private static final float PAUSE_BEFORE_ATTACK = 100f;
     private static final float MIN_TIME_BEFORE_ATTACK = 500.0f;
@@ -45,13 +45,15 @@ public class Octorok extends Enemy {
         initDirectionTree();
         initNotDone = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
+        isInvincible = true;
         chooseTimeBeforeAttack();
         isAttacking = false;
+        life = 1;
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
         contactDamage = -0.5f;
-        speed = RED_SPEED;
+        speed = LOW_SPEED;
         currentAnimation = animations.get(Orientation.INIT);
     }
 
@@ -142,6 +144,7 @@ public class Octorok extends Enemy {
         animationNone.addFrame(imagesEnemyWorldMap.get("cloud_2"), AllImages.COEF, 12);
         animationNone.addFrame(imagesEnemyWorldMap.get("cloud_3"), AllImages.COEF, 12);
         animations.put(Orientation.INIT, animationNone);
+
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imagesEnemyWorldMap.get("red_octorok_up_1"), AllImages.COEF, 15);
         animationUp.addFrame(imagesEnemyWorldMap.get("red_octorok_up_2"), AllImages.COEF, 15);
@@ -158,6 +161,13 @@ public class Octorok extends Enemy {
         animationRight.addFrame(imagesEnemyWorldMap.get("red_octorok_right_1"), AllImages.COEF, 15);
         animationRight.addFrame(imagesEnemyWorldMap.get("red_octorok_right_2"), AllImages.COEF, 15);
         animations.put(Orientation.RIGHT, animationRight);
+
+        deathAnimation = g.newAnimation();
+        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_1"), AllImages.COEF, 10);
+        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_2"), AllImages.COEF, 10);
+        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_3"), AllImages.COEF, 10);
+        deathAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 1);
+        deathAnimation.setOccurrences(1);
     }
 
     @Override
@@ -177,6 +187,7 @@ public class Octorok extends Enemy {
             }
             if (timeBeforeFirstMove <= 0) {
                 isContactLethal = true;
+                isInvincible = false;
             }
         } else {
             if (!isAttacking) {

@@ -22,6 +22,11 @@ public class ImagesEnemyWorldMap {
         Logger.info("Loading all enemy images of world map.");
         try {
             images.put("empty", g.newImage("other/empty.png", ImageFormat.RGB565));
+            for (String fileName : assetManager.list("enemy")) {
+                if (fileName.endsWith(".png")) {
+                    images.put(fileName.substring(0, fileName.length() - 4), g.newImage("enemy/" + fileName, ImageFormat.RGB565));
+                }
+            }
             for (String fileName : assetManager.list("enemy/world_map")) {
                 if (fileName.endsWith(".png")) {
                     images.put(fileName.substring(0, fileName.length() - 4), g.newImage("enemy/world_map/" + fileName, ImageFormat.RGB565));

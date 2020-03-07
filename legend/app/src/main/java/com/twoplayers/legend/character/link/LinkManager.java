@@ -1,12 +1,14 @@
 package com.twoplayers.legend.character.link;
 
+import android.graphics.Color;
+
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.character.link.inventory.Arrow;
@@ -25,7 +27,6 @@ import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.WorldMapManager;
@@ -156,13 +157,26 @@ public class LinkManager implements IManager {
                 link.sword.y = link.y;
                 link.sword.currentAnimation = link.sword.getAnimation(link.orientation);
                 link.sword.currentAnimation.reset();
+                link.sword.hitbox = link.sword.hitboxes.get(link.orientation);
+                link.sword.hitbox.relocate(link.x, link.y);
                 allSoundEffects.get("swordType").play(0.75f);
                 link.isAttacking = true;
+                link.attackProgression = 0;
             }
         }
         if (link.isAttacking) {
             link.currentAnimation.update(deltaTime);
             link.sword.currentAnimation.update(deltaTime);
+            link.attackProgression += deltaTime;
+            if (link.attackProgression > Sword.STEP_1_DURATION && link.attackProgression < Sword.STEP_1_DURATION + Sword.STEP_2_DURATION) {
+                // Sword hitbox is active
+                for (Enemy enemy : worldMapEnemyManager.getEnemies()) {
+                    if (!enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.hitbox, enemy.getHitbox())) {
+                        Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit by link sword.");
+                        worldMapEnemyManager.damageEnemy(enemy, link.sword.type.damage);
+                    }
+                }
+            }
             if (link.currentAnimation.isAnimationOver()) {
                 link.isAttacking = false;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
@@ -181,10 +195,8 @@ public class LinkManager implements IManager {
         }
         if (!link.isInvincible) {
             for (Enemy enemy : worldMapEnemyManager.getEnemies()) {
-                if (enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
+                if (!enemy.isDead() && enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
                     Logger.info("Link has collided with enemy : " + enemy.getClass());
-                    Logger.info("Hitbox link : " + link.hitbox.x + "," + link.hitbox.y + "," + link.hitbox.width + "," + link.hitbox.height);
-                    Logger.info("Hitbox enemy : " + enemy.getHitbox().x + "," + enemy.getHitbox().y + "," + enemy.getHitbox().width + "," + enemy.getHitbox().height);
                     updateLinkLife(enemy.getContactDamage());
                     link.isInvincible = true;
                     link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
@@ -223,15 +235,19 @@ public class LinkManager implements IManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
+        // Draw link
         if (link.isInvincible) {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
         } else {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
         }
+        // Draw the sword
         if (link.isAttacking) {
             g.drawAnimation(link.sword.currentAnimation, Math.round(link.sword.x), Math.round(link.sword.y));
         }
-        //g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Color.GREEN);
+        // Draw the hitboxes
+        g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Hitbox.COLOR);
+        g.drawRect((int) link.sword.hitbox.x, (int) link.sword.hitbox.y, (int) link.sword.hitbox.width, (int) link.sword.hitbox.height, Hitbox.COLOR);
     }
 
     /**
@@ -247,6 +263,8 @@ public class LinkManager implements IManager {
             link.x = nextX;
         }
         link.hitbox.x = link.x + link.hitbox.x_offset;
+        link.sword.x = link.x;
+        link.sword.hitbox.x = link.x + link.sword.hitbox.x_offset;
     }
 
     /**
@@ -262,6 +280,8 @@ public class LinkManager implements IManager {
             link.y = nextY;
         }
         link.hitbox.y = link.y + link.hitbox.y_offset;
+        link.sword.y = link.y;
+        link.sword.hitbox.y = link.y + link.sword.hitbox.y_offset;
     }
 
     /**

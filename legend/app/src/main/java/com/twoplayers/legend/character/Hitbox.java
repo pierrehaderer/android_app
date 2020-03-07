@@ -1,8 +1,12 @@
 package com.twoplayers.legend.character;
 
+import android.graphics.Color;
+
 import com.twoplayers.legend.assets.image.AllImages;
 
 public class Hitbox {
+
+    public static final int COLOR = Color.TRANSPARENT;
 
     public float x;
     public float y;
