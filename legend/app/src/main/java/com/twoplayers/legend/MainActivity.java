@@ -6,6 +6,8 @@ import android.view.View;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.sound.AllMusics;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.cave.CaveManager;
+import com.twoplayers.legend.character.enemy.CaveEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
@@ -13,6 +15,7 @@ import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.screen.SplashLoadingScreen;
 import com.kilobolt.framework.Screen;
 import com.kilobolt.framework.implementation.AndroidGame;
+import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
 public class MainActivity extends AndroidGame {
@@ -20,7 +23,9 @@ public class MainActivity extends AndroidGame {
     private AssetManager assetManager;
     private AllImages allImages;
     private WorldMapManager worldMapManager;
+    private CaveManager caveManager;
     private WorldMapEnemyManager worldMapEnemyManager;
+    private CaveEnemyManager caveEnemyManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
     private AllSoundEffects allSoundEffects;
@@ -32,7 +37,9 @@ public class MainActivity extends AndroidGame {
         assetManager = getAssets();
         allImages = new AllImages();
         worldMapManager = new WorldMapManager();
+        caveManager = new CaveManager();
         worldMapEnemyManager = new WorldMapEnemyManager();
+        caveEnemyManager = new CaveEnemyManager();
         linkManager = new LinkManager();
         guiManager = new GuiManager();
         allSoundEffects = new AllSoundEffects();
@@ -77,6 +84,26 @@ public class MainActivity extends AndroidGame {
         super.onPause();
     }
 
+    /**
+     * Obtain the correct location manager
+     */
+    public ILocationManager getLocationManager(int location) {
+        if (location == LocationUtil.LOCATION_CAVE) {
+            return caveManager;
+        }
+        return worldMapManager;
+    }
+
+    /**
+     * Obtain the correct enemy manager
+     */
+    public IEnemyManager getEnemyManager(int location) {
+        if (location == LocationUtil.LOCATION_CAVE) {
+            return caveEnemyManager;
+        }
+        return worldMapEnemyManager;
+    }
+
     public AssetManager getAssetManager() {
         return assetManager;
     }
@@ -89,8 +116,16 @@ public class MainActivity extends AndroidGame {
         return worldMapManager;
     }
 
+    public CaveManager getCaveManager() {
+        return caveManager;
+    }
+
     public WorldMapEnemyManager getWorldMapEnemyManager() {
         return worldMapEnemyManager;
+    }
+
+    public CaveEnemyManager getCaveEnemyManager() {
+        return caveEnemyManager;
     }
 
     public LinkManager getLinkManager() {

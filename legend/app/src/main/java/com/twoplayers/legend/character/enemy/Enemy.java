@@ -4,7 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.map.Orientation;
+import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.map.WorldMapManager;
 
 import java.util.Map;

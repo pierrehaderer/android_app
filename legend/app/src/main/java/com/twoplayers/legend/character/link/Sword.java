@@ -6,7 +6,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.sword.SwordType;
-import com.twoplayers.legend.map.Orientation;
+import com.twoplayers.legend.Orientation;
 
 import java.util.HashMap;
 import java.util.Map;

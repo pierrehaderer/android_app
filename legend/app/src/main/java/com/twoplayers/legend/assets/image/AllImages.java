@@ -7,8 +7,10 @@ public class AllImages {
 
     private ImageOther imageOther;
     private ImagesWorldMap imagesWorldMap;
+    private ImagesCave imagesCave;
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
     private ImagesLink imagesLink;
+    private ImagesItem imagesItem;
     private ImagesGui imagesGui;
 
     /**
@@ -17,8 +19,10 @@ public class AllImages {
     public AllImages() {
         imageOther = new ImageOther();
         imagesWorldMap = new ImagesWorldMap();
+        imagesCave = new ImagesCave();
         imagesEnemyWorldMap = new ImagesEnemyWorldMap();
         imagesLink = new ImagesLink();
+        imagesItem = new ImagesItem();
         imagesGui = new ImagesGui();
     }
 
@@ -30,12 +34,20 @@ public class AllImages {
         return imagesWorldMap;
     }
 
+    public ImagesCave getImagesCave() {
+        return imagesCave;
+    }
+
     public ImagesEnemyWorldMap getImagesEnemyWorldMap() {
         return imagesEnemyWorldMap;
     }
 
     public ImagesLink getImagesLink() {
         return imagesLink;
+    }
+
+    public ImagesItem getImagesItem() {
+        return imagesItem;
     }
 
     public ImagesGui getImagesGui() {

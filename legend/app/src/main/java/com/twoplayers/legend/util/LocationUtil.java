@@ -7,6 +7,15 @@ import com.twoplayers.legend.map.WorldMapManager;
 
 public class LocationUtil {
 
+    public static final int LOCATION_WORLD_MAP = 0;
+    public static final int LOCATION_CAVE = 1;
+    public static final int LOCATION_DUNGEON = 2;
+
+    public static final int LEFT_MAP = 150;
+    public static final int TOP_MAP = 103;
+    public static final int WIDTH_MAP = 548;
+    public static final int HEIGHT_MAP = 377;
+
     public static final float TILE_SIZE = 16 * AllImages.COEF;
     public static final float HALF_TILE_SIZE = 8 * AllImages.COEF;
 
@@ -48,11 +57,43 @@ public class LocationUtil {
         return new Float[] {deltaX, deltaY};
     }
 
-    public static float getXFromGrid(int x) {
-        return WorldMapManager.LEFT_MAP + (x - 1) * TILE_SIZE;
+    /**
+     * Check if a tile is on the border of the map
+     */
+    public static boolean isTileAtBorder(float x, float y) {
+        int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
+        if (tileX == 0 || tileX == 15) return true;
+        int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
+        if (tileY == 0 || tileY == 10) return true;
+        return false;
     }
 
-    public static float getYFromGrid(int y) {
-        return WorldMapManager.TOP_MAP + (y - 1) * TILE_SIZE;
+    /**
+     * Get the absisse of the tile's left in position x
+     */
+    public static float getXFromGrid(int x) {
+        return LEFT_MAP + x * TILE_SIZE;
     }
+
+    /**
+     * Get the ordinate of the tile's top in position y
+     */
+    public static float getYFromGrid(int y) {
+        return TOP_MAP + y * TILE_SIZE;
+    }
+
+    /**
+     * Get the tile's left position corresponding to absisse x
+     */
+    public static int getTileLeftFromX(float x) {
+        return (int) ((x - LEFT_MAP) / TILE_SIZE);
+    }
+
+    /**
+     * Get the tile's left position corresponding to absisse x
+     */
+    public static int getTileTopFromY(float y) {
+        return (int) ((y - TOP_MAP) / TILE_SIZE);
+    }
+
 }

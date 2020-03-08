@@ -21,7 +21,7 @@ import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.map.Orientation;
+import com.twoplayers.legend.Orientation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +30,10 @@ public class Link {
 
     public static final float LINK_SPEED = 1.5f;
     public static final float PUSH_SPEED = 9f;
+    public static final float LINK_SPEED_ENTERING_CAVE = 0.40f;
     public static final float INITIAL_PUSH_COUNT = 9f;
     public static final float INITIAL_INVINCIBLE_COUNT = 100f;
+    public static final float INITIAL_CAVE_COUNT = 80f;
 
     protected Animation currentAnimation;
     protected Map<Orientation, Animation> moveAnimations;
@@ -50,6 +52,8 @@ public class Link {
     protected float pushCounter;
     protected boolean isInvincible;
     protected float invicibleCounter;
+    protected boolean isEnteringSomewhere;
+    protected float enterSomewhereCounter;
 
     protected float life;
     protected float lifeMax;

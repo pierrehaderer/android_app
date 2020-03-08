@@ -1,10 +1,8 @@
 package com.twoplayers.legend.character.enemy;
 
-import android.graphics.Color;
-
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
-import com.twoplayers.legend.IManager;
+import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
@@ -18,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class WorldMapEnemyManager implements IManager {
+public class WorldMapEnemyManager implements IEnemyManager {
 
     private WorldMapManager worldMapManager;
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
@@ -51,7 +49,7 @@ public class WorldMapEnemyManager implements IManager {
     @Override
     public void update(float deltaTime, Graphics g) {
         if (loadingEnemies) {
-            String enemiesAsString = enemiesProperties.getProperty(String.valueOf(worldMapManager.getCurrentAbsisse()) + worldMapManager.getCurrentOrdinate());
+            String enemiesAsString = enemiesProperties.getProperty(worldMapManager.getCoordinate());
             Logger.info("Enemies in properties : " + enemiesAsString);
             if (enemiesAsString != null) {
                 for (String enemyAsString : enemiesAsString.split("\\|")) {
@@ -97,24 +95,18 @@ public class WorldMapEnemyManager implements IManager {
         }
     }
 
-    /**
-     * Ask for the loading of enemies
-     */
+    @Override
     public void willLoadEnemies() {
         loadingEnemies = true;
     }
 
-    /**
-     * Unload enemies
-     */
+    @Override
     public void unloadEnemies() {
         loadingEnemies = false;
         enemies.clear();
     }
 
-    /**
-     * enemy has been damaged.
-     */
+    @Override
     public void damageEnemy(Enemy enemyDamaged, int damage) {
         enemyDamaged.life -= damage;
         if (enemyDamaged.life <= 0) {
@@ -123,6 +115,7 @@ public class WorldMapEnemyManager implements IManager {
         }
     }
 
+    @Override
     public List<Enemy> getEnemies() {
         return enemies;
     }

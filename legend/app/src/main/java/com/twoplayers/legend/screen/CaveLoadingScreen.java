@@ -9,23 +9,26 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-public class WorldMapLoadingScreen extends Screen {
+public class CaveLoadingScreen extends Screen {
 
     public static final int WIDTH_PHONE_SCREEN = 800;
     public static final int HEIGHT_PHONE_SCREEN = 480;
 
-    public WorldMapLoadingScreen(Game game) {
+    private String coordinate;
+
+    public CaveLoadingScreen(Game game, String coordinate) {
         super(game);
-        Logger.info("Entering WorldMapLoadingScreen.");
+        Logger.info("Entering CaveLoadingScreen.");
+        this.coordinate = coordinate;
     }
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getWorldMapManager().init(game);
-        ((MainActivity) game).getWorldMapEnemyManager().init(game);
-        ((MainActivity) game).getLinkManager().init(game, LocationUtil.LOCATION_WORLD_MAP);
+        ((MainActivity) game).getCaveManager().init(game, coordinate);
+        ((MainActivity) game).getCaveEnemyManager().init(game);
+        ((MainActivity) game).getLinkManager().init(game, LocationUtil.LOCATION_CAVE);
         ((MainActivity) game).getGuiManager().init(game);
-        game.setScreen(new WorldMapScreen(game));
+        game.setScreen(new CaveScreen(game));
     }
 
     @Override

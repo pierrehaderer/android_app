@@ -1,9 +1,6 @@
 package com.twoplayers.legend.util;
 
 import android.content.res.AssetManager;
-import android.util.Log;
-
-import com.twoplayers.legend.MainActivity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
