@@ -8,6 +8,7 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
+import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
@@ -16,6 +17,7 @@ import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -166,9 +168,7 @@ public class WorldMapManager implements IZoneManager {
         }
     }
 
-    /**
-     * Check if a tile is walkable
-     */
+    @Override
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
         MapScreen currentMapScreen = worldMap[currentAbscissa][currentOrdinate];
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
@@ -180,9 +180,7 @@ public class WorldMapManager implements IZoneManager {
         return tile.walkable;
     }
 
-    /**
-     * Check if a tile is a cave
-     */
+    @Override
     public boolean isTileACave(float x, float y) {
         MapScreen currentMapScreen = worldMap[currentAbscissa][currentOrdinate];
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
@@ -239,6 +237,16 @@ public class WorldMapManager implements IZoneManager {
         transitionRunning = true;
     }
 
+    @Override
+    public List<Item> getItems() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public boolean isExplored(int x, int y) {
+        return exploredWorldMap[x][y];
+    }
+
     /**
      * Find a tile where a enemy can spawn avoid map borders
      */
@@ -254,13 +262,6 @@ public class WorldMapManager implements IZoneManager {
             Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
         }
         return new Coordinate(x, y);
-    }
-
-    /**
-     * Return true if the mapScreen has been explored
-     */
-    public boolean isExplored(int x, int y) {
-        return exploredWorldMap[x][y];
     }
 
     /**

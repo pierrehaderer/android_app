@@ -10,6 +10,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.inventory.Arrow;
 import com.twoplayers.legend.character.link.inventory.Boomerang;
@@ -26,8 +27,9 @@ import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
+import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.character.link.inventory.sword.SwordType;
+import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.util.Coordinate;
@@ -41,6 +43,7 @@ public class LinkManager implements IManager {
     private GuiManager guiManager;
     private IZoneManager zoneManager;
     private IEnemyManager enemyManager;
+    private LinkService linkService;
 
     private ImagesLink imagesLink;
     private AllSoundEffects allSoundEffects;
@@ -57,7 +60,6 @@ public class LinkManager implements IManager {
             init(game);
         }
 
-        guiManager = ((MainActivity) game).getGuiManager();
         zoneManager = ((MainActivity) game).getZoneManager(zone);
         enemyManager = ((MainActivity) game).getEnemyManager(zone);
 
@@ -77,6 +79,9 @@ public class LinkManager implements IManager {
      * Initialise this manager
      */
     public void init(Game game) {
+        guiManager = ((MainActivity) game).getGuiManager();
+        linkService = new LinkService();
+
         imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
         imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         allSoundEffects = ((MainActivity) game).getAllSoundEffects();
@@ -85,11 +90,14 @@ public class LinkManager implements IManager {
 
         link.life = 3;
         link.lifeMax = 3;
+        link.coins = 255;
+        link.keys = 1;
         link.isExitingSomewhere = false;
 
         //TODO Change it when it can be collected
         link.arrow = Arrow.WOOD;
         link.bomb = 4;
+        link.bombMax = 8;
         link.boomerang = Boomerang.WOOD;
         link.bow = Bow.BOW;
         link.bracelet = Bracelet.BRACELET;
@@ -98,22 +106,23 @@ public class LinkManager implements IManager {
         link.flute = Flute.FLUTE;
         link.infiniteKey = InfiniteKey.KEY;
         link.ladder = Ladder.LADDER;
-        link.light = Light.BLUE;
+        link.light = Light.NONE;
         link.meat = Meat.MEAT;
         link.potion = Potion.NOTE;
         link.raft = Raft.RAFT;
         link.ring = Ring.RED;
         link.scepter = Scepter.SCEPTER;
+        link.shield = Shield.SMALL;
         link.spellBook = SpellBook.BOOK;
         link.sword = new Sword(imagesLink, game.getGraphics());
-        link.sword.type = SwordType.WOOD;
+        link.sword.type = SwordType.NONE;
 
         linkInvincibleColorMatrix = new LinkInvincibleColorMatrix();
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (!link.isAttacking && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere) {
+        if (!link.isAttacking && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Movement of Link
             if (guiManager.isUpPressed()) {
                 link.orientation = Orientation.UP;
@@ -168,7 +177,7 @@ public class LinkManager implements IManager {
         }
 
         // Attack of link
-        if (!link.isAttacking && !link.isEnteringSomewhere && !link.isExitingSomewhere) {
+        if (!link.isAttacking && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Start of link's attack
             if (guiManager.isaPressed() && link.sword.type != SwordType.NONE
                     && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
@@ -180,7 +189,7 @@ public class LinkManager implements IManager {
                 link.sword.currentAnimation.reset();
                 link.sword.hitbox = link.sword.hitboxes.get(link.orientation);
                 link.sword.hitbox.relocate(link.x, link.y);
-                allSoundEffects.get("sword").play(1f);
+                allSoundEffects.play("sword");
                 link.isAttacking = true;
                 link.attackProgression = 0;
             }
@@ -213,19 +222,21 @@ public class LinkManager implements IManager {
             }
             linkInvincibleColorMatrix.update(deltaTime);
         } else {
-            for (Enemy enemy : enemyManager.getEnemies()) {
-                if (!enemy.isDead() && enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
-                    Logger.info("Link has collided with enemy : " + enemy.getClass());
-                    updateLinkLife(enemy.getContactDamage());
-                    link.isInvincible = true;
-                    link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
-                    link.isPushed = true;
-                    link.pushCounter = Link.INITIAL_PUSH_COUNT;
-                    Float[] pushDirections = LocationUtil.computePushDirections(enemy.getHitbox(), link.hitbox);
-                    link.pushX = pushDirections[0];
-                    link.pushY = pushDirections[1];
-                    Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
-                    break;
+            if (!link.isShowingItem) {
+                for (Enemy enemy : enemyManager.getEnemies()) {
+                    if (!enemy.isDead() && enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
+                        Logger.info("Link has collided with enemy : " + enemy.getClass());
+                        updateLinkLife(enemy.getContactDamage());
+                        link.isInvincible = true;
+                        link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
+                        link.isPushed = true;
+                        link.pushCounter = Link.INITIAL_PUSH_COUNT;
+                        Float[] pushDirections = LocationUtil.computePushDirections(enemy.getHitbox(), link.hitbox);
+                        link.pushX = pushDirections[0];
+                        link.pushY = pushDirections[1];
+                        Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
+                        break;
+                    }
                 }
             }
         }
@@ -253,22 +264,85 @@ public class LinkManager implements IManager {
             }
         }
 
+        // Link is picking an item
+        for (Item item : zoneManager.getItems()) {
+            if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.coins - link.coinsToRemove >= item.price && !linkService.alreadyInInventory(link, item)) {
+                link.isPushed = false;
+                item.hideItemForTheZone();
+                link.coinCounter = 0;
+                link.coinsToRemove += item.price;
+                link.itemToShow = item;
+                link.isShowingItem = true;
+                link.showItemCounter = Link.INITIAL_SHOW_COUNT;
+                link.currentAnimation = link.pickAnimations[item.pickAnimation];
+                allSoundEffects.play("collect_item");
+                linkService.putItemInInventory(link, item);
+            }
+        }
+        if (link.isShowingItem) {
+            link.showItemCounter -= deltaTime;
+            if (link.showItemCounter < 0) {
+                link.isShowingItem = false;
+                link.currentAnimation = link.moveAnimations.get(Orientation.DOWN);
+            }
+        }
+        if (link.coinsToRemove > 0) {
+            link.coinCounter += deltaTime * Link.REMOVE_COINS_SPEED;
+            if (link.coinCounter > 1) {
+                int floor = (int) Math.min(Math.floor(link.coinCounter), link.coinsToRemove);
+                link.coins -= floor;
+                link.coinsToRemove -= floor;
+                link.coinCounter -= floor;
+                allSoundEffects.play("coin_payment");
+            }
+            if (link.coinsToRemove == 0) {
+                allSoundEffects.play("coin_payment_end");
+            }
+        }
+
         // Link is entering somewhere
         if (link.isEnteringSomewhere) {
             link.currentAnimation.update(deltaTime);
             link.enterSomewhereCounter -= deltaTime;
-            moveLinkY(deltaTime * Link.LINK_SPEED_ENTERING_CAVE);
+            moveLinkY(deltaTime * Link.ENTER_CAVE_SPEED);
         }
 
         // Link is exiting somewhere
         if (link.isExitingSomewhere) {
             link.currentAnimation.update(deltaTime);
             link.exitSomewhereCounter -= deltaTime;
-            moveLinkY(-1 * deltaTime * Link.LINK_SPEED_ENTERING_CAVE);
+            moveLinkY(-1 * deltaTime * Link.ENTER_CAVE_SPEED);
             if (link.exitSomewhereCounter < 0) {
                 link.isExitingSomewhere = false;
             }
         }
+    }
+
+    @Override
+    public void paint(float deltaTime, Graphics g) {
+        // Draw link
+        if (link.isShowingItem) {
+            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+            g.drawScaledImage(link.itemToShow.image, Math.round(link.x) - 8, Math.round(link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
+        } else if (link.isInvincible) {
+            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
+        } else if (link.isEnteringSomewhere || link.isExitingSomewhere) {
+            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+            int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileLeftFromX(link.x + LocationUtil.HALF_TILE_SIZE));
+            int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileTopFromY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
+            g.drawScaledImage(imagesLink.get("empty_tile"), belowCaveX, belowCaveY, AllImages.COEF);
+        } else {
+            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+        }
+
+        // Draw the sword
+        if (link.isAttacking) {
+            g.drawAnimation(link.sword.currentAnimation, Math.round(link.sword.x), Math.round(link.sword.y));
+        }
+
+        // Draw the hitboxes
+        g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Hitbox.COLOR);
+        g.drawRect((int) link.sword.hitbox.x, (int) link.sword.hitbox.y, (int) link.sword.hitbox.width, (int) link.sword.hitbox.height, Hitbox.COLOR);
     }
 
     /**
@@ -277,37 +351,15 @@ public class LinkManager implements IManager {
     private void checkAndInitCaveEntering() {
         if (zoneManager.isTileACave(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.TILE_SIZE)) {
             Logger.info("Link is entering a cave.");
-            allSoundEffects.get("cave").play(1f);
+            allSoundEffects.play("cave");
             enemyManager.unloadEnemies();
             link.isEnteringSomewhere = true;
-            link.enterSomewhereCounter = Link.INITIAL_CAVE_COUNT;
+            link.enterSomewhereCounter = Link.INITIAL_ENTER_COUNT;
             link.isPushed = false;
             link.isAttacking = false;
             link.isInvincible = false;
             link.currentAnimation = link.moveAnimations.get(Orientation.UP);
         }
-    }
-
-    @Override
-    public void paint(float deltaTime, Graphics g) {
-        // Draw link
-        if (link.isInvincible) {
-            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
-        } else {
-            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
-            if (link.isEnteringSomewhere || link.isExitingSomewhere) {
-                int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileLeftFromX(link.x + LocationUtil.HALF_TILE_SIZE));
-                int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileTopFromY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
-                g.drawScaledImage(imagesLink.get("empty_tile"), belowCaveX, belowCaveY, AllImages.COEF);
-            }
-        }
-        // Draw the sword
-        if (link.isAttacking) {
-            g.drawAnimation(link.sword.currentAnimation, Math.round(link.sword.x), Math.round(link.sword.y));
-        }
-        // Draw the hitboxes
-        g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Hitbox.COLOR);
-        g.drawRect((int) link.sword.hitbox.x, (int) link.sword.hitbox.y, (int) link.sword.hitbox.width, (int) link.sword.hitbox.height, Hitbox.COLOR);
     }
 
     /**
@@ -443,8 +495,8 @@ public class LinkManager implements IManager {
      */
     public void exitZone() {
         link.isExitingSomewhere = true;
-        link.exitSomewhereCounter = Link.INITIAL_CAVE_COUNT;
-        allSoundEffects.get("cave").play(1);
+        link.exitSomewhereCounter = Link.INITIAL_ENTER_COUNT;
+        allSoundEffects.play("cave");
     }
 
     /**

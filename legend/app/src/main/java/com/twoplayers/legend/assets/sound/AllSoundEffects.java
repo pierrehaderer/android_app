@@ -31,12 +31,11 @@ public class AllSoundEffects {
     }
 
     /**
-     * Get an image from this asset.
+     * Play a sound from this asset.
      */
-    public Sound get(String name) {
+    public void play(String name) {
         if (sounds.containsKey(name)) {
-            return sounds.get(name);
+            sounds.get(name).play(1);
         }
-        return sounds.get("empty");
     }
 }

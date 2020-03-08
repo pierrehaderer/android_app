@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.link.inventory.sword;
+package com.twoplayers.legend.character.link.inventory;
 
 public enum SwordType {
 

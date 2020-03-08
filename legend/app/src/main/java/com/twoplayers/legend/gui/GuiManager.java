@@ -27,9 +27,10 @@ import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.character.link.inventory.sword.SwordType;
+import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
+import com.twoplayers.legend.util.TextUtil;
 
 public class GuiManager implements IManager {
 
@@ -77,6 +78,13 @@ public class GuiManager implements IManager {
     private static final int LEFT_ITEM_B = 388;
     private static final int TOP_ITEM_B = 28;
     private static final float COEF_SELECTED_ITEMS = 3;
+
+    private static final int LEFT_COINS = 305;
+    private static final int TOP_COINS = 29;
+    private static final int LEFT_KEYS = 305;
+    private static final int TOP_KEYS = 57;
+    private static final int LEFT_BOMBS = 305;
+    private static final int TOP_BOMBS = 84;
 
     private static final int LEFT_BOOMERANG = 712;
     private static final int TOP_BOOMERANG = 26;
@@ -240,20 +248,22 @@ public class GuiManager implements IManager {
         Link link = linkManager.getLink();
 
         // Draw link life
-        for (int i = 1; i <= Math.min(8, link.getLifeMax()); i++) {
-            if (link.getLife() >= i) {
+        float linkLifeMax = link.getLifeMax();
+        float linkLife = link.getLife();
+        for (int i = 1; i <= Math.min(8, linkLifeMax); i++) {
+            if (linkLife >= i) {
                 g.drawImage(imagesGui.get("heart"), LEFT_HEARTS + (i - 1) * WIDTH_HEART, TOP_HEARTS_LOWER_ROW);
-            } else if (link.getLife() > i - 1) {
+            } else if (linkLife > i - 1) {
                 g.drawImage(imagesGui.get("heart_half"), LEFT_HEARTS + (i - 1) * WIDTH_HEART, TOP_HEARTS_LOWER_ROW);
             } else {
                 g.drawImage(imagesGui.get("heart_empty"), LEFT_HEARTS + (i - 1) * WIDTH_HEART, TOP_HEARTS_LOWER_ROW);
             }
         }
 
-        for (int i = 9; i <= Math.min(16, link.getLifeMax()); i++) {
-            if (link.getLife() >= i) {
+        for (int i = 9; i <= Math.min(16, linkLifeMax); i++) {
+            if (linkLife >= i) {
                 g.drawImage(imagesGui.get("heart"), LEFT_HEARTS + (i - 9) * WIDTH_HEART, TOP_HEARTS_UPPER_ROW);
-            } else if (link.getLife() > i - 1) {
+            } else if (linkLife > i - 1) {
                 g.drawImage(imagesGui.get("heart_half"), LEFT_HEARTS + (i - 9) * WIDTH_HEART, TOP_HEARTS_UPPER_ROW);
             } else {
                 g.drawImage(imagesGui.get("heart_empty"), LEFT_HEARTS + (i - 9) * WIDTH_HEART, TOP_HEARTS_UPPER_ROW);
@@ -344,6 +354,13 @@ public class GuiManager implements IManager {
             g.drawImage(imagesGui.get(link.getSpellBook().name),LEFT_SPELLBOOK, TOP_SPELLBOOK);
         }
         g.drawImage(imagesGui.get("cursor"),left_cursor, top_cursor);
+
+        // Draw resources
+        int linkCoins = link.getCoins();
+        String coinsToDisplay = (linkCoins < 100) ? "x" + linkCoins : String.valueOf(linkCoins);
+        g.drawString(coinsToDisplay, LEFT_COINS, TOP_COINS, TextUtil.getPaint());
+        g.drawString("x" + link.getKeys(), LEFT_KEYS, TOP_KEYS, TextUtil.getPaint());
+        g.drawString("x" + link.getBomb(), LEFT_BOMBS, TOP_BOMBS, TextUtil.getPaint());
     }
 
     /**

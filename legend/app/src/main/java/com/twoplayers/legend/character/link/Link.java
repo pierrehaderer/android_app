@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.inventory.Arrow;
 import com.twoplayers.legend.character.link.inventory.Boomerang;
 import com.twoplayers.legend.character.link.inventory.Bow;
@@ -20,6 +21,7 @@ import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
+import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.Orientation;
 
@@ -28,24 +30,30 @@ import java.util.Map;
 
 public class Link {
 
-    public static final float LINK_SPEED = 1.5f;
-    public static final float PUSH_SPEED = 9f;
-    public static final float LINK_SPEED_ENTERING_CAVE = 0.40f;
-    public static final float INITIAL_PUSH_COUNT = 9f;
-    public static final float INITIAL_INVINCIBLE_COUNT = 100f;
-    public static final float INITIAL_CAVE_COUNT = 75f;
+    protected static final float LINK_SPEED = 1.5f;
+    protected static final float PUSH_SPEED = 9f;
+    protected static final float ENTER_CAVE_SPEED = 0.40f;
+    protected static final float REMOVE_COINS_SPEED = 0.3f;
+    protected static final float INITIAL_PUSH_COUNT = 9f;
+    protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
+    protected static final float INITIAL_ENTER_COUNT = 75f;
+    protected static final float INITIAL_SHOW_COUNT = 150f;
+
+    public static final int PICK_ANIMATION_BIG = 0;
+    public static final int PICK_ANIMATION_SMALL = 1;
 
     protected Animation currentAnimation;
     protected Map<Orientation, Animation> moveAnimations;
     protected Map<Orientation, Animation> attackAnimations;
+    protected Animation[] pickAnimations;
 
     public float x;
     public float y;
     protected Hitbox hitbox;
     public Orientation orientation;
 
-    public boolean isAttacking;
-    public float attackProgression;
+    protected boolean isAttacking;
+    protected float attackProgression;
     protected boolean isPushed;
     protected float pushX;
     protected float pushY;
@@ -56,11 +64,19 @@ public class Link {
     protected float enterSomewhereCounter;
     protected boolean isExitingSomewhere;
     protected float exitSomewhereCounter;
+    protected boolean isShowingItem;
+    protected float showItemCounter;
+    protected Item itemToShow;
 
     protected float life;
     protected float lifeMax;
+    protected int coins;
+    protected float coinCounter;
+    protected int coinsToRemove;
+    protected int keys;
     protected Arrow arrow;
     protected int bomb;
+    protected int bombMax;
     protected Boomerang boomerang;
     protected Bow bow;
     protected Bracelet bracelet;
@@ -75,12 +91,14 @@ public class Link {
     protected Raft raft;
     protected Ring ring;
     protected Scepter scepter;
+    protected Shield shield;
     protected SpellBook spellBook;
     protected Sword sword;
 
     public Link(ImagesLink imagesLink, Graphics g) {
         initMoveAnimations(imagesLink, g);
         initAttackAnimations(imagesLink, g);
+        initPickAnimations(imagesLink, g);
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
     }
 
@@ -143,12 +161,33 @@ public class Link {
         attackAnimations.put(Orientation.RIGHT, animationRight);
     }
 
+    /**
+     * Initialise the pick animations
+     */
+    private void initPickAnimations(ImagesLink imagesLink, Graphics g) {
+        pickAnimations = new Animation[2];
+        Animation animationSmall = g.newAnimation();
+        animationSmall.addFrame(imagesLink.get("link_pick_item_big"), AllImages.COEF, 100);
+        pickAnimations[PICK_ANIMATION_BIG] = animationSmall;
+        Animation animationBig = g.newAnimation();
+        animationBig.addFrame(imagesLink.get("link_pick_item_small"), AllImages.COEF, 100);
+        pickAnimations[PICK_ANIMATION_SMALL] = animationBig;
+    }
+
     public float getLife() {
         return life;
     }
 
     public float getLifeMax() {
         return lifeMax;
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public int getKeys() {
+        return keys;
     }
 
     public Arrow getArrow() {

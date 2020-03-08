@@ -11,6 +11,7 @@ import com.twoplayers.legend.assets.image.ImagesItem;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.LinkManager;
+import com.twoplayers.legend.character.link.inventory.InventoryService;
 import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
@@ -37,6 +38,7 @@ public class CaveManager implements IZoneManager {
     private boolean initNotDone = true;
 
     private LinkManager linkManager;
+    private InventoryService inventoryService;
 
     private ImagesCave imagesCave;
     private ImagesItem imagesItem;
@@ -67,6 +69,7 @@ public class CaveManager implements IZoneManager {
      */
     public void init(Game game) {
         linkManager = ((MainActivity) game).getLinkManager();
+        inventoryService = new InventoryService();
 
         imagesCave = ((MainActivity) game).getAllImages().getImagesCave();
         imagesCave.load(((MainActivity) game).getAssetManager(), game.getGraphics());
@@ -93,7 +96,7 @@ public class CaveManager implements IZoneManager {
         cave.displayedMessage2 = cave.message2.substring(0, end2);
         if (textSoundCounter < (int) textCounter) {
             textSoundCounter = (int) textCounter;
-            allSoundEffects.get("text").play(1);
+            allSoundEffects.play("text");
         }
 
         cave.fireAnimation.update(deltaTime);
@@ -112,12 +115,14 @@ public class CaveManager implements IZoneManager {
         g.drawScaledImage(cave.npc.image, (int) cave.npc.x, (int) cave.npc.y, AllImages.COEF);
         boolean priceDisplayed = false;
         for(Item item : cave.items) {
-            g.drawScaledImage(item.image, (int) item.x, (int) item.y, AllImages.COEF);
-            if (item.price > 0) {
-                String text = String.valueOf(item.price);
-                int offsetX = (text.length() == 2) ? PRICE_OFFSET_X_2DIGITS : PRICE_OFFSET_X_3DIGITS;
-                g.drawString(text, (int) item.x + offsetX, (int) item.y + PRICE_OFFSET_Y, TextUtil.getPaint());
-                priceDisplayed = true;
+            if (!item.hidden) {
+                g.drawScaledImage(item.image, (int) item.x, (int) item.y, AllImages.COEF);
+                if (item.price > 0) {
+                    String text = String.valueOf(item.price);
+                    int offsetX = (text.length() == 2) ? PRICE_OFFSET_X_2DIGITS : PRICE_OFFSET_X_3DIGITS;
+                    g.drawString(text, (int) item.x + offsetX, (int) item.y + PRICE_OFFSET_Y, TextUtil.getPaint());
+                    priceDisplayed = true;
+                }
             }
         }
         if (priceDisplayed) {
@@ -168,7 +173,8 @@ public class CaveManager implements IZoneManager {
                 String[] elements = itemAndPrice.split(",");
                 Item item = new Item();
                 item.name = elements[0];
-                item.image = imagesItem.get(elements[0]);
+                item.image = imagesItem.get(item.name);
+                item.pickAnimation = inventoryService.findPickAnimation(item.name);
                 item.x = itemPositionsX[index];
                 item.y = LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
                 item.hitbox.relocate(item.x, item.y);
@@ -216,8 +222,9 @@ public class CaveManager implements IZoneManager {
         return 0;
     }
 
-    public boolean hasExitedZone() {
-        return hasExitedZone;
+    @Override
+    public List<Item> getItems() {
+        return cave.items;
     }
 
     /**
@@ -232,5 +239,12 @@ public class CaveManager implements IZoneManager {
      */
     public Coordinate getCaveEntrance() {
         return cave.entrance;
+    }
+
+    /**
+     * True if link has exited the zone
+     */
+    public boolean hasExitedZone() {
+        return hasExitedZone;
     }
 }

@@ -1,6 +1,8 @@
 package com.twoplayers.legend;
 
-import com.kilobolt.framework.Graphics;
+import com.twoplayers.legend.character.Item;
+
+import java.util.List;
 
 public interface IZoneManager extends IManager {
     /** Initiate the change of the screen */
@@ -15,4 +17,6 @@ public interface IZoneManager extends IManager {
     public float getCurrentMiniAbscissa();
     /** Get ordinate for the mini map */
     public float getCurrentMiniOrdinate();
+    /** Get the list of items on the screen */
+    public List<Item> getItems();
 }
