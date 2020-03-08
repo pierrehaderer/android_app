@@ -11,6 +11,8 @@ public class Item {
     public float y;
     public Hitbox hitbox;
 
+    public int price;
+
     public Item() {
         hitbox = new Hitbox(0, 0, 5, 5, 6, 6);
     }

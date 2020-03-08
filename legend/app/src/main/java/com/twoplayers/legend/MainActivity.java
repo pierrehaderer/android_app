@@ -17,33 +17,35 @@ import com.kilobolt.framework.Screen;
 import com.kilobolt.framework.implementation.AndroidGame;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
+import com.twoplayers.legend.util.TextUtil;
 
 public class MainActivity extends AndroidGame {
 
     private AssetManager assetManager;
     private AllImages allImages;
+    private AllSoundEffects allSoundEffects;
+    private AllMusics allMusics;
     private WorldMapManager worldMapManager;
     private CaveManager caveManager;
     private WorldMapEnemyManager worldMapEnemyManager;
     private CaveEnemyManager caveEnemyManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
-    private AllSoundEffects allSoundEffects;
-    private AllMusics allMusics;
 
     @Override
     public Screen getInitScreen() {
         // THIS IS WHERE IT ALL STARTS !!!!!
         assetManager = getAssets();
         allImages = new AllImages();
+        allSoundEffects = new AllSoundEffects();
+        allMusics = new AllMusics();
         worldMapManager = new WorldMapManager();
         caveManager = new CaveManager();
         worldMapEnemyManager = new WorldMapEnemyManager();
         caveEnemyManager = new CaveEnemyManager();
         linkManager = new LinkManager();
         guiManager = new GuiManager();
-        allSoundEffects = new AllSoundEffects();
-        allMusics = new AllMusics();
+        TextUtil.initPaint(this);
         hideNavigationBar();
         allImages.getImageOther().loadSplashLoadingScreen(this.getGraphics());
         return new SplashLoadingScreen(this);
@@ -112,6 +114,14 @@ public class MainActivity extends AndroidGame {
         return allImages;
     }
 
+    public AllSoundEffects getAllSoundEffects() {
+        return allSoundEffects;
+    }
+
+    public AllMusics getAllMusics() {
+        return allMusics;
+    }
+
     public WorldMapManager getWorldMapManager() {
         return worldMapManager;
     }
@@ -134,13 +144,5 @@ public class MainActivity extends AndroidGame {
 
     public GuiManager getGuiManager() {
         return guiManager;
-    }
-
-    public AllSoundEffects getAllSoundEffects() {
-        return allSoundEffects;
-    }
-
-    public AllMusics getAllMusics() {
-        return allMusics;
     }
 }

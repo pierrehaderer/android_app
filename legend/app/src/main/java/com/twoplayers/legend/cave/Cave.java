@@ -4,6 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesCave;
+import com.twoplayers.legend.assets.image.ImagesItem;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.util.Coordinate;
@@ -13,26 +14,32 @@ import java.util.List;
 
 public class Cave {
 
-    protected String message;
+    protected String message1;
+    protected String message2;
+    protected String displayedMessage1;
+    protected String displayedMessage2;
     protected Npc npc;
     protected Coordinate location;
     protected Coordinate entrance;
     protected List<Item> items;
-    protected List<Integer> itemPrices;
 
     protected Animation fireAnimation;
+    protected Animation coinAnimation;
 
-    public Cave(ImagesCave imagesCave, Graphics g) {
+    public Cave(ImagesCave imagesCave, ImagesItem imagesItem, Graphics g) {
         items = new ArrayList<>();
-        itemPrices = new ArrayList<>();
+        displayedMessage1 = "";
+        displayedMessage2 = "";
 
         fireAnimation = g.newAnimation();
-        fireAnimation.addFrame(imagesCave.get("fire_1"), AllImages.COEF, 5);
-        fireAnimation.addFrame(imagesCave.get("fire_2"), AllImages.COEF, 5);
+        fireAnimation.addFrame(imagesCave.get("fire_1"), AllImages.COEF, 10);
+        fireAnimation.addFrame(imagesCave.get("fire_2"), AllImages.COEF, 10);
+        coinAnimation = g.newAnimation();
+        coinAnimation.addFrame(imagesItem.get("coin_orange"), AllImages.COEF, 15);
+        coinAnimation.addFrame(imagesItem.get("coin_blue"), AllImages.COEF, 15);
     }
 
-    public void addItem(Item item, Integer price) {
+    public void addItem(Item item) {
         this.items.add(item);
-        this.itemPrices.add(price);
     }
 }

@@ -5,7 +5,7 @@ import com.twoplayers.legend.character.Hitbox;
 
 public class Npc {
 
-    public NpcType type;
+    public String name;
     public Image image;
 
     public float x;
