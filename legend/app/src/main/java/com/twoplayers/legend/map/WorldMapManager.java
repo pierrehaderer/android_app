@@ -3,7 +3,7 @@ package com.twoplayers.legend.map;
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
-import com.twoplayers.legend.ILocationManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -19,9 +19,11 @@ import com.twoplayers.legend.util.Logger;
 import java.util.List;
 import java.util.Properties;
 
-public class WorldMapManager implements ILocationManager {
+public class WorldMapManager implements IZoneManager {
 
-    public static final float TRANSITION_SPEED = 4.0f;
+    private static final float TRANSITION_SPEED = 4.0f;
+
+    private boolean initNotDone = true;
 
     private ImagesWorldMap imagesWorldMap;
 
@@ -35,11 +37,11 @@ public class WorldMapManager implements ILocationManager {
 
     private Properties worldMapCaves;
 
-    private int currentAbsisse;
+    private int currentAbscissa;
     private int currentOrdinate;
-    private int nextAbsisse;
+    private int nextAbscissa;
     private int nextOrdinate;
-    private float currentMiniAbsisse;
+    private float currentMiniAbscissa;
     private float currentMiniOrdinate;
 
     private boolean transitionRunning;
@@ -52,6 +54,31 @@ public class WorldMapManager implements ILocationManager {
     private float leftNextMapScreen;
     private float topNextMapScreen;
     private Image imageNextMapScreen;
+
+    /**
+     * Load this manager
+     */
+    public void load(Game game, Coordinate location) {
+        if (initNotDone) {
+            initNotDone = false;
+            init(game);
+        }
+
+        currentAbscissa = (int) location.x;
+        currentOrdinate = (int) location.y;
+        nextAbscissa = currentAbscissa;
+        nextOrdinate = currentOrdinate;
+        currentMiniAbscissa = 16 * currentAbscissa;
+        currentMiniOrdinate = 11 * currentOrdinate;
+
+        transitionRunning = false;
+        leftCurrentMapScreen = LocationUtil.LEFT_MAP;
+        topCurrentMapScreen = LocationUtil.TOP_MAP;
+        imageCurrentMapScreen = imagesWorldMap.get(getCoordinate());
+        leftNextMapScreen = LocationUtil.LEFT_MAP;
+        topNextMapScreen = LocationUtil.TOP_MAP;
+        imageNextMapScreen = imagesWorldMap.get("empty");
+    }
 
     /**
      * Initialise this manager
@@ -67,21 +94,6 @@ public class WorldMapManager implements ILocationManager {
         MapTile.initHashMap();
         initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));
         worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "caves/world_map_caves.properties");
-
-        currentAbsisse = 7;
-        currentOrdinate = 7;
-        nextAbsisse = 7;
-        nextOrdinate = 7;
-        currentMiniAbsisse = 16 * currentAbsisse;
-        currentMiniOrdinate = 11 * currentOrdinate;
-
-        transitionRunning = false;
-        leftCurrentMapScreen = LocationUtil.LEFT_MAP;
-        topCurrentMapScreen = LocationUtil.TOP_MAP;
-        imageCurrentMapScreen = imagesWorldMap.get(getCoordinate());
-        leftNextMapScreen = LocationUtil.LEFT_MAP;
-        topNextMapScreen = LocationUtil.TOP_MAP;
-        imageNextMapScreen = imagesWorldMap.get("empty");
     }
 
     @Override
@@ -94,7 +106,7 @@ public class WorldMapManager implements ILocationManager {
             topCurrentMapScreen += transitionDeltaY;
             leftNextMapScreen += transitionDeltaX;
             topNextMapScreen += transitionDeltaY;
-            currentMiniAbsisse -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
+            currentMiniAbscissa -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
             currentMiniOrdinate -= transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
 
             linkManager.moveLinkX(transitionDeltaX);
@@ -105,13 +117,13 @@ public class WorldMapManager implements ILocationManager {
                 imageCurrentMapScreen = imageNextMapScreen;
                 leftCurrentMapScreen = LocationUtil.LEFT_MAP;
                 topCurrentMapScreen = LocationUtil.TOP_MAP;
-                currentAbsisse = nextAbsisse;
+                currentAbscissa = nextAbscissa;
                 currentOrdinate = nextOrdinate;
-                currentMiniAbsisse = 16 * currentAbsisse;
+                currentMiniAbscissa = 16 * currentAbscissa;
                 currentMiniOrdinate = 11 * currentOrdinate;
                 imageNextMapScreen = imagesWorldMap.get("empty");
                 transitionRunning = false;
-                worldMapEnemyManager.willLoadEnemies();
+                worldMapEnemyManager.requestEnemiesLoading();
                 guiManager.activateButtons();
             }
         }
@@ -158,7 +170,7 @@ public class WorldMapManager implements ILocationManager {
      * Check if a tile is walkable
      */
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
-        MapScreen currentMapScreen = worldMap[currentAbsisse][currentOrdinate];
+        MapScreen currentMapScreen = worldMap[currentAbscissa][currentOrdinate];
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
         int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
         MapTile tile = currentMapScreen.getTile(tileX, tileY);
@@ -172,7 +184,7 @@ public class WorldMapManager implements ILocationManager {
      * Check if a tile is a cave
      */
     public boolean isTileACave(float x, float y) {
-        MapScreen currentMapScreen = worldMap[currentAbsisse][currentOrdinate];
+        MapScreen currentMapScreen = worldMap[currentAbscissa][currentOrdinate];
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
         int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
         MapTile tile = currentMapScreen.getTile(tileX, tileY);
@@ -188,7 +200,7 @@ public class WorldMapManager implements ILocationManager {
                 transitionCount = 176 * AllImages.COEF;
                 leftNextMapScreen = LocationUtil.LEFT_MAP;
                 topNextMapScreen = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
-                nextAbsisse = currentAbsisse;
+                nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate - 1;
                 transitionSpeedX = 0;
                 transitionSpeedY = TRANSITION_SPEED;
@@ -197,7 +209,7 @@ public class WorldMapManager implements ILocationManager {
                 transitionCount = 176 * AllImages.COEF;
                 leftNextMapScreen = LocationUtil.LEFT_MAP;
                 topNextMapScreen = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
-                nextAbsisse = currentAbsisse;
+                nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate + 1;
                 transitionSpeedX = 0;
                 transitionSpeedY = -1 * TRANSITION_SPEED;
@@ -206,7 +218,7 @@ public class WorldMapManager implements ILocationManager {
                 transitionCount = 256 * AllImages.COEF;
                 leftNextMapScreen = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
                 topNextMapScreen = LocationUtil.TOP_MAP;
-                nextAbsisse = currentAbsisse - 1;
+                nextAbscissa = currentAbscissa - 1;
                 nextOrdinate = currentOrdinate;
                 transitionSpeedX = TRANSITION_SPEED;
                 transitionSpeedY = 0;
@@ -215,15 +227,15 @@ public class WorldMapManager implements ILocationManager {
                 transitionCount = 256 * AllImages.COEF;
                 leftNextMapScreen = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
                 topNextMapScreen = LocationUtil.TOP_MAP;
-                nextAbsisse = currentAbsisse + 1;
+                nextAbscissa = currentAbscissa + 1;
                 nextOrdinate = currentOrdinate;
                 transitionSpeedX = -1 * TRANSITION_SPEED;
                 transitionSpeedY = 0;
                 break;
         }
-        imageNextMapScreen = imagesWorldMap.get(String.valueOf(nextAbsisse) + nextOrdinate);
-        Logger.info("Starting screen transition to " + nextAbsisse + nextOrdinate);
-        exploredWorldMap[nextAbsisse][nextOrdinate] = true;
+        imageNextMapScreen = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
+        Logger.info("Starting screen transition to " + nextAbscissa + nextOrdinate);
+        exploredWorldMap[nextAbscissa][nextOrdinate] = true;
         transitionRunning = true;
     }
 
@@ -255,7 +267,7 @@ public class WorldMapManager implements ILocationManager {
      * Obtain the current mapScreen coordinate
      */
     public String getCoordinate() {
-        return String.valueOf(currentAbsisse) + currentOrdinate;
+        return String.valueOf(currentAbscissa) + currentOrdinate;
     }
 
     /**
@@ -265,16 +277,16 @@ public class WorldMapManager implements ILocationManager {
         return worldMapCaves.getProperty(getCoordinate(), "CAVE");
     }
 
-    public int getCurrentAbsisse() {
-        return currentAbsisse;
+    public int getCurrentAbscissa() {
+        return currentAbscissa;
     }
 
     public int getCurrentOrdinate() {
         return currentOrdinate;
     }
 
-    public float getCurrentMiniAbsisse() {
-        return currentMiniAbsisse;
+    public float getCurrentMiniAbscissa() {
+        return currentMiniAbscissa;
     }
 
     public float getCurrentMiniOrdinate() {

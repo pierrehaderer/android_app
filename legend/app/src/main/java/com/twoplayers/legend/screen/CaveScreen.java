@@ -36,8 +36,8 @@ public class CaveScreen extends Screen {
         caveEnemyManager.update(deltaTime, game.getGraphics());
         linkManager.update(deltaTime, game.getGraphics());
         guiManager.update(deltaTime, game.getGraphics());
-        if (caveManager.hasExitedCave()) {
-            game.setScreen(new WorldMapLoadingScreen(game));
+        if (caveManager.hasExitedZone()) {
+            game.setScreen(new WorldMapLoadingScreen(game, caveManager.getCaveLocation(), caveManager.getCaveEntrance()));
         }
     }
 

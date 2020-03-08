@@ -87,8 +87,8 @@ public class MainActivity extends AndroidGame {
     /**
      * Obtain the correct location manager
      */
-    public ILocationManager getLocationManager(int location) {
-        if (location == LocationUtil.LOCATION_CAVE) {
+    public IZoneManager getZoneManager(int location) {
+        if (location == LocationUtil.ZONE_CAVE) {
             return caveManager;
         }
         return worldMapManager;
@@ -98,7 +98,7 @@ public class MainActivity extends AndroidGame {
      * Obtain the correct enemy manager
      */
     public IEnemyManager getEnemyManager(int location) {
-        if (location == LocationUtil.LOCATION_CAVE) {
+        if (location == LocationUtil.ZONE_CAVE) {
             return caveEnemyManager;
         }
         return worldMapEnemyManager;

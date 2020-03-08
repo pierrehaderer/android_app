@@ -6,6 +6,7 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Input;
 import com.twoplayers.legend.IManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImagesGui;
 import com.twoplayers.legend.character.link.Link;
@@ -27,7 +28,6 @@ import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.character.link.inventory.sword.SwordType;
-import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -116,10 +116,12 @@ public class GuiManager implements IManager {
     private static final int LEFT_DUNGEONMAP = 712;
     private static final int TOP_DUNGEONMAP = 80;
 
+    private boolean initNotDone = true;
+
     private Game game;
     private ImagesGui imagesGui;
 
-    private WorldMapManager worldMapManager;
+    private IZoneManager zoneManager;
     private LinkManager linkManager;
 
     private boolean buttonActivated;
@@ -137,16 +139,16 @@ public class GuiManager implements IManager {
     private int top_cursor;
 
     /**
-     * Initialise this manager
+     * Load this manager
      */
-    public void init(Game game) {
-        this.game = game;
+    public void load(Game game, int zone) {
+        if (initNotDone) {
+            initNotDone = false;
+            init(game);
+        }
 
-        worldMapManager = ((MainActivity) game).getWorldMapManager();
         linkManager = ((MainActivity) game).getLinkManager();
-
-        imagesGui = ((MainActivity) game).getAllImages().getImagesGui();
-        imagesGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
+        zoneManager = ((MainActivity) game).getZoneManager(zone);
 
         buttonActivated = true;
         upPressed = false;
@@ -156,6 +158,16 @@ public class GuiManager implements IManager {
         aPressed = false;
         bPressed = false;
         cPressed = false;
+    }
+
+    /**
+     * Initialise this manager
+     */
+    public void init(Game game) {
+        this.game = game;
+
+        imagesGui = ((MainActivity) game).getAllImages().getImagesGui();
+        imagesGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         cursor_position = 1;
         left_cursor = 708;
@@ -214,12 +226,12 @@ public class GuiManager implements IManager {
 
         // Draw mini map
         g.drawImage(imagesGui.get("mini_world_map"), LEFT_MINI_MAP, TOP_MINI_MAP);
-        float miniX = LEFT_MINI_MAP + worldMapManager.getCurrentMiniAbsisse() + 5;
-        float miniY = TOP_MINI_MAP + worldMapManager.getCurrentMiniOrdinate() + 3;
+        float miniX = LEFT_MINI_MAP + zoneManager.getCurrentMiniAbscissa() + 5;
+        float miniY = TOP_MINI_MAP + zoneManager.getCurrentMiniOrdinate() + 3;
         g.drawRect((int) miniX, (int) miniY, 8, 7, Color.BLUE);
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 8; j++) {
-                if (!worldMapManager.isExplored(i, j)) {
+                if (!zoneManager.isExplored(i, j)) {
                     g.drawRect(LEFT_MINI_MAP + 16 * i, TOP_MINI_MAP + 11 * j, 18, 13, Color.DKGRAY);
                 }
             }

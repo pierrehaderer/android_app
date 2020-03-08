@@ -3,7 +3,7 @@ package com.twoplayers.legend.character.link;
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
-import com.twoplayers.legend.ILocationManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -11,7 +11,6 @@ import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.AllSoundEffects;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
-import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.character.link.inventory.Arrow;
 import com.twoplayers.legend.character.link.inventory.Boomerang;
 import com.twoplayers.legend.character.link.inventory.Bow;
@@ -31,13 +30,16 @@ import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
 public class LinkManager implements IManager {
 
+    private boolean initNotDone = true;
+
     private GuiManager guiManager;
-    private ILocationManager locationManager;
+    private IZoneManager zoneManager;
     private IEnemyManager enemyManager;
 
     private ImagesLink imagesLink;
@@ -47,30 +49,43 @@ public class LinkManager implements IManager {
     private LinkInvincibleColorMatrix linkInvincibleColorMatrix;
 
     /**
+     * Load this manager
+     */
+    public void load(Game game, int zone, Coordinate position) {
+        if (initNotDone) {
+            initNotDone = false;
+            init(game);
+        }
+
+        guiManager = ((MainActivity) game).getGuiManager();
+        zoneManager = ((MainActivity) game).getZoneManager(zone);
+        enemyManager = ((MainActivity) game).getEnemyManager(zone);
+
+        link.x = LocationUtil.getXFromGrid((int) position.x);
+        link.y = (link.isExitingSomewhere) ? LocationUtil.getYFromGrid((int) position.y + 1) - 3 : LocationUtil.getYFromGrid((int) position.y);
+        link.hitbox.relocate(link.x, link.y);
+        Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
+        link.orientation = (link.isExitingSomewhere) ? Orientation.DOWN : Orientation.UP;
+        link.currentAnimation = link.moveAnimations.get(link.orientation);
+        link.isAttacking = false;
+        link.isInvincible = false;
+        link.isEnteringSomewhere = false;
+        link.enterSomewhereCounter = 0;
+    }
+
+    /**
      * Initialise this manager
      */
-    public void init(Game game, int location) {
-        guiManager = ((MainActivity) game).getGuiManager();
-        this.locationManager = ((MainActivity) game).getLocationManager(location);
-        enemyManager = ((MainActivity) game).getEnemyManager(location);
-
+    public void init(Game game) {
         imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
         imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         allSoundEffects = ((MainActivity) game).getAllSoundEffects();
 
         link = new Link(imagesLink, game.getGraphics());
-        link.x = LocationUtil.getXFromGrid(7);
-        link.y = LocationUtil.getYFromGrid(5);
-        link.hitbox.relocate(link.x, link.y);
-        Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
-        link.orientation = Orientation.UP;
-        link.currentAnimation = link.moveAnimations.get(link.orientation);
-        link.isAttacking = false;
-        link.isInvincible = false;
-        link.isEnteringSomewhere = false;
 
         link.life = 3;
         link.lifeMax = 3;
+        link.isExitingSomewhere = false;
 
         //TODO Change it when it can be collected
         link.arrow = Arrow.WOOD;
@@ -98,7 +113,7 @@ public class LinkManager implements IManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (!link.isAttacking && !link.isPushed && !link.isEnteringSomewhere) {
+        if (!link.isAttacking && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere) {
             // Movement of Link
             if (guiManager.isUpPressed()) {
                 link.orientation = Orientation.UP;
@@ -109,7 +124,7 @@ public class LinkManager implements IManager {
                     moveLinkY(deltaY);
                 }
                 if (isUpOutOfMap(link.y + deltaY)) {
-                    locationManager.changeScreen(Orientation.UP);
+                    zoneManager.changeScreen(Orientation.UP);
                 }
                 // Check if link is entering a cave
                 checkAndInitCaveEntering();
@@ -123,7 +138,7 @@ public class LinkManager implements IManager {
                     moveLinkY(deltaY);
                 }
                 if (isDownOutOfMap(link.y + deltaY)) {
-                    locationManager.changeScreen(Orientation.DOWN);
+                    zoneManager.changeScreen(Orientation.DOWN);
                 }
             }
             if (guiManager.isLeftPressed()) {
@@ -135,7 +150,7 @@ public class LinkManager implements IManager {
                     moveLinkX(deltaX);
                 }
                 if (isLeftOutOfMap(link.x + deltaX)) {
-                    locationManager.changeScreen(Orientation.LEFT);
+                    zoneManager.changeScreen(Orientation.LEFT);
                 }
             }
             if (guiManager.isRightPressed()) {
@@ -147,13 +162,13 @@ public class LinkManager implements IManager {
                     moveLinkX(deltaX);
                 }
                 if (isRightOutOfMap(link.x + deltaX)) {
-                    locationManager.changeScreen(Orientation.RIGHT);
+                    zoneManager.changeScreen(Orientation.RIGHT);
                 }
             }
         }
 
         // Attack of link
-        if (!link.isAttacking && !link.isEnteringSomewhere) {
+        if (!link.isAttacking && !link.isEnteringSomewhere && !link.isExitingSomewhere) {
             // Start of link's attack
             if (guiManager.isaPressed() && link.sword.type != SwordType.NONE
                     && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
@@ -186,7 +201,6 @@ public class LinkManager implements IManager {
             if (link.currentAnimation.isAnimationOver()) {
                 link.isAttacking = false;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
-                link.sword.currentAnimation.reset();
             }
         }
 
@@ -239,11 +253,21 @@ public class LinkManager implements IManager {
             }
         }
 
-        // Link is entering cave
+        // Link is entering somewhere
         if (link.isEnteringSomewhere) {
             link.currentAnimation.update(deltaTime);
             link.enterSomewhereCounter -= deltaTime;
             moveLinkY(deltaTime * Link.LINK_SPEED_ENTERING_CAVE);
+        }
+
+        // Link is exiting somewhere
+        if (link.isExitingSomewhere) {
+            link.currentAnimation.update(deltaTime);
+            link.exitSomewhereCounter -= deltaTime;
+            moveLinkY(-1 * deltaTime * Link.LINK_SPEED_ENTERING_CAVE);
+            if (link.exitSomewhereCounter < 0) {
+                link.isExitingSomewhere = false;
+            }
         }
     }
 
@@ -251,7 +275,7 @@ public class LinkManager implements IManager {
      * Check if entering a cave and set the variables to make link enter a cave
      */
     private void checkAndInitCaveEntering() {
-        if (locationManager.isTileACave(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.TILE_SIZE)) {
+        if (zoneManager.isTileACave(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.TILE_SIZE)) {
             Logger.info("Link is entering a cave.");
             allSoundEffects.get("cave").play(1f);
             enemyManager.unloadEnemies();
@@ -271,9 +295,9 @@ public class LinkManager implements IManager {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
         } else {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
-            if (link.isEnteringSomewhere) {
+            if (link.isEnteringSomewhere || link.isExitingSomewhere) {
                 int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileLeftFromX(link.x + LocationUtil.HALF_TILE_SIZE));
-                int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileTopFromY(link.y + LocationUtil.TILE_SIZE + 2));
+                int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileTopFromY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
                 g.drawScaledImage(imagesLink.get("empty_tile"), belowCaveX, belowCaveY, AllImages.COEF);
             }
         }
@@ -327,7 +351,7 @@ public class LinkManager implements IManager {
         float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return locationManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && locationManager.isTileWalkable(linkRight - 2, linkMiddle, true);
+        return zoneManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true);
     }
 
     /**
@@ -337,7 +361,7 @@ public class LinkManager implements IManager {
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return locationManager.isTileWalkable(linkLeft + 2, linkBottom, true) && locationManager.isTileWalkable(linkRight - 2, linkBottom, true);
+        return zoneManager.isTileWalkable(linkLeft + 2, linkBottom, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true);
     }
 
     /**
@@ -347,7 +371,7 @@ public class LinkManager implements IManager {
         float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return locationManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && locationManager.isTileWalkable(linkLeft + 2, linkBottom, true);
+        return zoneManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && zoneManager.isTileWalkable(linkLeft + 2, linkBottom, true);
     }
 
     /**
@@ -358,7 +382,7 @@ public class LinkManager implements IManager {
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
-        return locationManager.isTileWalkable(linkRight - 2, linkMiddle, true) && locationManager.isTileWalkable(linkRight - 2, linkBottom, true);
+        return zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true);
     }
 
     /**
@@ -414,6 +438,18 @@ public class LinkManager implements IManager {
         link.life = Math.min(link.lifeMax, link.life + value);
     }
 
+    /**
+     * Prepare link to re-enter the world map
+     */
+    public void exitZone() {
+        link.isExitingSomewhere = true;
+        link.exitSomewhereCounter = Link.INITIAL_CAVE_COUNT;
+        allSoundEffects.get("cave").play(1);
+    }
+
+    /**
+     * Check if link has finished entering somewhere
+     */
     public boolean hasEnteredSomewhere() {
         return link.enterSomewhereCounter < 0;
     }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IEnemyManager extends IManager {
     /** Ask for the loading of enemies */
-    public void willLoadEnemies();
+    public void requestEnemiesLoading();
     /** Unload enemies */
     public void unloadEnemies();
     /** Enemy has been damaged */

@@ -6,6 +6,7 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -14,17 +15,22 @@ public class WorldMapLoadingScreen extends Screen {
     public static final int WIDTH_PHONE_SCREEN = 800;
     public static final int HEIGHT_PHONE_SCREEN = 480;
 
-    public WorldMapLoadingScreen(Game game) {
+    private Coordinate linkLocation;
+    private Coordinate linkPosition;
+
+    public WorldMapLoadingScreen(Game game, Coordinate location, Coordinate position) {
         super(game);
         Logger.info("Entering WorldMapLoadingScreen.");
+        linkLocation = location;
+        linkPosition = position;
     }
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getWorldMapManager().init(game);
-        ((MainActivity) game).getWorldMapEnemyManager().init(game);
-        ((MainActivity) game).getLinkManager().init(game, LocationUtil.LOCATION_WORLD_MAP);
-        ((MainActivity) game).getGuiManager().init(game);
+        ((MainActivity) game).getWorldMapManager().load(game, linkLocation);
+        ((MainActivity) game).getWorldMapEnemyManager().load(game);
+        ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_WORLD_MAP, linkPosition);
+        ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_WORLD_MAP);
         game.setScreen(new WorldMapScreen(game));
     }
 

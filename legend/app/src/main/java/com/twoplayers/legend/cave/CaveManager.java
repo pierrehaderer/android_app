@@ -2,17 +2,16 @@ package com.twoplayers.legend.cave;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
-import com.twoplayers.legend.ILocationManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesCave;
 import com.twoplayers.legend.assets.image.ImagesItem;
 import com.twoplayers.legend.character.Item;
+import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.character.npc.NpcType;
-import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.LocationUtil;
@@ -21,7 +20,7 @@ import com.twoplayers.legend.util.Logger;
 import java.util.List;
 import java.util.Properties;
 
-public class CaveManager implements ILocationManager {
+public class CaveManager implements IZoneManager {
 
     private static final String DEFAULT_MESSAGE = "";
     private static final String DEFAULT_NPC = "empty";
@@ -29,17 +28,33 @@ public class CaveManager implements ILocationManager {
     private static final String DEFAULT_ENTRANCE = "4|1";
     private static final String DEFAULT_ITEMS = "";
 
+    private boolean initNotDone = true;
+
+    private LinkManager linkManager;
+
     private ImagesCave imagesCave;
     private ImagesItem imagesItem;
 
     private CaveScreen caveScreen;
     private Cave cave;
-    private boolean hasExitedCave;
+    private boolean hasExitedZone;
+    /**
+     * Load this manager
+     */
+    public void load(Game game, String mapCoordinate) {
+        if (initNotDone) {
+            initNotDone = false;
+            init(game);
+        }
+        initCave(game, mapCoordinate);
+    }
 
     /**
      * Initialise this manager
      */
-    public void init(Game game, String coordinate) {
+    public void init(Game game) {
+        linkManager = ((MainActivity) game).getLinkManager();
+
         imagesCave = ((MainActivity) game).getAllImages().getImagesCave();
         imagesCave.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         imagesItem = ((MainActivity) game).getAllImages().getImagesItem();
@@ -49,7 +64,6 @@ public class CaveManager implements ILocationManager {
         NpcType.initHashMap();
 
         initCaveScreen(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "cave/cave.txt"));
-        initCave(game, coordinate);
     }
 
     @Override
@@ -71,12 +85,24 @@ public class CaveManager implements ILocationManager {
     }
 
     /**
+     * Create all the caveScreen object from the cave file
+     */
+    private void initCaveScreen(List<String> caveFileContent) {
+        caveScreen = new CaveScreen();
+
+        for (int index = 0; index < 11; index++) {
+            String line = caveFileContent.get(index);
+            caveScreen.addALine(line);
+        }
+    }
+
+    /**
      * Init the cave based on the file properties
      */
     private void initCave(Game game, String coordinate) {
         Properties caveProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "cave/" + coordinate + ".properties");
         cave = new Cave(imagesCave, game.getGraphics());
-        hasExitedCave = false;
+        hasExitedZone = false;
 
         cave.message = caveProperties.getProperty("message", DEFAULT_MESSAGE);
 
@@ -110,22 +136,11 @@ public class CaveManager implements ILocationManager {
         }
     }
 
-    /**
-     * Create all the caveScreen object from the cave file
-     */
-    private void initCaveScreen(List<String> caveFileContent) {
-        caveScreen = new CaveScreen();
-
-        for (int index = 0; index < 11; index++) {
-            String line = caveFileContent.get(index);
-            caveScreen.addALine(line);
-        }
-    }
-
     @Override
     public void changeScreen(Orientation orientation) {
         Logger.info("Link has exited the cave.");
-        hasExitedCave = true;
+        hasExitedZone = true;
+        linkManager.exitZone();
     }
 
     @Override
@@ -144,7 +159,36 @@ public class CaveManager implements ILocationManager {
         return tile.walkable;
     }
 
-    public boolean hasExitedCave() {
-        return hasExitedCave;
+    @Override
+    public boolean isExplored(int x, int y) {
+        return false;
+    }
+
+    @Override
+    public float getCurrentMiniAbscissa() {
+        return 0;
+    }
+
+    @Override
+    public float getCurrentMiniOrdinate() {
+        return 0;
+    }
+
+    public boolean hasExitedZone() {
+        return hasExitedZone;
+    }
+
+    /**
+     * Obtain the location of the cave
+     */
+    public Coordinate getCaveLocation() {
+        return cave.location;
+    }
+
+    /**
+     * Obtain the entrance of the cave
+     */
+    public Coordinate getCaveEntrance() {
+        return cave.entrance;
     }
 }

@@ -6,6 +6,7 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -14,20 +15,25 @@ public class CaveLoadingScreen extends Screen {
     public static final int WIDTH_PHONE_SCREEN = 800;
     public static final int HEIGHT_PHONE_SCREEN = 480;
 
-    private String coordinate;
+    private static final int INITIAL_CAVE_POSITION_X = 7;
+    private static final int INITIAL_CAVE_POSITION_Y = 10;
+
+    private String worldMapCoordinate;
+    private Coordinate linkPosition;
 
     public CaveLoadingScreen(Game game, String coordinate) {
         super(game);
         Logger.info("Entering CaveLoadingScreen.");
-        this.coordinate = coordinate;
+        worldMapCoordinate = coordinate;
+        linkPosition = new Coordinate(INITIAL_CAVE_POSITION_X, INITIAL_CAVE_POSITION_Y);
     }
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getCaveManager().init(game, coordinate);
-        ((MainActivity) game).getCaveEnemyManager().init(game);
-        ((MainActivity) game).getLinkManager().init(game, LocationUtil.LOCATION_CAVE);
-        ((MainActivity) game).getGuiManager().init(game);
+        ((MainActivity) game).getCaveManager().load(game, worldMapCoordinate);
+        ((MainActivity) game).getCaveEnemyManager().load(game);
+        ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_CAVE, linkPosition);
+        ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_CAVE);
         game.setScreen(new CaveScreen(game));
     }
 

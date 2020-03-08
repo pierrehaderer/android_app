@@ -3,13 +3,12 @@ package com.twoplayers.legend.util;
 import com.kilobolt.framework.Input.TouchEvent;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.map.WorldMapManager;
 
 public class LocationUtil {
 
-    public static final int LOCATION_WORLD_MAP = 0;
-    public static final int LOCATION_CAVE = 1;
-    public static final int LOCATION_DUNGEON = 2;
+    public static final int ZONE_WORLD_MAP = 0;
+    public static final int ZONE_CAVE = 1;
+    public static final int ZONE_DUNGEON = 2;
 
     public static final int LEFT_MAP = 150;
     public static final int TOP_MAP = 103;
@@ -69,7 +68,7 @@ public class LocationUtil {
     }
 
     /**
-     * Get the absisse of the tile's left in position x
+     * Get the abscissa of the tile's left in position x
      */
     public static float getXFromGrid(int x) {
         return LEFT_MAP + x * TILE_SIZE;
@@ -83,14 +82,14 @@ public class LocationUtil {
     }
 
     /**
-     * Get the tile's left position corresponding to absisse x
+     * Get the tile's left position corresponding to abscissa x
      */
     public static int getTileLeftFromX(float x) {
         return (int) ((x - LEFT_MAP) / TILE_SIZE);
     }
 
     /**
-     * Get the tile's left position corresponding to absisse x
+     * Get the tile's left position corresponding to abscissa x
      */
     public static int getTileTopFromY(float y) {
         return (int) ((y - TOP_MAP) / TILE_SIZE);

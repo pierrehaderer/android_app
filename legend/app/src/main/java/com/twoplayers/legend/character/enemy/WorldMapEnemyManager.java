@@ -18,6 +18,8 @@ import java.util.Properties;
 
 public class WorldMapEnemyManager implements IEnemyManager {
 
+    private boolean initNotDone = true;
+
     private WorldMapManager worldMapManager;
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
     private AllSoundEffects allSoundEffects;
@@ -27,6 +29,19 @@ public class WorldMapEnemyManager implements IEnemyManager {
     private List<Enemy> enemies;
 
     private EnemyColorMatrix enemyColorMatrix;
+
+    /**
+     * Load this manager
+     */
+    public void load(Game game) {
+        if (initNotDone) {
+            initNotDone = false;
+            init(game);
+        }
+
+        loadingEnemies = false;
+        enemies = new ArrayList<>();
+    }
 
     /**
      * Initialise this manager
@@ -40,9 +55,6 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
         EnemyType.initHashMap();
         enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map_enemies.properties");
-
-        loadingEnemies = false;
-        enemies = new ArrayList<>();
         enemyColorMatrix = new EnemyColorMatrix();
     }
 
@@ -96,7 +108,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void willLoadEnemies() {
+    public void requestEnemiesLoading() {
         loadingEnemies = true;
     }
 

@@ -12,6 +12,13 @@ public class CaveEnemyManager implements IEnemyManager {
     private List<Enemy> enemies;
 
     /**
+     * Load this manager
+     */
+    public void load(Game game) {
+        init(game);
+    }
+
+    /**
      * Initialise this manager
      */
     public void init(Game game) {
@@ -27,7 +34,7 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void willLoadEnemies() {
+    public void requestEnemiesLoading() {
     }
 
     @Override
