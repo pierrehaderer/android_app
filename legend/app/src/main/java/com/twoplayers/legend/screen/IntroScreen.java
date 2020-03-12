@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImageOther;
+import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -28,15 +29,19 @@ public class IntroScreen extends Screen {
     private static final int INITIAL_WORLD_MAP_POSITION_Y = 5;
 
     private ImageOther imageOther;
+    private MusicManager musicManager;
 
     public IntroScreen(Game game) {
         super(game);
         Logger.info("Entering IntroScreen.");
         imageOther = ((MainActivity) game).getAllImages().getImageOther();
+        musicManager = ((MainActivity) game).getMusicManager();
+        musicManager.plan(10, "intro", false);
     }
 
     @Override
     public void update(float deltaTime) {
+        musicManager.update(deltaTime, game.getGraphics());
         List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
         int len = touchEvents.size();
         for (TouchEvent event : touchEvents) {
@@ -72,7 +77,8 @@ public class IntroScreen extends Screen {
 
     @Override
     public void backButton() {
+        musicManager.stop();
         android.os.Process.killProcess(android.os.Process.myPid());
-        //imageOther.theme.stop();
+
     }
 }

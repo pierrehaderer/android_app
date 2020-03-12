@@ -8,6 +8,7 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
+import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
@@ -32,6 +33,7 @@ public class WorldMapManager implements IZoneManager {
     private GuiManager guiManager;
     private LinkManager linkManager;
     private WorldMapEnemyManager worldMapEnemyManager;
+    private MusicManager musicManager;
 
     /** 16x8 MapScreens that represent the whole worldMap in this game */
     private MapScreen[][] worldMap;
@@ -66,6 +68,10 @@ public class WorldMapManager implements IZoneManager {
             init(game);
         }
 
+        musicManager.clear();
+        musicManager.plan(100, "world_map_intro", false);
+        musicManager.plan(0, "world_map_loop", true);
+
         currentAbscissa = (int) location.x;
         currentOrdinate = (int) location.y;
         nextAbscissa = currentAbscissa;
@@ -89,13 +95,14 @@ public class WorldMapManager implements IZoneManager {
         guiManager = ((MainActivity) game).getGuiManager();
         linkManager = ((MainActivity) game).getLinkManager();
         worldMapEnemyManager = ((MainActivity) game).getWorldMapEnemyManager();
+        musicManager = ((MainActivity) game).getMusicManager();
 
         imagesWorldMap = ((MainActivity) game).getAllImages().getImagesWorldMap();
         imagesWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         MapTile.initHashMap();
         initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));
-        worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "caves/world_map_caves.properties");
+        worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "cave/world_map_caves.properties");
     }
 
     @Override
@@ -276,14 +283,6 @@ public class WorldMapManager implements IZoneManager {
      */
     public String getCave() {
         return worldMapCaves.getProperty(getCoordinate(), "CAVE");
-    }
-
-    public int getCurrentAbscissa() {
-        return currentAbscissa;
-    }
-
-    public int getCurrentOrdinate() {
-        return currentOrdinate;
     }
 
     public float getCurrentMiniAbscissa() {

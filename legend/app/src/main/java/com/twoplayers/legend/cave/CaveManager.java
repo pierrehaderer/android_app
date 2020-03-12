@@ -8,7 +8,7 @@ import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesCave;
 import com.twoplayers.legend.assets.image.ImagesItem;
-import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.link.inventory.InventoryService;
@@ -42,7 +42,7 @@ public class CaveManager implements IZoneManager {
 
     private ImagesCave imagesCave;
     private ImagesItem imagesItem;
-    private AllSoundEffects allSoundEffects;
+    private SoundEffectManager soundEffectManager;
 
     private CaveScreen caveScreen;
     private Cave cave;
@@ -75,7 +75,7 @@ public class CaveManager implements IZoneManager {
         imagesCave.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         imagesItem = ((MainActivity) game).getAllImages().getImagesItem();
         imagesItem.load(((MainActivity) game).getAssetManager(), game.getGraphics());
-        allSoundEffects = ((MainActivity) game).getAllSoundEffects();
+        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
         CaveTile.initHashMap();
         List<String> caveFileContent = FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "cave/cave.txt");
@@ -96,7 +96,7 @@ public class CaveManager implements IZoneManager {
         cave.displayedMessage2 = cave.message2.substring(0, end2);
         if (textSoundCounter < (int) textCounter) {
             textSoundCounter = (int) textCounter;
-            allSoundEffects.play("text");
+            soundEffectManager.play("text");
         }
 
         cave.fireAnimation.update(deltaTime);

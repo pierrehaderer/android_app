@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
-import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.Coordinate;
@@ -22,7 +22,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
     private WorldMapManager worldMapManager;
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
-    private AllSoundEffects allSoundEffects;
+    private SoundEffectManager soundEffectManager;
     private Properties enemiesProperties;
 
     private boolean loadingEnemies;
@@ -51,7 +51,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
         imagesEnemyWorldMap = ((MainActivity) game).getAllImages().getImagesEnemyWorldMap();
         imagesEnemyWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
-        allSoundEffects = ((MainActivity) game).getAllSoundEffects();
+        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
         EnemyType.initHashMap();
         enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map_enemies.properties");
@@ -123,7 +123,10 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyDamaged.life -= damage;
         if (enemyDamaged.life <= 0) {
             enemyDamaged.isDead = true;
+            soundEffectManager.play("enemy_dies");
             enemyDamaged.currentAnimation = enemyDamaged.deathAnimation;
+        } else {
+            soundEffectManager.play("enemy_wounded");
         }
     }
 

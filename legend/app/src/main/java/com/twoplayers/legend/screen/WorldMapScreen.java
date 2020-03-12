@@ -3,6 +3,7 @@ package com.twoplayers.legend.screen;
 import android.graphics.Color;
 
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
@@ -20,6 +21,7 @@ public class WorldMapScreen extends Screen {
     private LinkManager linkManager;
     private WorldMapEnemyManager worldMapEnemyManager;
     private GuiManager guiManager;
+    private MusicManager musicManager;
 
     public WorldMapScreen(Game game) {
         super(game);
@@ -28,6 +30,7 @@ public class WorldMapScreen extends Screen {
         worldMapEnemyManager = ((MainActivity) game).getWorldMapEnemyManager();
         linkManager = ((MainActivity) game).getLinkManager();
         guiManager = ((MainActivity) game).getGuiManager();
+        musicManager = ((MainActivity) game).getMusicManager();
     }
 
     @Override
@@ -36,6 +39,7 @@ public class WorldMapScreen extends Screen {
         worldMapEnemyManager.update(deltaTime, game.getGraphics());
         linkManager.update(deltaTime, game.getGraphics());
         guiManager.update(deltaTime, game.getGraphics());
+        musicManager.update(deltaTime, game.getGraphics());
         if (linkManager.hasEnteredSomewhere()) {
             if ("CAVE".equals(worldMapManager.getCave())) {
                 game.setScreen(new CaveLoadingScreen(game, worldMapManager.getCoordinate()));

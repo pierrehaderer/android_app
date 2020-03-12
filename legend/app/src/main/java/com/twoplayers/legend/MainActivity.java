@@ -4,8 +4,8 @@ import android.content.res.AssetManager;
 import android.view.View;
 
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.sound.AllMusics;
-import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.assets.sound.MusicManager;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.cave.CaveManager;
 import com.twoplayers.legend.character.enemy.CaveEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
@@ -23,8 +23,8 @@ public class MainActivity extends AndroidGame {
 
     private AssetManager assetManager;
     private AllImages allImages;
-    private AllSoundEffects allSoundEffects;
-    private AllMusics allMusics;
+    private MusicManager musicManager;
+    private SoundEffectManager soundEffectManager;
     private WorldMapManager worldMapManager;
     private CaveManager caveManager;
     private WorldMapEnemyManager worldMapEnemyManager;
@@ -37,8 +37,8 @@ public class MainActivity extends AndroidGame {
         // THIS IS WHERE IT ALL STARTS !!!!!
         assetManager = getAssets();
         allImages = new AllImages();
-        allSoundEffects = new AllSoundEffects();
-        allMusics = new AllMusics();
+        musicManager = new MusicManager();
+        soundEffectManager = new SoundEffectManager();
         worldMapManager = new WorldMapManager();
         caveManager = new CaveManager();
         worldMapEnemyManager = new WorldMapEnemyManager();
@@ -114,12 +114,12 @@ public class MainActivity extends AndroidGame {
         return allImages;
     }
 
-    public AllSoundEffects getAllSoundEffects() {
-        return allSoundEffects;
+    public MusicManager getMusicManager() {
+        return musicManager;
     }
 
-    public AllMusics getAllMusics() {
-        return allMusics;
+    public SoundEffectManager getSoundEffectManager() {
+        return soundEffectManager;
     }
 
     public WorldMapManager getWorldMapManager() {

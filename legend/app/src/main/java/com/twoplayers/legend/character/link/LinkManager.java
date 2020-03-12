@@ -8,7 +8,8 @@ import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
-import com.twoplayers.legend.assets.sound.AllSoundEffects;
+import com.twoplayers.legend.assets.sound.MusicManager;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.enemy.Enemy;
@@ -46,7 +47,8 @@ public class LinkManager implements IManager {
     private LinkService linkService;
 
     private ImagesLink imagesLink;
-    private AllSoundEffects allSoundEffects;
+    private MusicManager musicManager;
+    private SoundEffectManager soundEffectManager;
 
     private Link link;
     private LinkInvincibleColorMatrix linkInvincibleColorMatrix;
@@ -80,11 +82,12 @@ public class LinkManager implements IManager {
      */
     public void init(Game game) {
         guiManager = ((MainActivity) game).getGuiManager();
+        musicManager = ((MainActivity) game).getMusicManager();
         linkService = new LinkService();
 
         imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
         imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
-        allSoundEffects = ((MainActivity) game).getAllSoundEffects();
+        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
         link = new Link(imagesLink, game.getGraphics());
 
@@ -189,7 +192,7 @@ public class LinkManager implements IManager {
                 link.sword.currentAnimation.reset();
                 link.sword.hitbox = link.sword.hitboxes.get(link.orientation);
                 link.sword.hitbox.relocate(link.x, link.y);
-                allSoundEffects.play("sword");
+                soundEffectManager.play("sword");
                 link.isAttacking = true;
                 link.attackProgression = 0;
             }
@@ -226,6 +229,7 @@ public class LinkManager implements IManager {
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (!enemy.isDead() && enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
                         Logger.info("Link has collided with enemy : " + enemy.getClass());
+                        soundEffectManager.play("link_wounded");
                         updateLinkLife(enemy.getContactDamage());
                         link.isInvincible = true;
                         link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
@@ -275,7 +279,7 @@ public class LinkManager implements IManager {
                 link.isShowingItem = true;
                 link.showItemCounter = Link.INITIAL_SHOW_COUNT;
                 link.currentAnimation = link.pickAnimations[item.pickAnimation];
-                allSoundEffects.play("collect_item");
+                soundEffectManager.play("collect_item");
                 linkService.putItemInInventory(link, item);
             }
         }
@@ -293,10 +297,10 @@ public class LinkManager implements IManager {
                 link.coins -= floor;
                 link.coinsToRemove -= floor;
                 link.coinCounter -= floor;
-                allSoundEffects.play("coin_payment");
+                soundEffectManager.play("coin_payment");
             }
             if (link.coinsToRemove == 0) {
-                allSoundEffects.play("coin_payment_end");
+                soundEffectManager.play("coin_payment_end");
             }
         }
 
@@ -351,7 +355,8 @@ public class LinkManager implements IManager {
     private void checkAndInitCaveEntering() {
         if (zoneManager.isTileACave(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.TILE_SIZE)) {
             Logger.info("Link is entering a cave.");
-            allSoundEffects.play("cave");
+            musicManager.stop();
+            soundEffectManager.play("cave");
             enemyManager.unloadEnemies();
             link.isEnteringSomewhere = true;
             link.enterSomewhereCounter = Link.INITIAL_ENTER_COUNT;
@@ -496,7 +501,7 @@ public class LinkManager implements IManager {
     public void exitZone() {
         link.isExitingSomewhere = true;
         link.exitSomewhereCounter = Link.INITIAL_ENTER_COUNT;
-        allSoundEffects.play("cave");
+        soundEffectManager.play("cave");
     }
 
     /**
