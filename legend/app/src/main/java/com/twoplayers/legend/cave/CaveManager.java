@@ -44,7 +44,7 @@ public class CaveManager implements IZoneManager {
     private ImagesItem imagesItem;
     private SoundEffectManager soundEffectManager;
 
-    private CaveScreen caveScreen;
+    private CaveRoom caveRoom;
     private Cave cave;
 
     private float textCounter;
@@ -79,10 +79,10 @@ public class CaveManager implements IZoneManager {
 
         CaveTile.initHashMap();
         List<String> caveFileContent = FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "cave/cave.txt");
-        caveScreen = new CaveScreen();
+        caveRoom = new CaveRoom();
         for (int index = 0; index < 11; index++) {
             String line = caveFileContent.get(index);
-            caveScreen.addALine(line);
+            caveRoom.addALine(line);
         }
     }
 
@@ -200,7 +200,7 @@ public class CaveManager implements IZoneManager {
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
         int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
-        CaveTile tile = caveScreen.getTile(tileX, tileY);
+        CaveTile tile = caveRoom.getTile(tileX, tileY);
         if (tile == CaveTile.OUT_OF_BOUNDS && authorizeOutOfBound) {
             return true;
         }

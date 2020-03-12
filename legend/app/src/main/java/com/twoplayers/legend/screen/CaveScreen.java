@@ -23,7 +23,7 @@ public class CaveScreen extends Screen {
 
     public CaveScreen(Game game) {
         super(game);
-        Logger.info("Entering CaveScreen.");
+        Logger.info("Entering CaveRoom.");
         caveManager = ((MainActivity) game).getCaveManager();
         caveEnemyManager = ((MainActivity) game).getCaveEnemyManager();
         linkManager = ((MainActivity) game).getLinkManager();

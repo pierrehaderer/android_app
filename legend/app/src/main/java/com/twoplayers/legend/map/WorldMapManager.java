@@ -36,7 +36,7 @@ public class WorldMapManager implements IZoneManager {
     private MusicManager musicManager;
 
     /** 16x8 MapScreens that represent the whole worldMap in this game */
-    private MapScreen[][] worldMap;
+    private MapRoom[][] worldMap;
     private Boolean[][] exploredWorldMap;
 
     private Properties worldMapCaves;
@@ -145,16 +145,16 @@ public class WorldMapManager implements IZoneManager {
     }
 
     /**
-     * Create all the MapScreen objects from the world_map file
+     * Create all the MapRoom objects from the world_map file
      */
     private void initWorldMap(List<String> worldMapFileContent) {
-        worldMap = new MapScreen[16][8];
+        worldMap = new MapRoom[16][8];
         exploredWorldMap = new Boolean[16][8];
 
         // Initialise the mapScreens
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 8; j++) {
-                worldMap[i][j] = (new MapScreen());
+                worldMap[i][j] = (new MapRoom());
                 exploredWorldMap[i][j] = false;
             }
         }
@@ -177,10 +177,10 @@ public class WorldMapManager implements IZoneManager {
 
     @Override
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
-        MapScreen currentMapScreen = worldMap[currentAbscissa][currentOrdinate];
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
         int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
-        MapTile tile = currentMapScreen.getTile(tileX, tileY);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
         if (tile == MapTile.OUT_OF_BOUNDS && authorizeOutOfBound) {
             return true;
         }
@@ -189,10 +189,10 @@ public class WorldMapManager implements IZoneManager {
 
     @Override
     public boolean isTileACave(float x, float y) {
-        MapScreen currentMapScreen = worldMap[currentAbscissa][currentOrdinate];
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
         int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
-        MapTile tile = currentMapScreen.getTile(tileX, tileY);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
         return tile == MapTile.CAVE;
     }
 

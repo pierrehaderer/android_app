@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * 16x11 Tiles that represent a screen in this game
  */
-public class CaveScreen {
+public class CaveRoom {
 
     private List<List<CaveTile>> content;
 
-    public CaveScreen() {
+    public CaveRoom() {
         content = new ArrayList<>();
     }
 

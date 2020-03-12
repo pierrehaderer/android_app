@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * 16x11 Tiles that represent a screen in this game
  */
-public class MapScreen {
+public class MapRoom {
 
     private List<List<MapTile>> content;
 
-    public MapScreen() {
+    public MapRoom() {
         content = new ArrayList<>();
     }
 
