@@ -13,11 +13,8 @@ import com.twoplayers.legend.util.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Octorok extends Enemy {
+public abstract class Octorok extends Enemy {
 
-//    public static final float LOW_SPEED = 0.1f;
-    public static final float LOW_SPEED = 0.6f;
-    public static final float HIGH_SPEED = 1.1f;
     private static final float PAUSE_BEFORE_FIRST_MOVE = 300f;
     private static final float PAUSE_BEFORE_ATTACK = 100f;
     private static final float MIN_TIME_BEFORE_ATTACK = 500.0f;
@@ -32,6 +29,7 @@ public class Octorok extends Enemy {
 
     private Orientation orientation;
     private Orientation nextOrientation;
+    protected Map<Orientation, Animation> animations;
     private float speed;
     private float remainingMoves;
     private float nextTileX;
@@ -48,14 +46,19 @@ public class Octorok extends Enemy {
         isInvincible = true;
         chooseTimeBeforeAttack();
         isAttacking = false;
-        life = 1;
+        life = getInitialLife();
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
         contactDamage = -0.5f;
-        speed = LOW_SPEED;
+        speed = getSpeed();
         currentAnimation = animations.get(Orientation.INIT);
     }
+
+    /**
+     * Initialise the move animations
+     */
+    protected abstract void initAnimations(Graphics g);
 
     /**
      * Initialize the tree of direction which will ease direction decision
@@ -63,111 +66,75 @@ public class Octorok extends Enemy {
     private void initDirectionTree() {
         if(directionTree == null) {
             directionTree = new HashMap<>();
-            Orientation[][] orientationUp = new Orientation[3][5];
+            Orientation[][] orientationUp = new Orientation[3][22];
             orientationUp[0][0] = Orientation.DOWN;
             orientationUp[1][0] = Orientation.LEFT;
             orientationUp[2][0] = Orientation.RIGHT;
-            orientationUp[0][1] = Orientation.LEFT;
-            orientationUp[0][2] = Orientation.RIGHT;
-            orientationUp[1][1] = Orientation.DOWN;
-            orientationUp[1][2] = Orientation.RIGHT;
-            orientationUp[2][1] = Orientation.DOWN;
-            orientationUp[2][2] = Orientation.LEFT;
-            orientationUp[0][3] = Orientation.RIGHT;
-            orientationUp[0][4] = Orientation.LEFT;
-            orientationUp[1][3] = Orientation.RIGHT;
-            orientationUp[1][4] = Orientation.DOWN;
-            orientationUp[2][3] = Orientation.LEFT;
-            orientationUp[2][4] = Orientation.DOWN;
+            orientationUp[0][10] = Orientation.LEFT;
+            orientationUp[0][11] = Orientation.RIGHT;
+            orientationUp[1][10] = Orientation.DOWN;
+            orientationUp[1][11] = Orientation.RIGHT;
+            orientationUp[2][10] = Orientation.DOWN;
+            orientationUp[2][11] = Orientation.LEFT;
+            orientationUp[0][20] = Orientation.RIGHT;
+            orientationUp[0][21] = Orientation.LEFT;
+            orientationUp[1][20] = Orientation.RIGHT;
+            orientationUp[1][21] = Orientation.DOWN;
+            orientationUp[2][20] = Orientation.LEFT;
+            orientationUp[2][21] = Orientation.DOWN;
             directionTree.put(Orientation.UP, orientationUp);
-            Orientation[][] orientationDown = new Orientation[3][5];
+            Orientation[][] orientationDown = new Orientation[3][22];
             orientationDown[0][0] = Orientation.UP;
             orientationDown[1][0] = Orientation.LEFT;
             orientationDown[2][0] = Orientation.RIGHT;
-            orientationDown[0][1] = Orientation.LEFT;
-            orientationDown[0][2] = Orientation.RIGHT;
-            orientationDown[1][1] = Orientation.UP;
-            orientationDown[1][2] = Orientation.RIGHT;
-            orientationDown[2][1] = Orientation.UP;
-            orientationDown[2][2] = Orientation.LEFT;
-            orientationDown[0][3] = Orientation.RIGHT;
-            orientationDown[0][4] = Orientation.LEFT;
-            orientationDown[1][3] = Orientation.RIGHT;
-            orientationDown[1][4] = Orientation.UP;
-            orientationDown[2][3] = Orientation.LEFT;
-            orientationDown[2][4] = Orientation.UP;
+            orientationDown[0][10] = Orientation.LEFT;
+            orientationDown[0][11] = Orientation.RIGHT;
+            orientationDown[1][10] = Orientation.UP;
+            orientationDown[1][11] = Orientation.RIGHT;
+            orientationDown[2][10] = Orientation.UP;
+            orientationDown[2][11] = Orientation.LEFT;
+            orientationDown[0][20] = Orientation.RIGHT;
+            orientationDown[0][21] = Orientation.LEFT;
+            orientationDown[1][20] = Orientation.RIGHT;
+            orientationDown[1][21] = Orientation.UP;
+            orientationDown[2][20] = Orientation.LEFT;
+            orientationDown[2][21] = Orientation.UP;
             directionTree.put(Orientation.DOWN, orientationDown);
-            Orientation[][] orientationLeft = new Orientation[3][5];
+            Orientation[][] orientationLeft = new Orientation[3][22];
             orientationLeft[0][0] = Orientation.UP;
             orientationLeft[1][0] = Orientation.DOWN;
             orientationLeft[2][0] = Orientation.RIGHT;
-            orientationLeft[0][1] = Orientation.DOWN;
-            orientationLeft[0][2] = Orientation.RIGHT;
-            orientationLeft[1][1] = Orientation.UP;
-            orientationLeft[1][2] = Orientation.RIGHT;
-            orientationLeft[2][1] = Orientation.UP;
-            orientationLeft[2][2] = Orientation.DOWN;
-            orientationLeft[0][3] = Orientation.RIGHT;
-            orientationLeft[0][4] = Orientation.DOWN;
-            orientationLeft[1][3] = Orientation.RIGHT;
-            orientationLeft[1][4] = Orientation.UP;
-            orientationLeft[2][3] = Orientation.DOWN;
-            orientationLeft[2][4] = Orientation.UP;
+            orientationLeft[0][10] = Orientation.DOWN;
+            orientationLeft[0][11] = Orientation.RIGHT;
+            orientationLeft[1][10] = Orientation.UP;
+            orientationLeft[1][11] = Orientation.RIGHT;
+            orientationLeft[2][10] = Orientation.UP;
+            orientationLeft[2][11] = Orientation.DOWN;
+            orientationLeft[0][20] = Orientation.RIGHT;
+            orientationLeft[0][21] = Orientation.DOWN;
+            orientationLeft[1][20] = Orientation.RIGHT;
+            orientationLeft[1][21] = Orientation.UP;
+            orientationLeft[2][20] = Orientation.DOWN;
+            orientationLeft[2][21] = Orientation.UP;
             directionTree.put(Orientation.LEFT, orientationLeft);
-            Orientation[][] orientationRight = new Orientation[3][5];
+            Orientation[][] orientationRight = new Orientation[3][22];
             orientationRight[0][0] = Orientation.UP;
             orientationRight[1][0] = Orientation.DOWN;
             orientationRight[2][0] = Orientation.LEFT;
-            orientationRight[0][1] = Orientation.DOWN;
-            orientationRight[0][2] = Orientation.LEFT;
-            orientationRight[1][1] = Orientation.UP;
-            orientationRight[1][2] = Orientation.LEFT;
-            orientationRight[2][1] = Orientation.UP;
-            orientationRight[2][2] = Orientation.DOWN;
-            orientationRight[0][3] = Orientation.LEFT;
-            orientationRight[0][4] = Orientation.DOWN;
-            orientationRight[1][3] = Orientation.LEFT;
-            orientationRight[1][4] = Orientation.UP;
-            orientationRight[2][3] = Orientation.DOWN;
-            orientationRight[2][4] = Orientation.UP;
+            orientationRight[0][10] = Orientation.DOWN;
+            orientationRight[0][11] = Orientation.LEFT;
+            orientationRight[1][10] = Orientation.UP;
+            orientationRight[1][11] = Orientation.LEFT;
+            orientationRight[2][10] = Orientation.UP;
+            orientationRight[2][11] = Orientation.DOWN;
+            orientationRight[0][20] = Orientation.LEFT;
+            orientationRight[0][21] = Orientation.DOWN;
+            orientationRight[1][20] = Orientation.LEFT;
+            orientationRight[1][21] = Orientation.UP;
+            orientationRight[2][20] = Orientation.DOWN;
+            orientationRight[2][21] = Orientation.UP;
             directionTree.put(Orientation.RIGHT, orientationRight);
         }
-    }
-
-    /**
-     * Initialise the move animations
-     */
-    private void initAnimations(Graphics g) {
-        animations = new HashMap<>();
-        Animation animationNone = g.newAnimation();
-        animationNone.addFrame(imagesEnemyWorldMap.get("cloud_1"), AllImages.COEF, 36);
-        animationNone.addFrame(imagesEnemyWorldMap.get("cloud_2"), AllImages.COEF, 12);
-        animationNone.addFrame(imagesEnemyWorldMap.get("cloud_3"), AllImages.COEF, 12);
-        animations.put(Orientation.INIT, animationNone);
-
-        Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesEnemyWorldMap.get("red_octorok_up_1"), AllImages.COEF, 15);
-        animationUp.addFrame(imagesEnemyWorldMap.get("red_octorok_up_2"), AllImages.COEF, 15);
-        animations.put(Orientation.UP, animationUp);
-        Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesEnemyWorldMap.get("red_octorok_down_1"), AllImages.COEF, 15);
-        animationDown.addFrame(imagesEnemyWorldMap.get("red_octorok_down_2"), AllImages.COEF, 15);
-        animations.put(Orientation.DOWN, animationDown);
-        Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesEnemyWorldMap.get("red_octorok_left_1"), AllImages.COEF, 15);
-        animationLeft.addFrame(imagesEnemyWorldMap.get("red_octorok_left_2"), AllImages.COEF, 15);
-        animations.put(Orientation.LEFT, animationLeft);
-        Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesEnemyWorldMap.get("red_octorok_right_1"), AllImages.COEF, 15);
-        animationRight.addFrame(imagesEnemyWorldMap.get("red_octorok_right_2"), AllImages.COEF, 15);
-        animations.put(Orientation.RIGHT, animationRight);
-
-        deathAnimation = g.newAnimation();
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_1"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_2"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_3"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 1);
-        deathAnimation.setOccurrences(1);
     }
 
     @Override
@@ -195,7 +162,7 @@ public class Octorok extends Enemy {
                 remainingMoves = deltaTime * speed;
                 goToNextTile();
                 while (remainingMoves > 0) {
-                    //Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
+                    Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
                     nextTileX = nextNextTileX;
                     nextTileY = nextNextTileY;
                     orientation = nextOrientation;
@@ -292,12 +259,13 @@ public class Octorok extends Enemy {
         }
         // Either the enemy has chosen to change direction or continue is not possible
         int direction1 = (int) (Math.floor(3 * Math.random()));
-        int direction2 = (int) (Math.floor(2 * Math.random()));
+        int direction2 = 10 + (int) (Math.floor(2 * Math.random()));
+        int direction3 = 10 + direction2;
         Orientation orientation1 = directionTree.get(orientation)[direction1][0];
         if (tryToChooseThisOrientationForNextNextTile(orientation1, worldMapManager)) return;
-        Orientation orientation2 = directionTree.get(orientation)[direction1][direction2 + 1];
+        Orientation orientation2 = directionTree.get(orientation)[direction1][direction2];
         if (tryToChooseThisOrientationForNextNextTile(orientation2, worldMapManager)) return;
-        Orientation orientation3 = directionTree.get(orientation)[direction1][direction2 + 3];
+        Orientation orientation3 = directionTree.get(orientation)[direction1][direction3];
         if (tryToChooseThisOrientationForNextNextTile(orientation3, worldMapManager)) return;
 
         // Should never happen, it means monster is stuck somewhere
@@ -349,5 +317,15 @@ public class Octorok extends Enemy {
         }
         return false;
     }
+
+    /**
+     * Obtain the speed of the Octorok
+     */
+    protected abstract float getSpeed();
+
+    /**
+     * Obtain the initial life of the enemy
+     */
+    protected abstract int getInitialLife();
 
 }

@@ -13,7 +13,9 @@ import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class WorldMapEnemyManager implements IEnemyManager {
@@ -24,6 +26,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
     private SoundEffectManager soundEffectManager;
     private Properties enemiesProperties;
+
+    private Map<String, Class<? extends Enemy>> enemyMap;
 
     private boolean loadingEnemies;
     private List<Enemy> enemies;
@@ -53,9 +57,22 @@ public class WorldMapEnemyManager implements IEnemyManager {
         imagesEnemyWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
-        EnemyType.initHashMap();
-        enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map_enemies.properties");
+        initEnemyMap();
+        enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map/world_map_enemies.properties");
         enemyColorMatrix = new EnemyColorMatrix();
+    }
+
+    /**
+     * Initialise the map of enemies
+     */
+    private void initEnemyMap() {
+        enemyMap = new HashMap<>();
+        enemyMap.put("RedSlowOctorok", RedSlowOctorok.class);
+        enemyMap.put("RedFastOctorok", RedFastOctorok.class);
+        enemyMap.put("BlueSlowOctorok", BlueSlowOctorok.class);
+        enemyMap.put("BlueFastOctorok", BlueFastOctorok.class);
+        enemyMap.put("RedTektite", RedTektite.class);
+        enemyMap.put("BlueTektite", BlueTektite.class);
     }
 
     @Override
@@ -64,22 +81,22 @@ public class WorldMapEnemyManager implements IEnemyManager {
             String enemiesAsString = enemiesProperties.getProperty(worldMapManager.getCoordinate());
             Logger.info("Enemies in properties : " + enemiesAsString);
             if (enemiesAsString != null) {
-                for (String enemyAsString : enemiesAsString.split("\\|")) {
+                for (String enemyName : enemiesAsString.split("\\|")) {
                     try {
-                        EnemyType enemyType = EnemyType.getEnum(enemyAsString);
-                        if (enemyType != null) {
-                            Enemy enemy = enemyType.clazz.getConstructor(ImagesEnemyWorldMap.class, Graphics.class).newInstance(imagesEnemyWorldMap, g);
+                        Class<? extends Enemy> enemyClass = enemyMap.get(enemyName);
+                        if (enemyClass != null) {
+                            Enemy enemy = enemyClass.getConstructor(ImagesEnemyWorldMap.class, Graphics.class).newInstance(imagesEnemyWorldMap, g);
                             Coordinate coordinate = worldMapManager.findSpawnableCoordinate();
-                            Logger.debug("Spawning " + enemyAsString + " at (" + coordinate.x + "," + coordinate.y + ")");
+                            Logger.debug("Spawning " + enemy + " at (" + coordinate.x + "," + coordinate.y + ")");
                             enemy.x = coordinate.x;
                             enemy.y = coordinate.y;
                             enemy.hitbox.relocate(enemy.x, enemy.y);
                             enemies.add(enemy);
                         } else {
-                            Logger.error("Could not find the enemy type : " + enemyAsString);
+                            Logger.error("Could not find the enemy type : " + enemyName);
                         }
                     } catch (Exception e) {
-                        Logger.error("Could not create enemy class with type : " + enemyAsString);
+                        Logger.error("Could not create enemy class with type : " + enemyName);
                     }
                 }
             }
@@ -102,7 +119,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
                 g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
             } else if (!enemy.currentAnimation.isAnimationOver()) {
-                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y), enemyColorMatrix.getCurrentColorMatrix());
+                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
             }
         }
     }

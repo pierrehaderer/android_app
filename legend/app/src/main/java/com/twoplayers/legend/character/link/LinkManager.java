@@ -135,7 +135,7 @@ public class LinkManager implements IManager {
                 if (isUpValid(link.x, link.y + deltaY)) {
                     moveLinkY(deltaY);
                 }
-                if (isUpOutOfMap(link.y + deltaY)) {
+                if (LocationUtil.isUpOutOfMap(link.y + deltaY)) {
                     zoneManager.changeScreen(Orientation.UP);
                 }
                 // Check if link is entering a cave
@@ -149,7 +149,7 @@ public class LinkManager implements IManager {
                 if (isDownValid(link.x, link.y + deltaY)) {
                     moveLinkY(deltaY);
                 }
-                if (isDownOutOfMap(link.y + deltaY)) {
+                if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE + deltaY)) {
                     zoneManager.changeScreen(Orientation.DOWN);
                 }
             }
@@ -161,7 +161,7 @@ public class LinkManager implements IManager {
                 if (isLeftValid(link.x + deltaX, link.y)) {
                     moveLinkX(deltaX);
                 }
-                if (isLeftOutOfMap(link.x + deltaX)) {
+                if (LocationUtil.isLeftOutOfMap(link.x + deltaX)) {
                     zoneManager.changeScreen(Orientation.LEFT);
                 }
             }
@@ -173,7 +173,7 @@ public class LinkManager implements IManager {
                 if (isRightValid(link.x + deltaX, link.y)) {
                     moveLinkX(deltaX);
                 }
-                if (isRightOutOfMap(link.x + deltaX)) {
+                if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE + deltaX)) {
                     zoneManager.changeScreen(Orientation.RIGHT);
                 }
             }
@@ -332,8 +332,8 @@ public class LinkManager implements IManager {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), linkInvincibleColorMatrix.getCurrentColorMatrix());
         } else if (link.isEnteringSomewhere || link.isExitingSomewhere) {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
-            int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileLeftFromX(link.x + LocationUtil.HALF_TILE_SIZE));
-            int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileTopFromY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
+            int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE));
+            int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
             g.drawScaledImage(imagesLink.get("empty_tile"), belowCaveX, belowCaveY, AllImages.COEF);
         } else {
             g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
@@ -372,9 +372,9 @@ public class LinkManager implements IManager {
      */
     public void moveLinkX(float deltaX) {
         float nextX = link.x + deltaX;
-        if (isLeftOutOfMap(nextX)) {
+        if (LocationUtil.isLeftOutOfMap(nextX)) {
             link.x = LocationUtil.LEFT_MAP;
-        } else if (isRightOutOfMap(nextX)) {
+        } else if (LocationUtil.isRightOutOfMap(nextX + LocationUtil.TILE_SIZE)) {
             link.x = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - LocationUtil.TILE_SIZE;
         } else {
             link.x = nextX;
@@ -389,9 +389,9 @@ public class LinkManager implements IManager {
      */
     public void moveLinkY(float deltaY) {
         float nextY = link.y + deltaY;
-        if (isUpOutOfMap(nextY)) {
+        if (LocationUtil.isUpOutOfMap(nextY)) {
             link.y = LocationUtil.TOP_MAP;
-        } else if (isDownOutOfMap(nextY)) {
+        } else if (LocationUtil.isDownOutOfMap(nextY + LocationUtil.TILE_SIZE)) {
             link.y = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - LocationUtil.TILE_SIZE;
         } else {
             link.y = nextY;
@@ -440,36 +440,6 @@ public class LinkManager implements IManager {
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
         // -2 so that link can enter narrow path
         return zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true);
-    }
-
-    /**
-     * Check if link is going to the next screen up
-     */
-    private boolean isUpOutOfMap(float linkTop) {
-        return linkTop < LocationUtil.TOP_MAP;
-    }
-
-    /**
-     * Check if link is going to the next screen down
-     */
-    private boolean isDownOutOfMap(float linkTop) {
-        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
-        return linkBottom > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
-    }
-
-    /**
-     * Check if link is going to the next screen x
-     */
-    private boolean isLeftOutOfMap(float linkLeft) {
-        return linkLeft < LocationUtil.LEFT_MAP;
-    }
-
-    /**
-     * Check if link is going to the next screen right
-     */
-    private boolean isRightOutOfMap(float linkLeft) {
-        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        return linkRight > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
     }
 
     /**

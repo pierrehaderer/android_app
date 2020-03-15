@@ -89,7 +89,7 @@ public class AndroidAnimation implements Animation {
 
         animationTime += deltaTime;
 
-        // Handle the end of the occurrence of an animation
+        // Handle the end of the occurrence of an waitAnimation
         if (animationTime >= totalDuration) {
             if (maxOccurrences == 0 || currentOccurrence < maxOccurrences) {
                 currentOccurrence++;

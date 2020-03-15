@@ -61,10 +61,38 @@ public class LocationUtil {
      */
     public static boolean isTileAtBorder(float x, float y) {
         int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
-        if (tileX == 0 || tileX == 15) return true;
+        if (tileX <= 0 || tileX >= 15) return true;
         int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
-        if (tileY == 0 || tileY == 10) return true;
+        if (tileY <= 0 || tileY >= 10) return true;
         return false;
+    }
+
+    /**
+     * Check if y is out of map on the top
+     */
+    public static boolean isUpOutOfMap(float y) {
+        return y < LocationUtil.TOP_MAP;
+    }
+
+    /**
+     * Check if y is out of map on the bottom
+     */
+    public static boolean isDownOutOfMap(float y) {
+        return y > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
+    }
+
+    /**
+     * Check if x is out of map on the left
+     */
+    public static boolean isLeftOutOfMap(float x) {
+        return x < LocationUtil.LEFT_MAP;
+    }
+
+    /**
+     * Check if x is out of map on the riht
+     */
+    public static boolean isRightOutOfMap(float x) {
+        return x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
     }
 
     /**
@@ -84,14 +112,14 @@ public class LocationUtil {
     /**
      * Get the tile's left position corresponding to abscissa x
      */
-    public static int getTileLeftFromX(float x) {
+    public static int getTileXFromPositionX(float x) {
         return (int) ((x - LEFT_MAP) / TILE_SIZE);
     }
 
     /**
      * Get the tile's left position corresponding to abscissa x
      */
-    public static int getTileTopFromY(float y) {
+    public static int getTileYFromPositionY(float y) {
         return (int) ((y - TOP_MAP) / TILE_SIZE);
     }
 
