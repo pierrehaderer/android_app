@@ -185,7 +185,7 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public void changeScreen(Orientation orientation) {
+    public void changeRoom(Orientation orientation) {
         Logger.info("Link has exited the cave.");
         hasExitedZone = true;
         linkManager.exitZone();

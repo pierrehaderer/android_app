@@ -108,20 +108,20 @@ public class Link {
     private void initMoveAnimations(ImagesLink imagesLink, Graphics g) {
         moveAnimations = new HashMap<>();
         Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesLink.get("link_up_1"), AllImages.COEF, 15);
-        animationUp.addFrame(imagesLink.get("link_up_2"), AllImages.COEF, 15);
+        animationUp.addFrame(imagesLink.get("link_up_1"), AllImages.COEF, 10);
+        animationUp.addFrame(imagesLink.get("link_up_2"), AllImages.COEF, 10);
         moveAnimations.put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesLink.get("link_down_1"), AllImages.COEF, 15);
-        animationDown.addFrame(imagesLink.get("link_down_2"), AllImages.COEF, 15);
+        animationDown.addFrame(imagesLink.get("link_down_1"), AllImages.COEF, 10);
+        animationDown.addFrame(imagesLink.get("link_down_2"), AllImages.COEF, 10);
         moveAnimations.put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesLink.get("link_left_1"), AllImages.COEF, 15);
-        animationLeft.addFrame(imagesLink.get("link_left_2"), AllImages.COEF, 15);
+        animationLeft.addFrame(imagesLink.get("link_left_1"), AllImages.COEF, 10);
+        animationLeft.addFrame(imagesLink.get("link_left_2"), AllImages.COEF, 10);
         moveAnimations.put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesLink.get("link_right_1"), AllImages.COEF, 15);
-        animationRight.addFrame(imagesLink.get("link_right_2"), AllImages.COEF, 15);
+        animationRight.addFrame(imagesLink.get("link_right_1"), AllImages.COEF, 10);
+        animationRight.addFrame(imagesLink.get("link_right_2"), AllImages.COEF, 10);
         moveAnimations.put(Orientation.RIGHT, animationRight);
     }
 

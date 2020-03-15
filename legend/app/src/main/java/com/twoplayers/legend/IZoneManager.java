@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IZoneManager extends IManager {
     /** Initiate the change of the screen */
-    public void changeScreen(Orientation orientation);
+    public void changeRoom(Orientation orientation);
     /** Check if a tile is a cave */
     public boolean isTileACave(float x, float y);
     /** Check if a tile is walkable */

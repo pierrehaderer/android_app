@@ -127,33 +127,36 @@ public class LinkManager implements IManager {
     public void update(float deltaTime, Graphics g) {
         if (!link.isAttacking && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Movement of Link
-            if (guiManager.isUpPressed()) {
+            boolean linkHasNotMovedYet = true;
+            if (guiManager.isUpPressed() && guiManager.areButtonsActivated()) {
                 link.orientation = Orientation.UP;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
                 float deltaY = -1 * Link.LINK_SPEED * deltaTime;
                 if (isUpValid(link.x, link.y + deltaY)) {
+                    linkHasNotMovedYet = false;
                     moveLinkY(deltaY);
                 }
                 if (LocationUtil.isUpOutOfMap(link.y + deltaY)) {
-                    zoneManager.changeScreen(Orientation.UP);
+                    zoneManager.changeRoom(Orientation.UP);
                 }
                 // Check if link is entering a cave
                 checkAndInitCaveEntering();
             }
-            if (guiManager.isDownPressed()) {
+            if (guiManager.isDownPressed() && guiManager.areButtonsActivated()) {
                 link.orientation = Orientation.DOWN;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
                 float deltaY = Link.LINK_SPEED * deltaTime;
                 if (isDownValid(link.x, link.y + deltaY)) {
+                    linkHasNotMovedYet = false;
                     moveLinkY(deltaY);
                 }
                 if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE + deltaY)) {
-                    zoneManager.changeScreen(Orientation.DOWN);
+                    zoneManager.changeRoom(Orientation.DOWN);
                 }
             }
-            if (guiManager.isLeftPressed()) {
+            if (guiManager.isLeftPressed() && guiManager.areButtonsActivated() && linkHasNotMovedYet) {
                 link.orientation = Orientation.LEFT;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
@@ -162,10 +165,10 @@ public class LinkManager implements IManager {
                     moveLinkX(deltaX);
                 }
                 if (LocationUtil.isLeftOutOfMap(link.x + deltaX)) {
-                    zoneManager.changeScreen(Orientation.LEFT);
+                    zoneManager.changeRoom(Orientation.LEFT);
                 }
             }
-            if (guiManager.isRightPressed()) {
+            if (guiManager.isRightPressed() && guiManager.areButtonsActivated() && linkHasNotMovedYet) {
                 link.orientation = Orientation.RIGHT;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
@@ -174,7 +177,7 @@ public class LinkManager implements IManager {
                     moveLinkX(deltaX);
                 }
                 if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE + deltaX)) {
-                    zoneManager.changeScreen(Orientation.RIGHT);
+                    zoneManager.changeRoom(Orientation.RIGHT);
                 }
             }
         }
@@ -182,7 +185,7 @@ public class LinkManager implements IManager {
         // Attack of link
         if (!link.isAttacking && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Start of link's attack
-            if (guiManager.isaPressed() && link.sword.type != SwordType.NONE
+            if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE
                     && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
                 link.currentAnimation = link.attackAnimations.get(link.orientation);
                 link.currentAnimation.reset();
@@ -407,8 +410,19 @@ public class LinkManager implements IManager {
     private boolean isUpValid(float linkLeft, float linkTop) {
         float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        // -2 so that link can enter narrow path
-        return zoneManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true);
+        // +/-2 so that link can enter narrow path
+        if (zoneManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true)) {
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkLeft + 6, linkMiddle, true) && zoneManager.isTileWalkable(linkRight + 2 , linkMiddle, true)) {
+            moveLinkX(4);
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkLeft - 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 6 , linkMiddle, true)) {
+            moveLinkX(-4);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -417,8 +431,19 @@ public class LinkManager implements IManager {
     private boolean isDownValid(float linkLeft, float linkTop) {
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        // -2 so that link can enter narrow path
-        return zoneManager.isTileWalkable(linkLeft + 2, linkBottom, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true);
+        // +/-2 so that link can enter narrow path
+        if (zoneManager.isTileWalkable(linkLeft + 2, linkBottom, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true)) {
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkLeft + 6, linkBottom, true) && zoneManager.isTileWalkable(linkRight + 2, linkBottom, true)) {
+            moveLinkX(4);
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkLeft - 2, linkBottom, true) && zoneManager.isTileWalkable(linkRight - 6, linkBottom, true)) {
+            moveLinkX(-4);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -427,8 +452,19 @@ public class LinkManager implements IManager {
     private boolean isLeftValid(float linkLeft, float linkTop) {
         float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
-        // -2 so that link can enter narrow path
-        return zoneManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && zoneManager.isTileWalkable(linkLeft + 2, linkBottom, true);
+        // +/-2 so that link can enter narrow path
+        if (zoneManager.isTileWalkable(linkLeft, linkMiddle + 2, true) && zoneManager.isTileWalkable(linkLeft, linkBottom - 2, true)) {
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkLeft, linkMiddle - 2, true) && zoneManager.isTileWalkable(linkLeft, linkBottom - 6, true)) {
+            moveLinkY(-4);
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkLeft, linkMiddle + 6, true) && zoneManager.isTileWalkable(linkLeft, linkBottom + 2, true)) {
+            moveLinkY(4);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -438,8 +474,19 @@ public class LinkManager implements IManager {
         float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
         float linkBottom = linkTop + LocationUtil.TILE_SIZE;
         float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        // -2 so that link can enter narrow path
-        return zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true);
+        // +/-2 so that link can enter narrow path
+        if (zoneManager.isTileWalkable(linkRight, linkMiddle + 2, true) && zoneManager.isTileWalkable(linkRight, linkBottom - 2, true)) {
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkRight, linkMiddle - 2, true) && zoneManager.isTileWalkable(linkRight, linkBottom - 6, true)) {
+            moveLinkY(-4);
+            return true;
+        }
+        if (zoneManager.isTileWalkable(linkRight, linkMiddle + 6, true) && zoneManager.isTileWalkable(linkRight, linkBottom + 2, true)) {
+            moveLinkY(4);
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -38,20 +38,26 @@ public class GuiManager implements IManager {
     private static final int TOP_MINI_MAP = 7;
 
     private static final int LEFT_ARROWS = 0;
-    private static final int TOP_ARROWS = 240;
+    private static final int TOP_ARROWS = 0;
     private static final int WIDTH_ARROWS = 300;
-    private static final int HEIGHT_ARROWS = 240;
+    private static final int HEIGHT_ARROWS = 480;
 
-    private static final int LEFT_UP = 50;
-    private static final int TOP_UP = 325;
-    private static final int LEFT_DOWN = 50;
+    private static final int LEFT_UP = 0;
+    private static final int TOP_UP = 275;
+    private static final int LEFT_DOWN = 0;
     private static final int TOP_DOWN = 425;
     private static final int LEFT_LEFT = 0;
-    private static final int TOP_LEFT = 375;
+    private static final int TOP_LEFT = 325;
     private static final int LEFT_RIGHT = 100;
-    private static final int TOP_RIGHT = 375;
-    private static final int WIDTH_ARROW = 50;
-    private static final int HEIGHT_ARROW = 50;
+    private static final int TOP_RIGHT = 325;
+    private static final int WIDTH_ARROW_UP = 150;
+    private static final int HEIGHT_ARROW_UP = 100;
+    private static final int WIDTH_ARROW_DOWN = 510;
+    private static final int HEIGHT_ARROW_DOWN = 50;
+    private static final int WIDTH_ARROW_LEFT = 50;
+    private static final int HEIGHT_ARROW_LEFT = 150;
+    private static final int WIDTH_ARROW_RIGHT = 100;
+    private static final int HEIGHT_ARROW_RIGHT = 150;
 
     private static final int LEFT_BUTTONS = 600;
     private static final int TOP_BUTTONS = 120;
@@ -132,7 +138,7 @@ public class GuiManager implements IManager {
     private IZoneManager zoneManager;
     private LinkManager linkManager;
 
-    private boolean buttonActivated;
+    private boolean buttonsActivated;
     private boolean upPressed;
     private boolean downPressed;
     private boolean leftPressed;
@@ -158,14 +164,7 @@ public class GuiManager implements IManager {
         linkManager = ((MainActivity) game).getLinkManager();
         zoneManager = ((MainActivity) game).getZoneManager(zone);
 
-        buttonActivated = true;
-        upPressed = false;
-        downPressed = false;
-        leftPressed = false;
-        rightPressed = false;
-        aPressed = false;
-        bPressed = false;
-        cPressed = false;
+        buttonsActivated = true;
     }
 
     /**
@@ -180,24 +179,37 @@ public class GuiManager implements IManager {
         cursor_position = 1;
         left_cursor = 708;
         top_cursor = 26;
+
+        upPressed = false;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
+        aPressed = false;
+        bPressed = false;
+        cPressed = false;
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (buttonActivated) {
+        if (buttonsActivated) {
             for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
-                Logger.debug("Touch event : " + event.type + "-" + event.x + "-" + event.y);
-                if (event.type == Input.TouchEvent.TOUCH_DOWN) {
-                    if (LocationUtil.inBounds(event, LEFT_UP, TOP_UP, WIDTH_ARROW, HEIGHT_ARROW)) {
+                if (event.type == Input.TouchEvent.TOUCH_DOWN || event.type == Input.TouchEvent.TOUCH_DRAGGED) {
+                    if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
+                        upPressed = false;
+                        downPressed = false;
+                        leftPressed = false;
+                        rightPressed = false;
+                    }
+                    if (LocationUtil.inBounds(event, LEFT_UP, TOP_UP, WIDTH_ARROW_UP, HEIGHT_ARROW_UP)) {
                         upPressed = true;
                     }
-                    if (LocationUtil.inBounds(event, LEFT_DOWN, TOP_DOWN, WIDTH_ARROW, HEIGHT_ARROW)) {
+                    if (LocationUtil.inBounds(event, LEFT_DOWN, TOP_DOWN, WIDTH_ARROW_DOWN, HEIGHT_ARROW_DOWN)) {
                         downPressed = true;
                     }
-                    if (LocationUtil.inBounds(event, LEFT_LEFT, TOP_LEFT, WIDTH_ARROW, HEIGHT_ARROW)) {
+                    if (LocationUtil.inBounds(event, LEFT_LEFT, TOP_LEFT, WIDTH_ARROW_LEFT, HEIGHT_ARROW_LEFT)) {
                         leftPressed = true;
                     }
-                    if (LocationUtil.inBounds(event, LEFT_RIGHT, TOP_RIGHT, WIDTH_ARROW, HEIGHT_ARROW)) {
+                    if (LocationUtil.inBounds(event, LEFT_RIGHT, TOP_RIGHT, WIDTH_ARROW_RIGHT, HEIGHT_ARROW_RIGHT)) {
                         rightPressed = true;
                     }
                     if (LocationUtil.inBounds(event, LEFT_A, TOP_A, WIDTH_BUTTON, HEIGHT_BUTTON_A)) {
@@ -209,6 +221,7 @@ public class GuiManager implements IManager {
                     if (LocationUtil.inBounds(event, LEFT_C, TOP_C, WIDTH_BUTTON, HEIGHT_BUTTON)) {
                         cPressed = true;
                     }
+                    logButtons(event);
                 }
                 if (event.type == Input.TouchEvent.TOUCH_UP) {
                     if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
@@ -222,9 +235,33 @@ public class GuiManager implements IManager {
                         bPressed = false;
                         cPressed = false;
                     }
+                    logButtons(event);
                 }
             }
         }
+    }
+
+    /**
+     * Log pressed buttons properly
+     */
+    private void logButtons(Input.TouchEvent event) {
+        String type;
+        if (event.type == Input.TouchEvent.TOUCH_DRAGGED) {
+            type = "DRAGGED";
+        } else if (event.type == Input.TouchEvent.TOUCH_DOWN) {
+            type = "DOWN";
+        } else if (event.type == Input.TouchEvent.TOUCH_UP) {
+            type = "UP";
+        } else if (event.type == Input.TouchEvent.TOUCH_HOLD) {
+            type = "HOLD";
+        } else {
+            type = "UNKNOWN";
+        }
+        String message = String.format("%1$" + 18 + "s", "Event : " + type + "-(" + event.x + "," + event.y + ")");
+        message += "up=" + ((upPressed) ? "1" : "0") + ",down=" + ((downPressed) ? "1" : "0");
+        message += ",left=" + ((leftPressed) ? "1" : "0") + ",right=" + ((rightPressed) ? "1" : "0");
+        message += ",a=" + ((aPressed) ? "1" : "0") + ",b=" + ((bPressed) ? "1" : "0") + ",c=" + ((cPressed) ? "1" : "0");
+        Logger.debug(message);
     }
 
     @Override
@@ -367,18 +404,18 @@ public class GuiManager implements IManager {
      * Activate the buttons
      */
     public void activateButtons() {
-        buttonActivated = true;
+        buttonsActivated = true;
     }
 
     /**
      * Deactivate the buttons
      */
     public void deactivateButtons() {
-        buttonActivated = false;
-        upPressed = false;
-        downPressed = false;
-        leftPressed = false;
-        rightPressed = false;
+        buttonsActivated = false;
+    }
+
+    public boolean areButtonsActivated() {
+        return buttonsActivated;
     }
 
     public boolean isUpPressed() {

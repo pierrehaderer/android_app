@@ -197,7 +197,7 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
-    public void changeScreen(Orientation orientation) {
+    public void changeRoom(Orientation orientation) {
         guiManager.deactivateButtons();
         worldMapEnemyManager.unloadEnemies();
         switch (orientation) {
