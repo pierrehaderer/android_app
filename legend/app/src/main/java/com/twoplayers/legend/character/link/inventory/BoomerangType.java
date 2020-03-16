@@ -1,6 +1,6 @@
 package com.twoplayers.legend.character.link.inventory;
 
-public enum Boomerang {
+public enum BoomerangType {
 
     NONE("empty"),
     WOOD("wood_boomerang"),
@@ -11,7 +11,7 @@ public enum Boomerang {
     /**
      * Constructor
      */
-    private Boomerang(String name) {
+    private BoomerangType(String name) {
         this.name = name;
     }
 

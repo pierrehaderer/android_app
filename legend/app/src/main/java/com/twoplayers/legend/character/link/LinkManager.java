@@ -14,7 +14,7 @@ import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.inventory.Arrow;
-import com.twoplayers.legend.character.link.inventory.Boomerang;
+import com.twoplayers.legend.character.link.inventory.BoomerangType;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;
@@ -44,7 +44,7 @@ public class LinkManager implements IManager {
     private GuiManager guiManager;
     private IZoneManager zoneManager;
     private IEnemyManager enemyManager;
-    private LinkService linkService;
+    private ItemService itemService;
 
     private ImagesLink imagesLink;
     private MusicManager musicManager;
@@ -83,7 +83,7 @@ public class LinkManager implements IManager {
     public void init(Game game) {
         guiManager = ((MainActivity) game).getGuiManager();
         musicManager = ((MainActivity) game).getMusicManager();
-        linkService = new LinkService();
+        itemService = new ItemService();
 
         imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
         imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
@@ -98,34 +98,44 @@ public class LinkManager implements IManager {
         link.isExitingSomewhere = false;
 
         //TODO Change it when it can be collected
-        link.arrow = Arrow.WOOD;
+        link.boomerang = new Boomerang(imagesLink, game.getGraphics());
+        link.boomerang.type = BoomerangType.WOOD;
         link.bomb = 4;
         link.bombMax = 8;
-        link.boomerang = Boomerang.WOOD;
+        link.boomerang.isMovingForward = false;
+        link.boomerang.isMovingBackward = false;
+        link.boomerang.counter = 0;
         link.bow = Bow.BOW;
-        link.bracelet = Bracelet.BRACELET;
-        link.compass = Compass.COMPASS;
-        link.dungeonMap = DungeonMap.MAP;
-        link.flute = Flute.FLUTE;
-        link.infiniteKey = InfiniteKey.KEY;
-        link.ladder = Ladder.LADDER;
+        link.arrow = Arrow.WOOD;
         link.light = Light.NONE;
+        link.flute = Flute.FLUTE;
         link.meat = Meat.MEAT;
         link.potion = Potion.NOTE;
-        link.raft = Raft.RAFT;
-        link.ring = Ring.RED;
         link.scepter = Scepter.SCEPTER;
-        link.shield = Shield.SMALL;
+
+        link.bracelet = Bracelet.BRACELET;
+        link.raft = Raft.RAFT;
+        link.ladder = Ladder.LADDER;
         link.spellBook = SpellBook.BOOK;
+        link.ring = Ring.RED;
+        link.infiniteKey = InfiniteKey.KEY;
+
+        link.compass = Compass.COMPASS;
+        link.dungeonMap = DungeonMap.MAP;
+
         link.sword = new Sword(imagesLink, game.getGraphics());
         link.sword.type = SwordType.NONE;
+        link.shield = Shield.SMALL;
+        link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
+        link.isUsingSecondItem = false;
+
 
         linkInvincibleColorMatrix = new LinkInvincibleColorMatrix();
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (!link.isAttacking && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
+        if (!link.isAttacking && !link.isUsingSecondItem && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Movement of Link
             boolean linkHasNotMovedYet = true;
             if (guiManager.isUpPressed() && guiManager.areButtonsActivated()) {
@@ -183,7 +193,7 @@ public class LinkManager implements IManager {
         }
 
         // Attack of link
-        if (!link.isAttacking && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
+        if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Start of link's attack
             if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE
                     && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
@@ -191,8 +201,7 @@ public class LinkManager implements IManager {
                 link.currentAnimation.reset();
                 link.sword.x = link.x;
                 link.sword.y = link.y;
-                link.sword.currentAnimation = link.sword.getAnimation(link.orientation);
-                link.sword.currentAnimation.reset();
+                link.sword.getAnimation(link.orientation).reset();
                 link.sword.hitbox = link.sword.hitboxes.get(link.orientation);
                 link.sword.hitbox.relocate(link.x, link.y);
                 soundEffectManager.play("sword");
@@ -201,10 +210,9 @@ public class LinkManager implements IManager {
             }
         }
         if (link.isAttacking) {
-            link.currentAnimation.update(deltaTime);
-            link.sword.currentAnimation.update(deltaTime);
+            link.sword.getAnimation(link.orientation).update(deltaTime);
             link.attackProgression += deltaTime;
-            if (link.attackProgression > Sword.STEP_1_DURATION && link.attackProgression < Sword.STEP_1_DURATION + Sword.STEP_2_DURATION) {
+            if (link.attackProgression > Link.STEP_1_DURATION && link.attackProgression < Link.STEP_1_DURATION + Link.STEP_2_ATTACK_DURATION) {
                 // Sword hitbox is active
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (!enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.hitbox, enemy.getHitbox())) {
@@ -213,7 +221,38 @@ public class LinkManager implements IManager {
                     }
                 }
             }
+        }
+
+        // Link is using the second object
+        if (!link.isAttacking && !link.isUsingSecondItem && guiManager.areButtonsActivated()
+                && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
+            if (guiManager.isbPressed()) {
+                switch (link.secondItem) {
+                    case 1:
+                        itemService.initiateBoomerang(guiManager, link);
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        break;
+                    case 7:
+                        break;
+                    case 8:
+                        break;
+                }
+            }
+        }
+        itemService.handleBoomerang(soundEffectManager, enemyManager, link, deltaTime);
+        if (link.isUsingSecondItem || link.isAttacking) {
+            link.currentAnimation.update(deltaTime);
             if (link.currentAnimation.isAnimationOver()) {
+                link.isUsingSecondItem = false;
                 link.isAttacking = false;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
             }
@@ -273,7 +312,7 @@ public class LinkManager implements IManager {
 
         // Link is picking an item
         for (Item item : zoneManager.getItems()) {
-            if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.coins - link.coinsToRemove >= item.price && !linkService.alreadyInInventory(link, item)) {
+            if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.coins - link.coinsToRemove >= item.price && !itemService.alreadyInInventory(link, item)) {
                 link.isPushed = false;
                 item.hideItemForTheZone();
                 link.coinCounter = 0;
@@ -283,7 +322,7 @@ public class LinkManager implements IManager {
                 link.showItemCounter = Link.INITIAL_SHOW_COUNT;
                 link.currentAnimation = link.pickAnimations[item.pickAnimation];
                 soundEffectManager.play("collect_item");
-                linkService.putItemInInventory(link, item);
+                itemService.putItemInInventory(link, item);
             }
         }
         if (link.isShowingItem) {
@@ -344,12 +383,18 @@ public class LinkManager implements IManager {
 
         // Draw the sword
         if (link.isAttacking) {
-            g.drawAnimation(link.sword.currentAnimation, Math.round(link.sword.x), Math.round(link.sword.y));
+            g.drawAnimation(link.sword.getAnimation(link.orientation), Math.round(link.sword.x), Math.round(link.sword.y));
+        }
+
+        // Draw the boomerang
+        if (link.boomerang.isMovingForward || link.boomerang.isMovingBackward) {
+            g.drawAnimation(link.boomerang.getAnimation(), Math.round(link.boomerang.x), Math.round(link.boomerang.y));
         }
 
         // Draw the hitboxes
         g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Hitbox.COLOR);
         g.drawRect((int) link.sword.hitbox.x, (int) link.sword.hitbox.y, (int) link.sword.hitbox.width, (int) link.sword.hitbox.height, Hitbox.COLOR);
+        g.drawRect((int) link.boomerang.hitbox.x, (int) link.boomerang.hitbox.y, (int) link.boomerang.hitbox.width, (int) link.boomerang.hitbox.height, Hitbox.COLOR);
     }
 
     /**

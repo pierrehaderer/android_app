@@ -49,4 +49,8 @@ public class CaveEnemyManager implements IEnemyManager {
     public List<Enemy> getEnemies() {
         return enemies;
     }
+
+    @Override
+    public void boomerangHits(Enemy enemy) {
+    }
 }

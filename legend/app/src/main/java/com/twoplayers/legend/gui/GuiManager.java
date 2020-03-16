@@ -12,7 +12,7 @@ import com.twoplayers.legend.assets.image.ImagesGui;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.link.inventory.Arrow;
-import com.twoplayers.legend.character.link.inventory.Boomerang;
+import com.twoplayers.legend.character.link.inventory.BoomerangType;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;
@@ -148,7 +148,6 @@ public class GuiManager implements IManager {
     private boolean bPressed;
     private boolean cPressed;
 
-    private int cursor_position;
     private int left_cursor;
     private int top_cursor;
 
@@ -176,7 +175,6 @@ public class GuiManager implements IManager {
         imagesGui = ((MainActivity) game).getAllImages().getImagesGui();
         imagesGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
-        cursor_position = 1;
         left_cursor = 708;
         top_cursor = 26;
 
@@ -311,9 +309,10 @@ public class GuiManager implements IManager {
         if (link.getSword().getType() != SwordType.NONE) {
             g.drawScaledImage(imagesGui.get(link.getSword().getType().name),LEFT_SWORD, TOP_SWORD, COEF_SELECTED_ITEMS);
         }
-        switch (cursor_position) {
+        switch (link.getSecondItem()) {
+            case 0:
             case 1:
-                g.drawScaledImage(imagesGui.get(link.getBoomerang().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(link.getBoomerang().getType().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 2:
                 g.drawScaledImage(imagesGui.get("bomb"),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
@@ -345,8 +344,8 @@ public class GuiManager implements IManager {
         if (link.getArrow() != Arrow.NONE) {
             g.drawImage(imagesGui.get(link.getArrow().name),LEFT_ARROW, TOP_ARROW);
         }
-        if (link.getBoomerang() != Boomerang.NONE) {
-            g.drawImage(imagesGui.get(link.getBoomerang().name),LEFT_BOOMERANG, TOP_BOOMERANG);
+        if (link.getBoomerang().getType() != BoomerangType.NONE) {
+            g.drawImage(imagesGui.get(link.getBoomerang().getType().name),LEFT_BOOMERANG, TOP_BOOMERANG);
         }
         if (link.getBow() != Bow.NONE) {
             g.drawImage(imagesGui.get(link.getBow().name),LEFT_BOW, TOP_BOW);

@@ -12,4 +12,7 @@ public interface IEnemyManager extends IManager {
     /** Enemy has been damaged */
     public void damageEnemy(Enemy enemyDamaged, int damage);
     /** Get enemies */
-    public List<Enemy> getEnemies();}
+    public List<Enemy> getEnemies();
+    /** Enemy has been hit by boomerang */
+    void boomerangHits(Enemy enemy);
+}

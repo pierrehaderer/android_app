@@ -7,7 +7,6 @@ import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.inventory.Arrow;
-import com.twoplayers.legend.character.link.inventory.Boomerang;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;
@@ -39,12 +38,19 @@ public class Link {
     protected static final float INITIAL_ENTER_COUNT = 75f;
     protected static final float INITIAL_SHOW_COUNT = 150f;
 
+    public static final float STEP_1_DURATION = 8;
+    public static final float STEP_2_ATTACK_DURATION = 25;
+    public static final float STEP_2_USE_DURATION = 12;
+    public static final float STEP_3_DURATION = 3;
+    public static final float STEP_4_DURATION = 3;
+
     public static final int PICK_ANIMATION_BIG = 0;
     public static final int PICK_ANIMATION_SMALL = 1;
 
     protected Animation currentAnimation;
     protected Map<Orientation, Animation> moveAnimations;
     protected Map<Orientation, Animation> attackAnimations;
+    protected Map<Orientation, Animation> useAnimations;
     protected Animation[] pickAnimations;
 
     public float x;
@@ -74,30 +80,37 @@ public class Link {
     protected float coinCounter;
     protected int coinsToRemove;
     protected int keys;
-    protected Arrow arrow;
+
+    protected Boomerang boomerang;
     protected int bomb;
     protected int bombMax;
-    protected Boomerang boomerang;
     protected Bow bow;
-    protected Bracelet bracelet;
-    protected Compass compass;
-    protected DungeonMap dungeonMap;
-    protected Flute flute;
-    protected InfiniteKey infiniteKey;
-    protected Ladder ladder;
+    protected Arrow arrow;
     protected Light light;
+    protected Flute flute;
     protected Meat meat;
     protected Potion potion;
-    protected Raft raft;
-    protected Ring ring;
     protected Scepter scepter;
-    protected Shield shield;
+
+    protected Bracelet bracelet;
+    protected Raft raft;
+    protected Ladder ladder;
+    protected InfiniteKey infiniteKey;
+    protected Ring ring;
     protected SpellBook spellBook;
+
+    protected DungeonMap dungeonMap;
+    protected Compass compass;
+
     protected Sword sword;
+    protected Shield shield;
+    protected int secondItem;
+    public boolean isUsingSecondItem;
 
     public Link(ImagesLink imagesLink, Graphics g) {
         initMoveAnimations(imagesLink, g);
         initAttackAnimations(imagesLink, g);
+        initUseAnimations(imagesLink, g);
         initPickAnimations(imagesLink, g);
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
     }
@@ -130,35 +143,69 @@ public class Link {
      */
     private void initAttackAnimations(ImagesLink imagesLink, Graphics g) {
         attackAnimations = new HashMap<>();
-
         Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesLink.get("link_sword_up_1"), AllImages.COEF, Sword.STEP_1_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_2"), AllImages.COEF, Sword.STEP_2_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_3"), AllImages.COEF, Sword.STEP_3_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_4"), AllImages.COEF, Sword.STEP_4_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_1"), AllImages.COEF, STEP_1_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_3"), AllImages.COEF, STEP_3_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_4"), AllImages.COEF, STEP_4_DURATION);
         animationUp.setOccurrences(1);
         attackAnimations.put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesLink.get("link_sword_down_1"), AllImages.COEF, Sword.STEP_1_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_2"), AllImages.COEF, Sword.STEP_2_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_3"), AllImages.COEF, Sword.STEP_3_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_4"), AllImages.COEF, Sword.STEP_4_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_1"), AllImages.COEF, STEP_1_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_3"), AllImages.COEF, STEP_3_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_4"), AllImages.COEF, STEP_4_DURATION);
         animationDown.setOccurrences(1);
         attackAnimations.put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesLink.get("link_sword_left_1"), AllImages.COEF, Sword.STEP_1_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_2"), AllImages.COEF, Sword.STEP_2_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_3"), AllImages.COEF, Sword.STEP_3_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_4"), AllImages.COEF, Sword.STEP_4_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_1"), AllImages.COEF, STEP_1_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_3"), AllImages.COEF, STEP_3_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_4"), AllImages.COEF, STEP_4_DURATION);
         animationLeft.setOccurrences(1);
         attackAnimations.put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesLink.get("link_sword_right_1"), AllImages.COEF, Sword.STEP_1_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_2"), AllImages.COEF, Sword.STEP_2_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_3"), AllImages.COEF, Sword.STEP_3_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_4"), AllImages.COEF, Sword.STEP_4_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_1"), AllImages.COEF, STEP_1_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_3"), AllImages.COEF, STEP_3_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_4"), AllImages.COEF, STEP_4_DURATION);
         animationRight.setOccurrences(1);
         attackAnimations.put(Orientation.RIGHT, animationRight);
+    }
+
+    /**
+     * Initialise the use animations
+     */
+    private void initUseAnimations(ImagesLink imagesLink, Graphics g) {
+        useAnimations = new HashMap<>();
+        Animation animationUp = g.newAnimation();
+        animationUp.addFrame(imagesLink.get("link_sword_up_1"), AllImages.COEF, STEP_1_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_2"), AllImages.COEF, STEP_2_USE_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_3"), AllImages.COEF, STEP_3_DURATION);
+        animationUp.addFrame(imagesLink.get("link_sword_up_4"), AllImages.COEF, STEP_4_DURATION);
+        animationUp.setOccurrences(1);
+        useAnimations.put(Orientation.UP, animationUp);
+        Animation animationDown = g.newAnimation();
+        animationDown.addFrame(imagesLink.get("link_sword_down_1"), AllImages.COEF, STEP_1_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_2"), AllImages.COEF, STEP_2_USE_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_3"), AllImages.COEF, STEP_3_DURATION);
+        animationDown.addFrame(imagesLink.get("link_sword_down_4"), AllImages.COEF, STEP_4_DURATION);
+        animationDown.setOccurrences(1);
+        useAnimations.put(Orientation.DOWN, animationDown);
+        Animation animationLeft = g.newAnimation();
+        animationLeft.addFrame(imagesLink.get("link_sword_left_1"), AllImages.COEF, STEP_1_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_2"), AllImages.COEF, STEP_2_USE_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_3"), AllImages.COEF, STEP_3_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_sword_left_4"), AllImages.COEF, STEP_4_DURATION);
+        animationLeft.setOccurrences(1);
+        useAnimations.put(Orientation.LEFT, animationLeft);
+        Animation animationRight = g.newAnimation();
+        animationRight.addFrame(imagesLink.get("link_sword_right_1"), AllImages.COEF, STEP_1_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_2"), AllImages.COEF, STEP_2_USE_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_3"), AllImages.COEF, STEP_3_DURATION);
+        animationRight.addFrame(imagesLink.get("link_sword_right_4"), AllImages.COEF, STEP_4_DURATION);
+        animationRight.setOccurrences(1);
+        useAnimations.put(Orientation.RIGHT, animationRight);
     }
 
     /**
@@ -188,6 +235,10 @@ public class Link {
 
     public int getKeys() {
         return keys;
+    }
+
+    public int getSecondItem() {
+        return secondItem;
     }
 
     public Arrow getArrow() {
