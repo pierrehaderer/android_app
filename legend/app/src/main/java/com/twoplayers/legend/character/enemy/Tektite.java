@@ -3,6 +3,7 @@ package com.twoplayers.legend.character.enemy;
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.Coordinate;
@@ -26,6 +27,7 @@ public abstract class Tektite extends Enemy {
 
     private boolean initNotDone;
     private float timeBeforeFirstMove;
+    private boolean isActive;
 
     private float pauseBeforeJump;
     private boolean isJumping;
@@ -40,18 +42,20 @@ public abstract class Tektite extends Enemy {
     private float deltaY;
     private int moveFunction;
     private int nextMoveFunction;
+    protected float immobilisationCounter;
 
     protected Animation initAnimation;
     protected Animation waitAnimation;
     protected Animation prepareAnimation;
     protected Animation jumpAnimation;
 
-    public Tektite(ImagesEnemyWorldMap imagesEnemyWorldMap, Graphics g) {
-        super(imagesEnemyWorldMap, g);
+    public Tektite(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
+        super(imagesEnemyWorldMap, soundEffectManager, g);
         initAnimations(g);
         initDestinationTree();
         initNotDone = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
+        isActive = false;
         isJumping = false;
         computePauseBeforeNextJump();
         moveFunction = MOVE_FUNTION_MIDDLE;
@@ -126,6 +130,12 @@ public abstract class Tektite extends Enemy {
             chooseNextNextPosition();
         }
 
+        // Move hitbox away when enemy is dead
+        if (isDead) {
+            hitbox.x = 0;
+            hitbox.y = 0;
+        }
+
         if (timeBeforeFirstMove > 0) {
             timeBeforeFirstMove -= deltaTime;
             if (timeBeforeFirstMove <= 60) {
@@ -134,29 +144,40 @@ public abstract class Tektite extends Enemy {
             if (timeBeforeFirstMove <= 0) {
                 isContactLethal = true;
                 isInvincible = false;
+                isActive = true;
                 currentAnimation = waitAnimation;
             }
         } else {
-            if (!isJumping && pauseBeforeJump > 0) {
-                pauseBeforeJump -= deltaTime;
-                if (pauseBeforeJump < 80) {
-                    currentAnimation = prepareAnimation;
+            if (immobilisationCounter > 0) {
+                immobilisationCounter -= deltaTime;
+            } else {
+                if (!isJumping && pauseBeforeJump > 0) {
+                    pauseBeforeJump -= deltaTime;
+                    if (pauseBeforeJump < 80) {
+                        currentAnimation = prepareAnimation;
+                    }
+                    if (pauseBeforeJump < 0) {
+                        isJumping = true;
+                        deltaX = 0;
+                        deltaY = 0;
+                        distance = 0;
+                        currentAnimation = jumpAnimation;
+                        computePauseBeforeNextJump();
+                        chooseNextNextPosition();
+                    }
                 }
-                if (pauseBeforeJump < 0) {
-                    isJumping = true;
-                    deltaX = 0;
-                    deltaY = 0;
-                    distance = 0;
-                    currentAnimation = jumpAnimation;
-                    computePauseBeforeNextJump();
-                    chooseNextNextPosition();
+                if (isJumping) {
+                    goToNextPosition(deltaTime);
                 }
-            }
-            if (isJumping) {
-                goToNextPosition(deltaTime);
             }
             currentAnimation.update(deltaTime);
         }
+    }
+
+    @Override
+    public void isHitByBoomerang() {
+        soundEffectManager.play("enemy_wounded");
+        immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
     }
 
     /**
@@ -313,5 +334,10 @@ public abstract class Tektite extends Enemy {
         deltaX = nextDeltaX;
         deltaY = nextDeltaY;
         distance = nextDistance;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isActive;
     }
 }

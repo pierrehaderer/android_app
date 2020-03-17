@@ -99,7 +99,7 @@ public class LinkManager implements IManager {
 
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
-        link.boomerang.type = BoomerangType.WOOD;
+        link.boomerang.type = BoomerangType.NONE;
         link.bomb = 4;
         link.bombMax = 8;
         link.boomerang.isMovingForward = false;
@@ -148,6 +148,7 @@ public class LinkManager implements IManager {
                     moveLinkY(deltaY);
                 }
                 if (LocationUtil.isUpOutOfMap(link.y + deltaY)) {
+                    itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.UP);
                 }
                 // Check if link is entering a cave
@@ -163,6 +164,7 @@ public class LinkManager implements IManager {
                     moveLinkY(deltaY);
                 }
                 if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE + deltaY)) {
+                    itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.DOWN);
                 }
             }
@@ -175,6 +177,7 @@ public class LinkManager implements IManager {
                     moveLinkX(deltaX);
                 }
                 if (LocationUtil.isLeftOutOfMap(link.x + deltaX)) {
+                    itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.LEFT);
                 }
             }
@@ -187,6 +190,7 @@ public class LinkManager implements IManager {
                     moveLinkX(deltaX);
                 }
                 if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE + deltaX)) {
+                    itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.RIGHT);
                 }
             }
@@ -217,6 +221,19 @@ public class LinkManager implements IManager {
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (!enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.hitbox, enemy.getHitbox())) {
                         Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit by link sword.");
+                        if (LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
+                            Logger.info("Link has collided with enemy : " + enemy.getClass());
+                            soundEffectManager.play("link_wounded");
+                            updateLinkLife(enemy.getContactDamage());
+                            link.isInvincible = true;
+                            link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
+                            link.isPushed = true;
+                            link.pushCounter = Link.INITIAL_PUSH_COUNT;
+                            Float[] pushDirections = LocationUtil.computePushDirections(enemy.getHitbox(), link.hitbox);
+                            link.pushX = pushDirections[0];
+                            link.pushY = pushDirections[1];
+                            Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
+                        }
                         enemyManager.damageEnemy(enemy, link.sword.type.damage);
                     }
                 }
@@ -225,6 +242,7 @@ public class LinkManager implements IManager {
 
         // Link is using the second object
         if (!link.isAttacking && !link.isUsingSecondItem && guiManager.areButtonsActivated()
+                && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem
                 && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
             if (guiManager.isbPressed()) {
                 switch (link.secondItem) {
@@ -348,6 +366,7 @@ public class LinkManager implements IManager {
 
         // Link is entering somewhere
         if (link.isEnteringSomewhere) {
+            itemService.hideItemsAndEffects(link);
             link.currentAnimation.update(deltaTime);
             link.enterSomewhereCounter -= deltaTime;
             moveLinkY(deltaTime * Link.ENTER_CAVE_SPEED);

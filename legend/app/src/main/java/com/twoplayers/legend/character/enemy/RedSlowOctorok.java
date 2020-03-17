@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 
 import java.util.HashMap;
 
@@ -16,8 +17,8 @@ public class RedSlowOctorok extends Octorok {
     /**
      * Constructor
      */
-    public RedSlowOctorok(ImagesEnemyWorldMap imagesEnemyWorldMap, Graphics g) {
-        super(imagesEnemyWorldMap, g);
+    public RedSlowOctorok(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
+        super(imagesEnemyWorldMap, soundEffectManager, g);
     }
 
     @Override

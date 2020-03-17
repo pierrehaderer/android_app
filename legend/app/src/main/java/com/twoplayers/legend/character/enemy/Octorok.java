@@ -4,6 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.map.WorldMapManager;
@@ -24,6 +25,8 @@ public abstract class Octorok extends Enemy {
 
     private boolean initNotDone;
     private float timeBeforeFirstMove;
+    private boolean isActive;
+
     private float timeBeforeAttack;
     private boolean isAttacking;
 
@@ -36,13 +39,15 @@ public abstract class Octorok extends Enemy {
     private float nextTileY;
     private float nextNextTileX;
     private float nextNextTileY;
+    protected float immobilisationCounter;
 
-    public Octorok(ImagesEnemyWorldMap imagesEnemyWorldMap, Graphics g) {
-        super(imagesEnemyWorldMap, g);
+    public Octorok(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
+        super(imagesEnemyWorldMap, soundEffectManager, g);
         initAnimations(g);
         initDirectionTree();
         initNotDone = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
+        isActive = false;
         isInvincible = true;
         chooseTimeBeforeAttack();
         isAttacking = false;
@@ -147,6 +152,12 @@ public abstract class Octorok extends Enemy {
             chooseNextNextTile(worldMapManager);
         }
 
+        // Move hitbox away when enemy is dead
+        if (isDead) {
+            hitbox.x = 0;
+            hitbox.y = 0;
+        }
+
         if (timeBeforeFirstMove > 0) {
             timeBeforeFirstMove -= deltaTime;
             if (timeBeforeFirstMove <= 60) {
@@ -155,38 +166,55 @@ public abstract class Octorok extends Enemy {
             if (timeBeforeFirstMove <= 0) {
                 isContactLethal = true;
                 isInvincible = false;
+                isActive = true;
             }
         } else {
-            if (!isAttacking) {
-                // The enemy moves
-                remainingMoves = deltaTime * speed;
-                goToNextTile();
-                while (remainingMoves > 0) {
-                    Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
-                    nextTileX = nextNextTileX;
-                    nextTileY = nextNextTileY;
-                    orientation = nextOrientation;
-                    currentAnimation = animations.get(orientation);
-                    chooseNextNextTile(worldMapManager);
-                    goToNextTile();
-                }
-                timeBeforeAttack -= deltaTime;
-                if (timeBeforeAttack < PAUSE_BEFORE_ATTACK) {
-                    isAttacking = true;
+            if (immobilisationCounter > 0) {
+                immobilisationCounter -= deltaTime;
+                if (immobilisationCounter <= 0) {
+                    isContactLethal = true;
                 }
             } else {
-                // The enemy attacks
-                timeBeforeAttack -= deltaTime;
-                if (timeBeforeAttack < 0) {
-                    Logger.info("Octorok is attacking (" + x + "," + y + ")");
-                    isAttacking = false;
-                    // TODO ATTACK !!!!!
-                    chooseTimeBeforeAttack();
+                if (!isAttacking) {
+                    // The enemy moves
+                    remainingMoves = deltaTime * speed;
+                    goToNextTile();
+                    while (remainingMoves > 0) {
+                        Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
+                        nextTileX = nextNextTileX;
+                        nextTileY = nextNextTileY;
+                        orientation = nextOrientation;
+                        currentAnimation = animations.get(orientation);
+                        chooseNextNextTile(worldMapManager);
+                        goToNextTile();
+                    }
+                    timeBeforeAttack -= deltaTime;
+                    if (timeBeforeAttack < PAUSE_BEFORE_ATTACK) {
+                        isAttacking = true;
+                    }
+                } else {
+                    // The enemy attacks
+                    timeBeforeAttack -= deltaTime;
+                    if (timeBeforeAttack < 0) {
+                        Logger.info("Octorok is attacking (" + x + "," + y + ")");
+                        isAttacking = false;
+                        // TODO ATTACK !!!!!
+                        chooseTimeBeforeAttack();
+                    }
                 }
             }
             currentAnimation.update(deltaTime);
         }
 
+    }
+
+    @Override
+    public void isHitByBoomerang() {
+        soundEffectManager.play("enemy_wounded");
+        if (timeBeforeFirstMove <= 0) {
+            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
+            isContactLethal = false;
+        }
     }
 
     /**
@@ -316,6 +344,11 @@ public abstract class Octorok extends Enemy {
                 break;
         }
         return false;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isActive;
     }
 
     /**

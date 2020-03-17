@@ -14,7 +14,6 @@ import java.util.Map;
 public class Sword {
 
     protected SwordType type;
-    protected float damage;
 
     public float x;
     public float y;
@@ -30,10 +29,10 @@ public class Sword {
     public Sword(ImagesLink imagesLink, Graphics g) {
         initAnimations(imagesLink, g);
         hitboxes = new HashMap<>();
-        hitboxes.put(Orientation.UP, new Hitbox(0, 0, 5, -11, 4, 12));
-        hitboxes.put(Orientation.DOWN, new Hitbox(0, 0, 7, 15, 4, 12));
-        hitboxes.put(Orientation.LEFT, new Hitbox(0, 0, -12, 8, 13, 4));
-        hitboxes.put(Orientation.RIGHT, new Hitbox(0, 0, 16, 8, 13, 4));
+        hitboxes.put(Orientation.UP, new Hitbox(0, 0, 3, -11, 8, 18));
+        hitboxes.put(Orientation.DOWN, new Hitbox(0, 0, 5, 9, 8, 18));
+        hitboxes.put(Orientation.LEFT, new Hitbox(0, 0, -12, 6, 19, 8));
+        hitboxes.put(Orientation.RIGHT, new Hitbox(0, 0, 10, 6, 19, 8));
         hitbox = hitboxes.get(Orientation.UP);
     }
 

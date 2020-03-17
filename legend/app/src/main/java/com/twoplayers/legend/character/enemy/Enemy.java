@@ -4,12 +4,16 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.map.WorldMapManager;
 
 public abstract class Enemy {
 
+    public static final float INITIAL_IMMOBILISATION_COUNTER = 300f;
+
     protected ImagesEnemyWorldMap imagesEnemyWorldMap;
+    protected SoundEffectManager soundEffectManager;
 
     public float x;
     public float y;
@@ -25,8 +29,9 @@ public abstract class Enemy {
     protected boolean isInvincible;
     protected boolean isDead;
 
-    public Enemy(ImagesEnemyWorldMap imagesEnemyWorldMap, Graphics g) {
+    public Enemy(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
         this.imagesEnemyWorldMap = imagesEnemyWorldMap;
+        this.soundEffectManager = soundEffectManager;
 
         // Death animation is common to al enemies
         deathAnimation = g.newAnimation();
@@ -59,4 +64,8 @@ public abstract class Enemy {
     public boolean isInvincible() {
         return isInvincible;
     }
+
+    public abstract void isHitByBoomerang();
+
+    public abstract boolean isActive();
 }

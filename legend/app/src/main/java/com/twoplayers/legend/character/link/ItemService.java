@@ -98,6 +98,7 @@ public class ItemService {
      * Give the corresponding item to link
      */
     public void putItemInInventory(Link link, Item item) {
+        int possibleSecondItem = 0;
         switch (item.name) {
             case "wood_arrow":
                 link.arrow = Arrow.WOOD;
@@ -107,15 +108,19 @@ public class ItemService {
                 break;
             case "wood_boomerang":
                 link.boomerang.type = BoomerangType.WOOD;
+                possibleSecondItem = 1;
                 break;
             case "white_boomerang":
                 link.boomerang.type = BoomerangType.WHITE;
+                possibleSecondItem = 1;
                 break;
             case "bombs":
                 link.bomb = Math.min(link.bomb + 4, link.bombMax);
+                possibleSecondItem = 2;
                 break;
             case "bow":
                 link.bow = Bow.BOW;
+                possibleSecondItem = 3;
                 break;
             case "bracelet":
                 link.bracelet = Bracelet.BRACELET;
@@ -128,6 +133,7 @@ public class ItemService {
                 break;
             case "flute":
                 link.flute = Flute.FLUTE;
+                possibleSecondItem = 5;
                 break;
             case "infinite_key":
                 link.infiniteKey = InfiniteKey.KEY;
@@ -140,21 +146,26 @@ public class ItemService {
                 break;
             case "blue_light":
                 link.light = Light.BLUE;
+                possibleSecondItem = 4;
                 break;
             case "red_light":
                 link.light = Light.RED;
+                possibleSecondItem = 4;
                 break;
             case "meat":
                 link.meat = Meat.MEAT;
+                possibleSecondItem = 6;
                 break;
             case "note":
                 link.potion = Potion.NOTE;
                 break;
             case "blue_potion":
                 link.potion = Potion.BLUE;
+                possibleSecondItem = 7;
                 break;
             case "red_potion":
                 link.potion = Potion.RED;
+                possibleSecondItem = 7;
                 break;
             case "raft":
                 link.raft = Raft.RAFT;
@@ -167,6 +178,7 @@ public class ItemService {
                 break;
             case "scepter":
                 link.scepter = Scepter.SCEPTER;
+                possibleSecondItem = 8;
                 break;
             case "spell_book":
                 link.spellBook = SpellBook.BOOK;
@@ -181,6 +193,17 @@ public class ItemService {
                 link.sword.type = SwordType.MAGICAL;
                 break;
         }
+        if (link.secondItem == 0) {
+            link.secondItem = possibleSecondItem;
+        }
+    }
+
+    /**
+     * Method to hide all items and their effects from screen
+     */
+    public void hideItemsAndEffects(Link link) {
+        link.boomerang.isMovingForward = false;
+        link.boomerang.isMovingBackward = false;
     }
 
     /**
@@ -230,7 +253,7 @@ public class ItemService {
         Boomerang boomerang = link.boomerang;
         if (boomerang.isMovingForward) {
             boomerang.getAnimation().update(deltaTime);
-            boomerang.counter -= deltaTime;
+            boomerang.counter = (boomerang.type == BoomerangType.WOOD) ? boomerang.counter - deltaTime : Boomerang.INITIAL_WOOD_BOOMERANG_COUNTER;
             float speed = Boomerang.INITIAL_SPEED * boomerang.counter / Boomerang.INITIAL_WOOD_BOOMERANG_COUNTER;
             boomerang.soundCounter -= deltaTime;
             if (boomerang.soundCounter < 0) {
@@ -284,17 +307,17 @@ public class ItemService {
                 boomerang.isMovingBackward = true;
                 boomerang.isMovingForward = false;
             }
-            if (LocationUtil.isUpOutOfMap(boomerang.y)
-                    || LocationUtil.isDownOutOfMap(boomerang.y + LocationUtil.HALF_TILE_SIZE)
-                    || LocationUtil.isLeftOutOfMap(boomerang.x)
-                    || LocationUtil.isRightOutOfMap(boomerang.x + LocationUtil.HALF_TILE_SIZE)) {
+            if (LocationUtil.isUpOutOfMap(boomerang.y + LocationUtil.HALF_TILE_SIZE)
+                    || LocationUtil.isDownOutOfMap(boomerang.y)
+                    || LocationUtil.isLeftOutOfMap(boomerang.x + LocationUtil.HALF_TILE_SIZE)
+                    || LocationUtil.isRightOutOfMap(boomerang.x)) {
                 // TODO add hit animation
                 Logger.info("Boomerang is out of room and starts to move backward at position (" + boomerang.x + "," + boomerang.y + ")");
                 boomerang.isMovingBackward = true;
                 boomerang.isMovingForward = false;
             }
             for (Enemy enemy : enemyManager.getEnemies()) {
-                if (LocationUtil.areColliding(boomerang.hitbox, enemy.getHitbox())) {
+                if (enemy.isActive() && !enemy.isDead() && LocationUtil.areColliding(boomerang.hitbox, enemy.getHitbox())) {
                     Logger.info("Boomerang has hit an enemy and starts to move backward at position (" + boomerang.x + "," + boomerang.y + ")");
                     enemyManager.boomerangHits(enemy);
                     if (boomerang.soundCounter == Boomerang.INITIAL_SOUND_COUNTER) {
@@ -327,7 +350,7 @@ public class ItemService {
             boomerang.hitbox.x += ratioX * deltaTime * speed;
             boomerang.hitbox.y += ratioY * deltaTime * speed;
             for (Enemy enemy : enemyManager.getEnemies()) {
-                if (LocationUtil.areColliding(boomerang.hitbox, enemy.getHitbox())) {
+                if (enemy.isActive() && !enemy.isDead() && LocationUtil.areColliding(boomerang.hitbox, enemy.getHitbox())) {
                     enemyManager.boomerangHits(enemy);
                     if (boomerang.soundCounter == Boomerang.INITIAL_SOUND_COUNTER) {
                         soundEffectManager.play("enemy_wounded");
@@ -337,8 +360,10 @@ public class ItemService {
             if (LocationUtil.areColliding(link.hitbox, boomerang.hitbox)) {
                 boomerang.isMovingBackward = false;
                 link.isUsingSecondItem = true;
-                link.currentAnimation = link.useAnimations.get(link.orientation);
-                link.currentAnimation.reset();
+                if (!link.isAttacking && !link.isShowingItem) {
+                    link.currentAnimation = link.useAnimations.get(link.orientation);
+                    link.currentAnimation.reset();
+                }
             }
         }
     }

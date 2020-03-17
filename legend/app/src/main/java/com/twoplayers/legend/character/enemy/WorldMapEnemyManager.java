@@ -12,6 +12,7 @@ import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.Logger;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,7 +86,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
                     try {
                         Class<? extends Enemy> enemyClass = enemyMap.get(enemyName);
                         if (enemyClass != null) {
-                            Enemy enemy = enemyClass.getConstructor(ImagesEnemyWorldMap.class, Graphics.class).newInstance(imagesEnemyWorldMap, g);
+                            Constructor<? extends Enemy> constructor = enemyClass.getConstructor(ImagesEnemyWorldMap.class, SoundEffectManager.class, Graphics.class);
+                            Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, g);
                             Coordinate coordinate = worldMapManager.findSpawnableCoordinate();
                             Logger.debug("Spawning " + enemy + " at (" + coordinate.x + "," + coordinate.y + ")");
                             enemy.x = coordinate.x;
@@ -140,6 +142,9 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyDamaged.life -= damage;
         if (enemyDamaged.life <= 0) {
             enemyDamaged.isDead = true;
+            // Move hitbox away when enemy is dead
+            enemyDamaged.hitbox.x = 0;
+            enemyDamaged.hitbox.y = 0;
             soundEffectManager.play("enemy_dies");
             enemyDamaged.currentAnimation = enemyDamaged.deathAnimation;
         } else {
@@ -154,6 +159,6 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
     @Override
     public void boomerangHits(Enemy enemy) {
-
+        enemy.isHitByBoomerang();
     }
 }
