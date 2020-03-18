@@ -41,8 +41,9 @@ public class WorldMapScreen extends Screen {
         guiManager.update(deltaTime, game.getGraphics());
         musicManager.update(deltaTime, game.getGraphics());
         if (linkManager.hasEnteredSomewhere()) {
-            if ("CAVE".equals(worldMapManager.getCave())) {
-                game.setScreen(new CaveLoadingScreen(game, worldMapManager.getCoordinate()));
+            String caveInfo = worldMapManager.getCave();
+            if (caveInfo.startsWith("CAVE")) {
+                game.setScreen(new CaveLoadingScreen(game, caveInfo));
             }
         }
     }

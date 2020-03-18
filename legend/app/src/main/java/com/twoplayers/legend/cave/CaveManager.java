@@ -54,12 +54,12 @@ public class CaveManager implements IZoneManager {
     /**
      * Load this manager
      */
-    public void load(Game game, String mapCoordinate) {
+    public void load(Game game, String caveInfo) {
         if (initNotDone) {
             initNotDone = false;
             init(game);
         }
-        initCave(game, mapCoordinate);
+        initCave(game, caveInfo);
         textCounter = 0;
         textSoundCounter = 0;
     }
@@ -134,29 +134,32 @@ public class CaveManager implements IZoneManager {
     /**
      * Init the cave based on the file properties
      */
-    private void initCave(Game game, String coordinate) {
-        Properties caveProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "cave/" + coordinate + ".properties");
+    private void initCave(Game game, String caveInfo) {
+        String[] caveArray = caveInfo.split("\\|");
+
         cave = new Cave(imagesCave, imagesItem, game.getGraphics());
         hasExitedZone = false;
 
-        cave.message1 = caveProperties.getProperty("message1", DEFAULT_MESSAGE);
-        cave.message2 = caveProperties.getProperty("message2", DEFAULT_MESSAGE);
+        cave.message1 = (caveArray.length > 1) ? caveArray[1] : DEFAULT_MESSAGE;
+        cave.message2 = (caveArray.length > 2) ? caveArray[2] : DEFAULT_MESSAGE;
 
-        String[] location = caveProperties.getProperty("location", DEFAULT_LOCATION).split("\\|");
+        String[] location = ((caveArray.length > 3) ? caveArray[3] : DEFAULT_LOCATION).split("\\|");
         cave.location = new Coordinate(Float.valueOf(location[0]), Float.valueOf(location[1]));
 
-        String[] entrance = caveProperties.getProperty("entrance", DEFAULT_ENTRANCE).split("\\|");
+        String[] entrance = ((caveArray.length > 4) ? caveArray[4] : DEFAULT_ENTRANCE).split("\\|");
         cave.entrance = new Coordinate(Float.valueOf(entrance[0]), Float.valueOf(entrance[1]));
 
         cave.npc = new Npc();
-        cave.npc.name = caveProperties.getProperty("npc", DEFAULT_NPC);
+        cave.npc.name = (caveArray.length > 5) ? caveArray[5] : DEFAULT_NPC;
         Logger.info("Loading cave with NPC '" + cave.npc.name + "'");
         cave.npc.image = imagesCave.get(cave.npc.name);
         cave.npc.x = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
         cave.npc.y = LocationUtil.getYFromGrid(4);
         cave.npc.hitbox.relocate(cave.npc.x, cave.npc.y);
 
-        String itemsFromFile = caveProperties.getProperty("items", DEFAULT_ITEMS);
+        String itemsFromFile = (caveArray.length > 6) ? caveArray[6] : DEFAULT_ITEMS;
+        itemsFromFile += (caveArray.length > 7) ? "|" + caveArray[7] : "";
+        itemsFromFile += (caveArray.length > 8) ? "|" + caveArray[8] : "";
         if (itemsFromFile.length() > 0) {
             String[] itemsSplitted = itemsFromFile.split("\\|");
             float[] itemPositionsX = new float[3];

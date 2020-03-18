@@ -18,19 +18,19 @@ public class CaveLoadingScreen extends Screen {
     private static final int INITIAL_CAVE_POSITION_X = 7;
     private static final int INITIAL_CAVE_POSITION_Y = 10;
 
-    private String worldMapCoordinate;
+    private String caveInfo;
     private Coordinate linkPosition;
 
-    public CaveLoadingScreen(Game game, String coordinate) {
+    public CaveLoadingScreen(Game game, String caveInfo) {
         super(game);
         Logger.info("Entering CaveLoadingScreen.");
-        worldMapCoordinate = coordinate;
+        this.caveInfo = caveInfo;
         linkPosition = new Coordinate(INITIAL_CAVE_POSITION_X, INITIAL_CAVE_POSITION_Y);
     }
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getCaveManager().load(game, worldMapCoordinate);
+        ((MainActivity) game).getCaveManager().load(game, caveInfo);
         ((MainActivity) game).getCaveEnemyManager().load(game);
         ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_CAVE, linkPosition);
         ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_CAVE);
