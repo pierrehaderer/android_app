@@ -39,6 +39,9 @@ import com.twoplayers.legend.util.Logger;
 
 public class LinkManager implements IManager {
 
+    private static final float LINK_MAX_SHIFT = 5f;
+    public static final float A_TINY_BIT_MORE = 0.01f;
+
     private boolean initNotDone = true;
 
     private GuiManager guiManager;
@@ -143,8 +146,10 @@ public class LinkManager implements IManager {
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
                 float deltaY = -1 * Link.LINK_SPEED * deltaTime;
-                if (isUpValid(link.x, link.y + deltaY)) {
+                float nextX = evaluateXAfterShift(link.x);
+                if (zoneManager.isLinkUpValid(nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
+                    shiftLinkX(nextX);
                     moveLinkY(deltaY);
                 }
                 if (LocationUtil.isUpOutOfMap(link.y + deltaY)) {
@@ -159,8 +164,10 @@ public class LinkManager implements IManager {
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
                 float deltaY = Link.LINK_SPEED * deltaTime;
-                if (isDownValid(link.x, link.y + deltaY)) {
+                float nextX = evaluateXAfterShift(link.x);
+                if (zoneManager.isLinkDownValid(nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
+                    shiftLinkX(nextX);
                     moveLinkY(deltaY);
                 }
                 if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE + deltaY)) {
@@ -173,7 +180,9 @@ public class LinkManager implements IManager {
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
                 float deltaX = -1 * Link.LINK_SPEED * deltaTime;
-                if (isLeftValid(link.x + deltaX, link.y)) {
+                float nextY = evaluateYAfterShift(link.y);
+                if (zoneManager.isLinkLeftValid(link.x + deltaX, nextY)) {
+                    shiftLinkY(nextY);
                     moveLinkX(deltaX);
                 }
                 if (LocationUtil.isLeftOutOfMap(link.x + deltaX)) {
@@ -186,7 +195,9 @@ public class LinkManager implements IManager {
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
                 float deltaX = Link.LINK_SPEED * deltaTime;
-                if (isRightValid(link.x + deltaX, link.y)) {
+                float nextY = evaluateYAfterShift(link.y);
+                if (zoneManager.isLinkRightValid(link.x + deltaX, nextY)) {
+                    shiftLinkY(nextY);
                     moveLinkX(deltaX);
                 }
                 if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE + deltaX)) {
@@ -308,18 +319,36 @@ public class LinkManager implements IManager {
             Logger.info("Link is pushed, remaining counter : " + link.pushCounter);
             if (link.orientation == Orientation.UP || link.orientation == Orientation.DOWN) {
                 float deltaY = Link.PUSH_SPEED * link.pushY * deltaTime;
-                if ((deltaY > 0 && isDownValid(link.x, link.y + deltaY))
-                        || (deltaY < 0 && isUpValid(link.x, link.y + deltaY))) {
-                    moveLinkY(deltaY);
+                float nextX = evaluateXAfterShift(link.x);
+                if (deltaY < 0) {
+                    if (zoneManager.isLinkUpValid(nextX, link.y + deltaY)) {
+                        shiftLinkX(nextX);
+                        moveLinkY(deltaY);
+                    }
+                }
+                if (deltaY > 0) {
+                    if (zoneManager.isLinkDownValid(nextX, link.y + deltaY)) {
+                        shiftLinkX(nextX);
+                        moveLinkY(deltaY);
+                    }
                 }
                 // Check if link is entering a cave
                 checkAndInitCaveEntering();
             }
             if (link.orientation == Orientation.LEFT || link.orientation == Orientation.RIGHT) {
                 float deltaX = Link.PUSH_SPEED * link.pushX * deltaTime;
-                if ((deltaX > 0 && isRightValid(link.x + deltaX, link.y))
-                        || (deltaX < 0 && isLeftValid(link.x + deltaX, link.y))) {
-                    moveLinkX(deltaX);
+                float nextY = evaluateYAfterShift(link.y);
+                if (deltaX < 0) {
+                    if (zoneManager.isLinkLeftValid(link.x + deltaX, nextY)) {
+                        shiftLinkY(nextY);
+                        moveLinkX(deltaX);
+                    }
+                }
+                if (deltaX > 0) {
+                    if (zoneManager.isLinkRightValid(link.x + deltaX, link.y + nextY)) {
+                        shiftLinkY(nextY);
+                        moveLinkX(deltaX);
+                    }
                 }
             }
             link.pushCounter -= deltaTime;
@@ -435,37 +464,85 @@ public class LinkManager implements IManager {
     }
 
     /**
+     * If Link is almost at the border of a tile put him on a border
+     */
+    private float evaluateXAfterShift(float x) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        float tilePositionX = LocationUtil.getXFromGrid(tileX);
+        float deltaX = x - tilePositionX;
+        if (deltaX < LINK_MAX_SHIFT) {
+            return tilePositionX + A_TINY_BIT_MORE;
+        }
+        if (deltaX > LocationUtil.TILE_SIZE - LINK_MAX_SHIFT) {
+            return tilePositionX + LocationUtil.TILE_SIZE + A_TINY_BIT_MORE;
+        }
+        return x;
+    }
+
+    /**
+     * If Link is almost at the border of a tile put him on a border
+     */
+    private float evaluateYAfterShift(float y) {
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        float tilePositionY = LocationUtil.getYFromGrid(tileY);
+        float deltaY = y - tilePositionY;
+        if (deltaY < LINK_MAX_SHIFT) {
+            return tilePositionY + A_TINY_BIT_MORE;
+        }
+        if (deltaY > LocationUtil.TILE_SIZE - LINK_MAX_SHIFT) {
+            return tilePositionY + LocationUtil.TILE_SIZE + A_TINY_BIT_MORE;
+        }
+        return y;
+    }
+
+    /**
+     * Ask LinkManager to shift link
+     */
+    private void shiftLinkX(float nextX) {
+        if (nextX != link.x) {
+            if (LocationUtil.isLeftOutOfMap(nextX)) {
+                link.x = LocationUtil.LEFT_MAP;
+            } else if (LocationUtil.isRightOutOfMap(nextX + LocationUtil.TILE_SIZE)) {
+                link.x = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - LocationUtil.TILE_SIZE;
+            } else {
+                link.x = nextX;
+            }
+            link.hitbox.x = link.x + link.hitbox.x_offset;
+            link.sword.x = link.x;
+            link.sword.hitbox.x = link.x + link.sword.hitbox.x_offset;
+        }
+    }
+
+    /**
+     * Ask LinkManager to move link
+     */
+    private void shiftLinkY(float nextY) {
+        if (nextY != link.y) {
+            if (LocationUtil.isUpOutOfMap(nextY)) {
+                link.y = LocationUtil.TOP_MAP;
+            } else if (LocationUtil.isDownOutOfMap(nextY + LocationUtil.TILE_SIZE)) {
+                link.y = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - LocationUtil.TILE_SIZE;
+            } else {
+                link.y = nextY;
+            }
+            link.hitbox.y = link.y + link.hitbox.y_offset;
+            link.sword.y = link.y;
+            link.sword.hitbox.y = link.y + link.sword.hitbox.y_offset;
+        }
+    }
+
+    /**
      * Ask LinkManager to move link
      */
     public void moveLinkX(float deltaX) {
-        float nextX = link.x + deltaX;
-        if (LocationUtil.isLeftOutOfMap(nextX)) {
-            link.x = LocationUtil.LEFT_MAP;
-        } else if (LocationUtil.isRightOutOfMap(nextX + LocationUtil.TILE_SIZE)) {
-            link.x = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - LocationUtil.TILE_SIZE;
-        } else {
-            link.x = nextX;
-        }
-        link.hitbox.x = link.x + link.hitbox.x_offset;
-        link.sword.x = link.x;
-        link.sword.hitbox.x = link.x + link.sword.hitbox.x_offset;
+        shiftLinkX(link.x + deltaX);
     }
 
     /**
      * Ask LinkManager to move link
      */
     public void moveLinkY(float deltaY) {
-        float nextY = link.y + deltaY;
-        if (LocationUtil.isUpOutOfMap(nextY)) {
-            link.y = LocationUtil.TOP_MAP;
-        } else if (LocationUtil.isDownOutOfMap(nextY + LocationUtil.TILE_SIZE)) {
-            link.y = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - LocationUtil.TILE_SIZE;
-        } else {
-            link.y = nextY;
-        }
-        link.hitbox.y = link.y + link.hitbox.y_offset;
-        link.sword.y = link.y;
-        link.sword.hitbox.y = link.y + link.sword.hitbox.y_offset;
+        shiftLinkY(link.y + deltaY);
     }
 
     /**

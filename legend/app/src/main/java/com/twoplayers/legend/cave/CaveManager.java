@@ -20,7 +20,6 @@ import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.TextUtil;
 
 import java.util.List;
-import java.util.Properties;
 
 public class CaveManager implements IZoneManager {
 
@@ -143,10 +142,10 @@ public class CaveManager implements IZoneManager {
         cave.message1 = (caveArray.length > 1) ? caveArray[1] : DEFAULT_MESSAGE;
         cave.message2 = (caveArray.length > 2) ? caveArray[2] : DEFAULT_MESSAGE;
 
-        String[] location = ((caveArray.length > 3) ? caveArray[3] : DEFAULT_LOCATION).split("\\|");
+        String[] location = ((caveArray.length > 3) ? caveArray[3] : DEFAULT_LOCATION).split(",");
         cave.location = new Coordinate(Float.valueOf(location[0]), Float.valueOf(location[1]));
 
-        String[] entrance = ((caveArray.length > 4) ? caveArray[4] : DEFAULT_ENTRANCE).split("\\|");
+        String[] entrance = ((caveArray.length > 4) ? caveArray[4] : DEFAULT_ENTRANCE).split(",");
         cave.entrance = new Coordinate(Float.valueOf(entrance[0]), Float.valueOf(entrance[1]));
 
         cave.npc = new Npc();
@@ -157,33 +156,30 @@ public class CaveManager implements IZoneManager {
         cave.npc.y = LocationUtil.getYFromGrid(4);
         cave.npc.hitbox.relocate(cave.npc.x, cave.npc.y);
 
-        String itemsFromFile = (caveArray.length > 6) ? caveArray[6] : DEFAULT_ITEMS;
-        itemsFromFile += (caveArray.length > 7) ? "|" + caveArray[7] : "";
-        itemsFromFile += (caveArray.length > 8) ? "|" + caveArray[8] : "";
-        if (itemsFromFile.length() > 0) {
-            String[] itemsSplitted = itemsFromFile.split("\\|");
-            float[] itemPositionsX = new float[3];
-            if (itemsSplitted.length == 1) {
-                itemPositionsX[0] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
-            } else {
-                itemPositionsX[0] = LocationUtil.getXFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
-                itemPositionsX[1] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
-                itemPositionsX[2] = LocationUtil.getXFromGrid(9) + LocationUtil.HALF_TILE_SIZE;
-            }
-            for (int index = 0; index < itemsSplitted.length; index++) {
-                String itemAndPrice = itemsSplitted[index];
-                Logger.info("Loading item with '" + itemAndPrice + "'");
-                String[] elements = itemAndPrice.split(",");
-                Item item = new Item();
-                item.name = elements[0];
-                item.image = imagesItem.get(item.name);
-                item.pickAnimation = inventoryService.findPickAnimation(item.name);
-                item.x = itemPositionsX[index];
-                item.y = LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
-                item.hitbox.relocate(item.x, item.y);
-                item.price = Integer.valueOf(elements[1]);
-                cave.addItem(item);
-            }
+        float[] itemPositionsX = new float[3];
+        if (caveArray.length == 7) {
+            itemPositionsX[0] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
+        } else if (caveArray.length == 8) {
+            itemPositionsX[0] = LocationUtil.getXFromGrid(6) + LocationUtil.HALF_TILE_SIZE;
+            itemPositionsX[1] = LocationUtil.getXFromGrid(8) + LocationUtil.HALF_TILE_SIZE;
+        } else {
+            itemPositionsX[0] = LocationUtil.getXFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
+            itemPositionsX[1] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
+            itemPositionsX[2] = LocationUtil.getXFromGrid(9) + LocationUtil.HALF_TILE_SIZE;
+        }
+        for (int index = 6; index < caveArray.length; index++) {
+            String itemAndPrice = caveArray[index];
+            Logger.info("Loading item with '" + itemAndPrice + "'");
+            String[] elements = itemAndPrice.split(",");
+            Item item = new Item();
+            item.name = elements[0];
+            item.image = imagesItem.get(item.name);
+            item.pickAnimation = inventoryService.findPickAnimation(item.name);
+            item.x = itemPositionsX[index - 6];
+            item.y = LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
+            item.hitbox.relocate(item.x, item.y);
+            item.price = Integer.valueOf(elements[1]);
+            cave.addItem(item);
         }
     }
 
@@ -208,6 +204,164 @@ public class CaveManager implements IZoneManager {
             return true;
         }
         return tile.walkable;
+    }
+
+    @Override
+    public boolean isLinkUpValid(float x, float y) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        CaveTile tileUpLeft = caveRoom.getTile(tileX, tileY);
+        CaveTile tileUpRight = caveRoom.getTile(tileX + 1, tileY);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileUpLeft) {
+            case LIMIT:
+            case OUT_OF_BOUNDS:
+                return false;
+            case BLOC:
+                if (deltaY < LocationUtil.HALF_TILE_SIZE) {
+                    return false;
+                }
+                break;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileUpRight) {
+            case LIMIT:
+            case OUT_OF_BOUNDS:
+                return false;
+            case BLOC:
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE) {
+                    return false;
+                }
+                break;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isLinkDownValid(float x, float y) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        CaveTile tileDownLeft = caveRoom.getTile(tileX, tileY + 1);
+        CaveTile tileDownRight = caveRoom.getTile(tileX + 1, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileDownLeft) {
+            case LIMIT:
+            case OUT_OF_BOUNDS:
+            case BLOC:
+                return false;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileDownRight) {
+            case LIMIT:
+            case OUT_OF_BOUNDS:
+            case BLOC:
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isLinkLeftValid(float x, float y) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        CaveTile tileUpLeft = caveRoom.getTile(tileX, tileY);
+        CaveTile tileDownLeft = caveRoom.getTile(tileX, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileUpLeft) {
+            case BLOC:
+                if (deltaY < LocationUtil.HALF_TILE_SIZE) {
+                    return false;
+                }
+                break;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileDownLeft) {
+            case BLOC:
+                if (deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isLinkRightValid(float x, float y) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        CaveTile tileUpRight = caveRoom.getTile(tileX + 1, tileY);
+        CaveTile tileDownRight = caveRoom.getTile(tileX + 1, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileUpRight) {
+            case BLOC:
+                if (deltaY < LocationUtil.HALF_TILE_SIZE) {
+                    return false;
+                }
+                break;
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileDownRight) {
+            case BLOC:
+                if (deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+            case PATH:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
     }
 
     @Override

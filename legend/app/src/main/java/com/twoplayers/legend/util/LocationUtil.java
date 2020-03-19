@@ -17,6 +17,7 @@ public class LocationUtil {
 
     public static final float TILE_SIZE = 16 * AllImages.COEF;
     public static final float HALF_TILE_SIZE = 8 * AllImages.COEF;
+    public static final float OBSTACLE_TOLERANCE = 2f;
 
     /**
      * Check if a touch event is in the provided zone

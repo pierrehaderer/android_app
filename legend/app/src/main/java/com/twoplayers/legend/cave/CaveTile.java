@@ -6,7 +6,7 @@ public enum CaveTile {
 
     PATH(' ', true),
     BLOC('x', false),
-    LIMIT('¨', true),
+    LIMIT('_', false),
     OUT_OF_BOUNDS('%', false);
 
     public char character;

@@ -105,6 +105,37 @@ public class WorldMapManager implements IZoneManager {
         worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "cave/world_map_caves.properties");
     }
 
+    /**
+     * Create all the MapRoom objects from the world_map file
+     */
+    private void initWorldMap(List<String> worldMapFileContent) {
+        worldMap = new MapRoom[16][8];
+        exploredWorldMap = new Boolean[16][8];
+
+        // Initialise the mapScreens
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 8; j++) {
+                worldMap[i][j] = (new MapRoom());
+                exploredWorldMap[i][j] = false;
+            }
+        }
+        exploredWorldMap[7][7] = true;
+
+        // Fill the mapScreens, line by line
+        int indexLine = 0;
+        for (int index1 = 0; index1 < 8; index1 = index1) {
+            String line = worldMapFileContent.get(indexLine++);
+            for (int index2 = 0; index2 < 16; index2++) {
+                worldMap[index2][index1].addALine(line.substring(17 * index2, 17 * index2 + 16));
+            }
+            // Jump over the delimiter line and go to next line of mapScreens
+            if (indexLine % 12 == 11) {
+                indexLine++;
+                index1++;
+            }
+        }
+    }
+
     @Override
     public void update(float deltaTime, Graphics g) {
         if (transitionRunning) {
@@ -142,37 +173,6 @@ public class WorldMapManager implements IZoneManager {
     public void paint(float deltaTime, Graphics g) {
         g.drawScaledImage(imageNextMapScreen, (int) leftNextMapScreen, (int) topNextMapScreen, AllImages.COEF);
         g.drawScaledImage(imageCurrentMapScreen, (int) leftCurrentMapScreen, (int) topCurrentMapScreen, AllImages.COEF);
-    }
-
-    /**
-     * Create all the MapRoom objects from the world_map file
-     */
-    private void initWorldMap(List<String> worldMapFileContent) {
-        worldMap = new MapRoom[16][8];
-        exploredWorldMap = new Boolean[16][8];
-
-        // Initialise the mapScreens
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 8; j++) {
-                worldMap[i][j] = (new MapRoom());
-                exploredWorldMap[i][j] = false;
-            }
-        }
-        exploredWorldMap[7][7] = true;
-
-        // Fill the mapScreens, line by line
-        int indexLine = 0;
-        for (int index1 = 0; index1 < 8; index1 = index1) {
-            String line = worldMapFileContent.get(indexLine++);
-            for (int index2 = 0; index2 < 16; index2++) {
-                worldMap[index2][index1].addALine(line.substring(17 * index2, 17 * index2 + 16));
-            }
-            // Jump over the delimiter line and go to next line of mapScreens
-            if (indexLine % 12 == 11) {
-                indexLine++;
-                index1++;
-            }
-        }
     }
 
     @Override
@@ -269,6 +269,298 @@ public class WorldMapManager implements IZoneManager {
             Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
         }
         return new Coordinate(x, y);
+    }
+
+    @Override
+    public boolean isLinkUpValid(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        MapTile tileUpLeft = currentMapRoom.getTile(tileX, tileY);
+        MapTile tileUpRight = currentMapRoom.getTile(tileX + 1, tileY);
+        MapTile tileDownLeft = currentMapRoom.getTile(tileX, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileUpLeft) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_BOT_UPPER:
+            case BLOC_BOT_LOWER:
+            case BLOC_TOP_LOWER:
+                if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                if (tileDownLeft == MapTile.BLOC_TOP_UPPER) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_UPPER:
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileUpRight) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_BOT_UPPER:
+            case BLOC_BOT_LOWER:
+            case BLOC_TOP_UPPER:
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_LOWER:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isLinkDownValid(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        MapTile tileDownLeft = currentMapRoom.getTile(tileX, tileY + 1);
+        MapTile tileDownRight = currentMapRoom.getTile(tileX + 1, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileDownLeft) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_BOT_UPPER:
+                if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_UPPER:
+                if (deltaX < LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_LOWER:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_BOT_LOWER:
+                if (deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileDownRight) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_BOT_LOWER:
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_UPPER:
+                if (deltaX < LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_LOWER:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_BOT_UPPER:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE || deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isLinkLeftValid(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        MapTile tileUpLeft = currentMapRoom.getTile(tileX, tileY);
+        MapTile tileDownLeft = currentMapRoom.getTile(tileX, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileUpLeft) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_BOT_UPPER:
+            case BLOC_BOT_LOWER:
+                if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_UPPER:
+                if (deltaX < LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_LOWER:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileDownLeft) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_TOP_UPPER:
+            case BLOC_TOP_LOWER:
+            case BLOC_BOT_UPPER:
+                if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_BOT_LOWER:
+                if ((deltaY > LocationUtil.OBSTACLE_TOLERANCE && deltaX < LocationUtil.HALF_TILE_SIZE) || deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isLinkRightValid(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+
+        MapTile tileUpRight = currentMapRoom.getTile(tileX + 1, tileY);
+        MapTile tileDownRight = currentMapRoom.getTile(tileX + 1, tileY + 1);
+
+        float deltaX = x - LocationUtil.getXFromGrid(tileX);
+        float deltaY = y - LocationUtil.getYFromGrid(tileY);
+
+        switch (tileUpRight) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_BOT_UPPER:
+            case BLOC_BOT_LOWER:
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_UPPER:
+                if (deltaX < LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_TOP_LOWER:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        switch (tileDownRight) {
+            case BLOC:
+            case WATER:
+            case STATUE:
+            case TOMB:
+            case BLOC_TOP_UPPER:
+            case BLOC_TOP_LOWER:
+            case BLOC_BOT_LOWER:
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case BLOC_BOT_UPPER:
+                if ((deltaY > LocationUtil.OBSTACLE_TOLERANCE && deltaX > LocationUtil.HALF_TILE_SIZE) || deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case PATH:
+            case CAVE:
+            case BRIDGE:
+            case LADDER:
+                break;
+            default:
+                return false;
+        }
+
+        return true;
     }
 
     /**
