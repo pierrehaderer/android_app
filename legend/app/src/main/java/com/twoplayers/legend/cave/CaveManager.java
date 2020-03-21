@@ -207,7 +207,7 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public boolean isLinkUpValid(float x, float y) {
+    public boolean isUpValid(float x, float y) {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
 
@@ -251,7 +251,7 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public boolean isLinkDownValid(float x, float y) {
+    public boolean isDownValid(float x, float y) {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
 
@@ -290,7 +290,7 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public boolean isLinkLeftValid(float x, float y) {
+    public boolean isLeftValid(float x, float y) {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
 
@@ -328,7 +328,7 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public boolean isLinkRightValid(float x, float y) {
+    public boolean isRightValid(float x, float y) {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
 

@@ -2,10 +2,13 @@ package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
+import com.twoplayers.legend.IEnemyManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.link.LinkManager;
 
 import java.util.HashMap;
 
@@ -17,8 +20,8 @@ public class RedSlowOctorok extends Octorok {
     /**
      * Constructor
      */
-    public RedSlowOctorok(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
-        super(imagesEnemyWorldMap, soundEffectManager, g);
+    public RedSlowOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
+        super(i, s, z, l, e, g);
     }
 
     @Override

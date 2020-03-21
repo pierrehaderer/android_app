@@ -1,14 +1,17 @@
 package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Graphics;
+import com.twoplayers.legend.IEnemyManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.link.LinkManager;
 
 public class RedTektite extends Tektite {
 
-    public RedTektite(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
-        super(imagesEnemyWorldMap, soundEffectManager, g);
+    public RedTektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
+        super(i, s, z, l, e, g);
     }
 
     @Override

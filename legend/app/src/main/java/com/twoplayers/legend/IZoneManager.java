@@ -19,12 +19,12 @@ public interface IZoneManager extends IManager {
     public List<Item> getItems();
     /** Check if a tile is walkable */
     public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound);
-    /** Check if a position is valid for link */
-    public boolean isLinkUpValid(float x, float y);
-    /** Check if a position is valid for link */
-    public boolean isLinkDownValid(float x, float y);
-    /** Check if a position is valid for link */
-    public boolean isLinkLeftValid(float x, float y);
-    /** Check if a position is valid for link */
-    public boolean isLinkRightValid(float x, float y);
+    /** Check if a position is valid */
+    public boolean isUpValid(float x, float y);
+    /** Check if a position is valid */
+    public boolean isDownValid(float x, float y);
+    /** Check if a position is valid */
+    public boolean isLeftValid(float x, float y);
+    /** Check if a position is valid */
+    public boolean isRightValid(float x, float y);
 }

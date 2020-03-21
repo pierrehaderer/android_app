@@ -53,4 +53,8 @@ public class CaveEnemyManager implements IEnemyManager {
     @Override
     public void boomerangHits(Enemy enemy) {
     }
+
+    @Override
+    public void hasHitLink(Enemy enemy) {
+    }
 }

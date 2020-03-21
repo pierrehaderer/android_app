@@ -2,16 +2,22 @@ package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
+import com.twoplayers.legend.IEnemyManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.map.WorldMapManager;
+import com.twoplayers.legend.character.link.LinkManager;
+import com.twoplayers.legend.util.Logger;
 
 public abstract class Enemy {
 
     public static final float INITIAL_IMMOBILISATION_COUNTER = 300f;
 
+    protected IZoneManager zoneManager;
+    protected LinkManager linkManager;
+    protected IEnemyManager enemyManager;
     protected ImagesEnemyWorldMap imagesEnemyWorldMap;
     protected SoundEffectManager soundEffectManager;
 
@@ -29,9 +35,12 @@ public abstract class Enemy {
     protected boolean isInvincible;
     protected boolean isDead;
 
-    public Enemy(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
-        this.imagesEnemyWorldMap = imagesEnemyWorldMap;
-        this.soundEffectManager = soundEffectManager;
+    public Enemy(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
+        this.zoneManager = z;
+        this.linkManager = l;
+        this.enemyManager = e;
+        this.imagesEnemyWorldMap = i;
+        this.soundEffectManager = s;
 
         // Death animation is common to al enemies
         deathAnimation = g.newAnimation();
@@ -43,7 +52,7 @@ public abstract class Enemy {
 
     }
 
-    public abstract void update(float deltaTime, Graphics g, WorldMapManager worldMapManager);
+    public abstract void update(float deltaTime, Graphics g);
 
     public Hitbox getHitbox() {
         return hitbox;
@@ -68,4 +77,29 @@ public abstract class Enemy {
     public abstract void isHitByBoomerang();
 
     public abstract boolean isActive();
+
+    /**
+     * This method is overridden if something special happens to the enemy which is hitting link
+     */
+    protected void hasHitLink() {
+        Logger.info("This enemy has hit link.");
+    }
+
+    /**
+     * This method can be overridden if something special happens to enemy when it is damaged
+     */
+    protected void isDamaged(int damage) {
+        this.life -= damage;
+        if (this.life <= 0) {
+            this.isDead = true;
+            // Move hitbox away when enemy is dead
+            this.hitbox.x = 0;
+            this.hitbox.y = 0;
+            soundEffectManager.play("enemy_dies");
+            this.currentAnimation = this.deathAnimation;
+        } else {
+            soundEffectManager.play("enemy_wounded");
+        }
+
+    }
 }

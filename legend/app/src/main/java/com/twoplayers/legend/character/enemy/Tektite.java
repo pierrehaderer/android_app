@@ -2,9 +2,12 @@ package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
+import com.twoplayers.legend.IEnemyManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
@@ -49,8 +52,8 @@ public abstract class Tektite extends Enemy {
     protected Animation prepareAnimation;
     protected Animation jumpAnimation;
 
-    public Tektite(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
-        super(imagesEnemyWorldMap, soundEffectManager, g);
+    public Tektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
+        super(i, s, z, l, e, g);
         initAnimations(g);
         initDestinationTree();
         initNotDone = true;
@@ -116,7 +119,7 @@ public abstract class Tektite extends Enemy {
     }
 
     @Override
-    public void update(float deltaTime, Graphics g, WorldMapManager worldMapManager) {
+    public void update(float deltaTime, Graphics g) {
         // Init
         if (initNotDone) {
             initNotDone = false;
@@ -177,7 +180,10 @@ public abstract class Tektite extends Enemy {
     @Override
     public void isHitByBoomerang() {
         soundEffectManager.play("enemy_wounded");
-        immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
+        if (isActive) {
+            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
+            isContactLethal = false;
+        }
     }
 
     /**

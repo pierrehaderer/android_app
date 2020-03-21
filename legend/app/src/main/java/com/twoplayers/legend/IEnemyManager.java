@@ -15,4 +15,6 @@ public interface IEnemyManager extends IManager {
     public List<Enemy> getEnemies();
     /** Enemy has been hit by boomerang */
     void boomerangHits(Enemy enemy);
+    /** Enemy has hit link */
+    void hasHitLink(Enemy enemy);
 }

@@ -2,12 +2,13 @@ package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
-import com.twoplayers.legend.assets.image.AllImages;
+import com.twoplayers.legend.IEnemyManager;
+import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.Orientation;
-import com.twoplayers.legend.map.WorldMapManager;
+import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -41,8 +42,8 @@ public abstract class Octorok extends Enemy {
     private float nextNextTileY;
     protected float immobilisationCounter;
 
-    public Octorok(ImagesEnemyWorldMap imagesEnemyWorldMap, SoundEffectManager soundEffectManager, Graphics g) {
-        super(imagesEnemyWorldMap, soundEffectManager, g);
+    public Octorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
+        super(i, s, z, l, e, g);
         initAnimations(g);
         initDirectionTree();
         initNotDone = true;
@@ -143,13 +144,13 @@ public abstract class Octorok extends Enemy {
     }
 
     @Override
-    public void update(float deltaTime, Graphics g, WorldMapManager worldMapManager) {
+    public void update(float deltaTime, Graphics g) {
         // Init
         if (initNotDone) {
             initNotDone = false;
             nextTileX = x;
             nextTileY = y;
-            chooseNextNextTile(worldMapManager);
+            chooseNextNextTile();
         }
 
         // Move hitbox away when enemy is dead
@@ -185,7 +186,7 @@ public abstract class Octorok extends Enemy {
                         nextTileY = nextNextTileY;
                         orientation = nextOrientation;
                         currentAnimation = animations.get(orientation);
-                        chooseNextNextTile(worldMapManager);
+                        chooseNextNextTile();
                         goToNextTile();
                     }
                     timeBeforeAttack -= deltaTime;
@@ -211,7 +212,7 @@ public abstract class Octorok extends Enemy {
     @Override
     public void isHitByBoomerang() {
         soundEffectManager.play("enemy_wounded");
-        if (timeBeforeFirstMove <= 0) {
+        if (isActive) {
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
             isContactLethal = false;
         }
@@ -280,21 +281,21 @@ public abstract class Octorok extends Enemy {
     /**
      * Randomly choose the next tile to go
      */
-    private void chooseNextNextTile(WorldMapManager worldMapManager) {
+    private void chooseNextNextTile() {
         // 1 chance out of 2 to continue if possible.
         if (Math.random() > 0.5) {
-            if (tryToChooseThisOrientationForNextNextTile(orientation, worldMapManager)) return;
+            if (tryToChooseThisOrientationForNextNextTile(orientation)) return;
         }
         // Either the enemy has chosen to change direction or continue is not possible
         int direction1 = (int) (Math.floor(3 * Math.random()));
         int direction2 = 10 + (int) (Math.floor(2 * Math.random()));
         int direction3 = 10 + direction2;
         Orientation orientation1 = directionTree.get(orientation)[direction1][0];
-        if (tryToChooseThisOrientationForNextNextTile(orientation1, worldMapManager)) return;
+        if (tryToChooseThisOrientationForNextNextTile(orientation1)) return;
         Orientation orientation2 = directionTree.get(orientation)[direction1][direction2];
-        if (tryToChooseThisOrientationForNextNextTile(orientation2, worldMapManager)) return;
+        if (tryToChooseThisOrientationForNextNextTile(orientation2)) return;
         Orientation orientation3 = directionTree.get(orientation)[direction1][direction3];
-        if (tryToChooseThisOrientationForNextNextTile(orientation3, worldMapManager)) return;
+        if (tryToChooseThisOrientationForNextNextTile(orientation3)) return;
 
         // Should never happen, it means monster is stuck somewhere
         remainingMoves = 0;
@@ -303,7 +304,7 @@ public abstract class Octorok extends Enemy {
     /**
      * Try to choose an orientation. +HALF_TILE_SIZE to be sure we are not at the boundaries of 2 tiles.
      */
-    private boolean tryToChooseThisOrientationForNextNextTile(Orientation chosenOrientation, WorldMapManager worldMapManager) {
+    private boolean tryToChooseThisOrientationForNextNextTile(Orientation chosenOrientation) {
         float nextTileXCandidate = nextTileX;
         float nextTileYCandidate = nextTileY;
         switch (chosenOrientation) {
@@ -324,7 +325,7 @@ public abstract class Octorok extends Enemy {
             case DOWN:
                 if ((LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
                         || !LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE))
-                        && worldMapManager.isTileWalkable(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE, false)) {
+                        && zoneManager.isTileWalkable(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE, false)) {
                     nextNextTileX = nextTileX;
                     nextNextTileY = nextTileYCandidate;
                     nextOrientation = chosenOrientation;
@@ -335,7 +336,7 @@ public abstract class Octorok extends Enemy {
             case RIGHT:
                 if ((LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
                         || !LocationUtil.isTileAtBorder(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE))
-                        && worldMapManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE, false)) {
+                        && zoneManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE, false)) {
                     nextNextTileX = nextTileXCandidate;
                     nextNextTileY = nextTileY;
                     nextOrientation = chosenOrientation;

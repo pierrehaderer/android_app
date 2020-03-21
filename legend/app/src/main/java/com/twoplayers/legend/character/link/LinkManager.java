@@ -147,7 +147,7 @@ public class LinkManager implements IManager {
                 link.currentAnimation.update(deltaTime);
                 float deltaY = -1 * Link.LINK_SPEED * deltaTime;
                 float nextX = evaluateXAfterShift(link.x);
-                if (zoneManager.isLinkUpValid(nextX, link.y + deltaY)) {
+                if (zoneManager.isUpValid(nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
                     shiftLinkX(nextX);
                     moveLinkY(deltaY);
@@ -165,7 +165,7 @@ public class LinkManager implements IManager {
                 link.currentAnimation.update(deltaTime);
                 float deltaY = Link.LINK_SPEED * deltaTime;
                 float nextX = evaluateXAfterShift(link.x);
-                if (zoneManager.isLinkDownValid(nextX, link.y + deltaY)) {
+                if (zoneManager.isDownValid(nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
                     shiftLinkX(nextX);
                     moveLinkY(deltaY);
@@ -181,7 +181,7 @@ public class LinkManager implements IManager {
                 link.currentAnimation.update(deltaTime);
                 float deltaX = -1 * Link.LINK_SPEED * deltaTime;
                 float nextY = evaluateYAfterShift(link.y);
-                if (zoneManager.isLinkLeftValid(link.x + deltaX, nextY)) {
+                if (zoneManager.isLeftValid(link.x + deltaX, nextY)) {
                     shiftLinkY(nextY);
                     moveLinkX(deltaX);
                 }
@@ -196,7 +196,7 @@ public class LinkManager implements IManager {
                 link.currentAnimation.update(deltaTime);
                 float deltaX = Link.LINK_SPEED * deltaTime;
                 float nextY = evaluateYAfterShift(link.y);
-                if (zoneManager.isLinkRightValid(link.x + deltaX, nextY)) {
+                if (zoneManager.isRightValid(link.x + deltaX, nextY)) {
                     shiftLinkY(nextY);
                     moveLinkX(deltaX);
                 }
@@ -300,6 +300,7 @@ public class LinkManager implements IManager {
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (!enemy.isDead() && enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
                         Logger.info("Link has collided with enemy : " + enemy.getClass());
+                        enemyManager.hasHitLink(enemy);
                         soundEffectManager.play("link_wounded");
                         updateLinkLife(enemy.getContactDamage());
                         link.isInvincible = true;
@@ -321,13 +322,13 @@ public class LinkManager implements IManager {
                 float deltaY = Link.PUSH_SPEED * link.pushY * deltaTime;
                 float nextX = evaluateXAfterShift(link.x);
                 if (deltaY < 0) {
-                    if (zoneManager.isLinkUpValid(nextX, link.y + deltaY)) {
+                    if (zoneManager.isUpValid(nextX, link.y + deltaY)) {
                         shiftLinkX(nextX);
                         moveLinkY(deltaY);
                     }
                 }
                 if (deltaY > 0) {
-                    if (zoneManager.isLinkDownValid(nextX, link.y + deltaY)) {
+                    if (zoneManager.isDownValid(nextX, link.y + deltaY)) {
                         shiftLinkX(nextX);
                         moveLinkY(deltaY);
                     }
@@ -339,13 +340,13 @@ public class LinkManager implements IManager {
                 float deltaX = Link.PUSH_SPEED * link.pushX * deltaTime;
                 float nextY = evaluateYAfterShift(link.y);
                 if (deltaX < 0) {
-                    if (zoneManager.isLinkLeftValid(link.x + deltaX, nextY)) {
+                    if (zoneManager.isLeftValid(link.x + deltaX, nextY)) {
                         shiftLinkY(nextY);
                         moveLinkX(deltaX);
                     }
                 }
                 if (deltaX > 0) {
-                    if (zoneManager.isLinkRightValid(link.x + deltaX, link.y + nextY)) {
+                    if (zoneManager.isRightValid(link.x + deltaX, nextY)) {
                         shiftLinkY(nextY);
                         moveLinkX(deltaX);
                     }
