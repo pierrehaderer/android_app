@@ -17,6 +17,7 @@ public class LocationUtil {
 
     public static final float TILE_SIZE = 16 * AllImages.COEF;
     public static final float HALF_TILE_SIZE = 8 * AllImages.COEF;
+    public static final float QUARTER_TILE_SIZE = 4 * AllImages.COEF;
     public static final float OBSTACLE_TOLERANCE = 2f;
 
     /**
@@ -72,28 +73,28 @@ public class LocationUtil {
      * Check if y is out of map on the top
      */
     public static boolean isUpOutOfMap(float y) {
-        return y < LocationUtil.TOP_MAP;
+        return y <= LocationUtil.TOP_MAP;
     }
 
     /**
      * Check if y is out of map on the bottom
      */
     public static boolean isDownOutOfMap(float y) {
-        return y > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
+        return y >= LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
     }
 
     /**
      * Check if x is out of map on the left
      */
     public static boolean isLeftOutOfMap(float x) {
-        return x < LocationUtil.LEFT_MAP;
+        return x <= LocationUtil.LEFT_MAP;
     }
 
     /**
      * Check if x is out of map on the riht
      */
     public static boolean isRightOutOfMap(float x) {
-        return x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
+        return x >= LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
     }
 
     /**

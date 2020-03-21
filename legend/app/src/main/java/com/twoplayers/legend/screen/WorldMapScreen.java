@@ -37,8 +37,8 @@ public class WorldMapScreen extends Screen {
     public void update(float deltaTime) {
         worldMapManager.update(deltaTime, game.getGraphics());
         worldMapEnemyManager.update(deltaTime, game.getGraphics());
-        linkManager.update(deltaTime, game.getGraphics());
         guiManager.update(deltaTime, game.getGraphics());
+        linkManager.update(deltaTime, game.getGraphics());
         musicManager.update(deltaTime, game.getGraphics());
         if (linkManager.hasEnteredSomewhere()) {
             String caveInfo = worldMapManager.getCave();
@@ -53,8 +53,8 @@ public class WorldMapScreen extends Screen {
         game.getGraphics().drawRect(0, 0, WIDTH_PHONE_SCREEN + 1, HEIGHT_PHONE_SCREEN + 1, Color.BLACK);
         worldMapManager.paint(deltaTime, game.getGraphics());
         worldMapEnemyManager.paint(deltaTime, game.getGraphics());
-        linkManager.paint(deltaTime, game.getGraphics());
         guiManager.paint(deltaTime, game.getGraphics());
+        linkManager.paint(deltaTime, game.getGraphics());
     }
 
     @Override

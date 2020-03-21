@@ -152,7 +152,7 @@ public class LinkManager implements IManager {
                     shiftLinkX(nextX);
                     moveLinkY(deltaY);
                 }
-                if (LocationUtil.isUpOutOfMap(link.y + deltaY)) {
+                if (LocationUtil.isUpOutOfMap(link.y)) {
                     itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.UP);
                 }
@@ -170,7 +170,7 @@ public class LinkManager implements IManager {
                     shiftLinkX(nextX);
                     moveLinkY(deltaY);
                 }
-                if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE + deltaY)) {
+                if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE)) {
                     itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.DOWN);
                 }
@@ -185,7 +185,7 @@ public class LinkManager implements IManager {
                     shiftLinkY(nextY);
                     moveLinkX(deltaX);
                 }
-                if (LocationUtil.isLeftOutOfMap(link.x + deltaX)) {
+                if (LocationUtil.isLeftOutOfMap(link.x)) {
                     itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.LEFT);
                 }
@@ -200,7 +200,7 @@ public class LinkManager implements IManager {
                     shiftLinkY(nextY);
                     moveLinkX(deltaX);
                 }
-                if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE + deltaX)) {
+                if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE)) {
                     itemService.hideItemsAndEffects(link);
                     zoneManager.changeRoom(Orientation.RIGHT);
                 }
@@ -471,10 +471,16 @@ public class LinkManager implements IManager {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         float tilePositionX = LocationUtil.getXFromGrid(tileX);
         float deltaX = x - tilePositionX;
-        if (deltaX < LINK_MAX_SHIFT) {
+        if (deltaX > 2 * A_TINY_BIT_MORE && deltaX < LocationUtil.QUARTER_TILE_SIZE) {
             return tilePositionX + A_TINY_BIT_MORE;
         }
-        if (deltaX > LocationUtil.TILE_SIZE - LINK_MAX_SHIFT) {
+        if (deltaX >= LocationUtil.QUARTER_TILE_SIZE && deltaX < LocationUtil.HALF_TILE_SIZE) {
+            return tilePositionX + LocationUtil.HALF_TILE_SIZE + A_TINY_BIT_MORE;
+        }
+        if (deltaX > LocationUtil.HALF_TILE_SIZE + 2 * A_TINY_BIT_MORE && deltaX < 3 * LocationUtil.QUARTER_TILE_SIZE) {
+            return tilePositionX + LocationUtil.HALF_TILE_SIZE + A_TINY_BIT_MORE;
+        }
+        if (deltaX >= 3 * LocationUtil.QUARTER_TILE_SIZE) {
             return tilePositionX + LocationUtil.TILE_SIZE + A_TINY_BIT_MORE;
         }
         return x;
@@ -487,10 +493,16 @@ public class LinkManager implements IManager {
         int tileY = LocationUtil.getTileYFromPositionY(y);
         float tilePositionY = LocationUtil.getYFromGrid(tileY);
         float deltaY = y - tilePositionY;
-        if (deltaY < LINK_MAX_SHIFT) {
+        if (deltaY > 2 * A_TINY_BIT_MORE && deltaY < LocationUtil.QUARTER_TILE_SIZE) {
             return tilePositionY + A_TINY_BIT_MORE;
         }
-        if (deltaY > LocationUtil.TILE_SIZE - LINK_MAX_SHIFT) {
+        if (deltaY > LocationUtil.QUARTER_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE) {
+            return tilePositionY + LocationUtil.HALF_TILE_SIZE + A_TINY_BIT_MORE;
+        }
+        if (deltaY > LocationUtil.HALF_TILE_SIZE + 2 * A_TINY_BIT_MORE && deltaY < 3 * LocationUtil.QUARTER_TILE_SIZE) {
+            return tilePositionY + LocationUtil.HALF_TILE_SIZE + A_TINY_BIT_MORE;
+        }
+        if (deltaY >= 3 * LocationUtil.QUARTER_TILE_SIZE) {
             return tilePositionY + LocationUtil.TILE_SIZE + A_TINY_BIT_MORE;
         }
         return y;
@@ -544,91 +556,6 @@ public class LinkManager implements IManager {
      */
     public void moveLinkY(float deltaY) {
         shiftLinkY(link.y + deltaY);
-    }
-
-    /**
-     * Check if link can go up
-     */
-    private boolean isUpValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
-        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        // +/-2 so that link can enter narrow path
-        if (zoneManager.isTileWalkable(linkLeft + 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 2, linkMiddle, true)) {
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkLeft + 6, linkMiddle, true) && zoneManager.isTileWalkable(linkRight + 2 , linkMiddle, true)) {
-            moveLinkX(4);
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkLeft - 2, linkMiddle, true) && zoneManager.isTileWalkable(linkRight - 6 , linkMiddle, true)) {
-            moveLinkX(-4);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if link can go down
-     */
-    private boolean isDownValid(float linkLeft, float linkTop) {
-        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
-        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        // +/-2 so that link can enter narrow path
-        if (zoneManager.isTileWalkable(linkLeft + 2, linkBottom, true) && zoneManager.isTileWalkable(linkRight - 2, linkBottom, true)) {
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkLeft + 6, linkBottom, true) && zoneManager.isTileWalkable(linkRight + 2, linkBottom, true)) {
-            moveLinkX(4);
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkLeft - 2, linkBottom, true) && zoneManager.isTileWalkable(linkRight - 6, linkBottom, true)) {
-            moveLinkX(-4);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if link can go x
-     */
-    private boolean isLeftValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
-        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
-        // +/-2 so that link can enter narrow path
-        if (zoneManager.isTileWalkable(linkLeft, linkMiddle + 2, true) && zoneManager.isTileWalkable(linkLeft, linkBottom - 2, true)) {
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkLeft, linkMiddle - 2, true) && zoneManager.isTileWalkable(linkLeft, linkBottom - 6, true)) {
-            moveLinkY(-4);
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkLeft, linkMiddle + 6, true) && zoneManager.isTileWalkable(linkLeft, linkBottom + 2, true)) {
-            moveLinkY(4);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if link can go right
-     */
-    private boolean isRightValid(float linkLeft, float linkTop) {
-        float linkMiddle = linkTop + LocationUtil.HALF_TILE_SIZE;
-        float linkBottom = linkTop + LocationUtil.TILE_SIZE;
-        float linkRight = linkLeft + LocationUtil.TILE_SIZE;
-        // +/-2 so that link can enter narrow path
-        if (zoneManager.isTileWalkable(linkRight, linkMiddle + 2, true) && zoneManager.isTileWalkable(linkRight, linkBottom - 2, true)) {
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkRight, linkMiddle - 2, true) && zoneManager.isTileWalkable(linkRight, linkBottom - 6, true)) {
-            moveLinkY(-4);
-            return true;
-        }
-        if (zoneManager.isTileWalkable(linkRight, linkMiddle + 6, true) && zoneManager.isTileWalkable(linkRight, linkBottom + 2, true)) {
-            moveLinkY(4);
-            return true;
-        }
-        return false;
     }
 
     /**

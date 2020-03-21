@@ -189,9 +189,9 @@ public class GuiManager implements IManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (buttonsActivated) {
-            for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
-                if (event.type == Input.TouchEvent.TOUCH_DOWN || event.type == Input.TouchEvent.TOUCH_DRAGGED) {
+        for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
+            if (event.type == Input.TouchEvent.TOUCH_DOWN || event.type == Input.TouchEvent.TOUCH_DRAGGED) {
+                if (buttonsActivated) {
                     if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
                         upPressed = false;
                         downPressed = false;
@@ -221,20 +221,20 @@ public class GuiManager implements IManager {
                     }
                     logButtons(event);
                 }
-                if (event.type == Input.TouchEvent.TOUCH_UP) {
-                    if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
-                        upPressed = false;
-                        downPressed = false;
-                        leftPressed = false;
-                        rightPressed = false;
-                    }
-                    if (LocationUtil.inBounds(event, LEFT_BUTTONS, TOP_BUTTONS, WIDTH_BUTTONS, HEIGHT_BUTTONS)) {
-                        aPressed = false;
-                        bPressed = false;
-                        cPressed = false;
-                    }
-                    logButtons(event);
+            }
+            if (event.type == Input.TouchEvent.TOUCH_UP) {
+                if (LocationUtil.inBounds(event, LEFT_ARROWS, TOP_ARROWS, WIDTH_ARROWS, HEIGHT_ARROWS)) {
+                    upPressed = false;
+                    downPressed = false;
+                    leftPressed = false;
+                    rightPressed = false;
                 }
+                if (LocationUtil.inBounds(event, LEFT_BUTTONS, TOP_BUTTONS, WIDTH_BUTTONS, HEIGHT_BUTTONS)) {
+                    aPressed = false;
+                    bPressed = false;
+                    cPressed = false;
+                }
+                logButtons(event);
             }
         }
     }

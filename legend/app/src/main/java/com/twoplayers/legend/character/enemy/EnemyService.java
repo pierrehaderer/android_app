@@ -47,7 +47,6 @@ public class EnemyService {
             orientationUp[2][20] = Orientation.LEFT;
             orientationUp[2][21] = Orientation.DOWN;
             directionTree.put(Orientation.UP, orientationUp);
-            directionTree.put(Orientation.NONE, orientationUp);
             Orientation[][] orientationDown = new Orientation[3][22];
             orientationDown[0][0] = Orientation.UP;
             orientationDown[1][0] = Orientation.LEFT;
@@ -188,7 +187,7 @@ public class EnemyService {
         if (destination3.isValid) {
             return destination3;
         }
-        return new Destination(0, 0, Orientation.NONE, false);
+        return new Destination(0, 0, Orientation.UP, false);
     }
 
     /**
@@ -228,6 +227,6 @@ public class EnemyService {
                 }
                 break;
         }
-        return new Destination(0, 0, Orientation.NONE, false);
+        return new Destination(0, 0, Orientation.UP, false);
     }
 }

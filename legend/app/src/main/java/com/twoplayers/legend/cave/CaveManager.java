@@ -219,7 +219,6 @@ public class CaveManager implements IZoneManager {
 
         switch (tileUpLeft) {
             case LIMIT:
-            case OUT_OF_BOUNDS:
                 return false;
             case BLOC:
                 if (deltaY < LocationUtil.HALF_TILE_SIZE) {
@@ -234,7 +233,6 @@ public class CaveManager implements IZoneManager {
 
         switch (tileUpRight) {
             case LIMIT:
-            case OUT_OF_BOUNDS:
                 return false;
             case BLOC:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE) {
@@ -262,25 +260,23 @@ public class CaveManager implements IZoneManager {
         float deltaY = y - LocationUtil.getYFromGrid(tileY);
 
         switch (tileDownLeft) {
-            case LIMIT:
-            case OUT_OF_BOUNDS:
             case BLOC:
                 return false;
             case PATH:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
         }
 
         switch (tileDownRight) {
-            case LIMIT:
-            case OUT_OF_BOUNDS:
             case BLOC:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case PATH:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -319,6 +315,7 @@ public class CaveManager implements IZoneManager {
                 }
                 break;
             case PATH:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -356,6 +353,7 @@ public class CaveManager implements IZoneManager {
                     return false;
                 }
             case PATH:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;

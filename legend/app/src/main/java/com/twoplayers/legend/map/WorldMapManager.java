@@ -50,8 +50,7 @@ public class WorldMapManager implements IZoneManager {
 
     private boolean transitionRunning;
     private float transitionCount;
-    private float transitionSpeedX;
-    private float transitionSpeedY;
+    private Orientation transitionOrientation;
     private float leftCurrentMapScreen;
     private float topCurrentMapScreen;
     private Image imageCurrentMapScreen;
@@ -139,18 +138,35 @@ public class WorldMapManager implements IZoneManager {
     @Override
     public void update(float deltaTime, Graphics g) {
         if (transitionRunning) {
-            float transitionDeltaX = transitionSpeedX * deltaTime;
-            float transitionDeltaY = transitionSpeedY * deltaTime;
-            transitionCount -= Math.abs(transitionDeltaX + transitionDeltaY);
-            leftCurrentMapScreen += transitionDeltaX;
-            topCurrentMapScreen += transitionDeltaY;
-            leftNextMapScreen += transitionDeltaX;
-            topNextMapScreen += transitionDeltaY;
-            currentMiniAbscissa -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
-            currentMiniOrdinate -= transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
-
-            linkManager.moveLinkX(transitionDeltaX);
-            linkManager.moveLinkY(transitionDeltaY);
+            if (transitionOrientation == Orientation.UP) {
+                float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
+                topCurrentMapScreen += transitionDeltaY;
+                topNextMapScreen += transitionDeltaY;
+                currentMiniOrdinate -= transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
+                linkManager.moveLinkY(transitionDeltaY);
+            }
+            if (transitionOrientation == Orientation.DOWN) {
+                float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
+                topCurrentMapScreen -= transitionDeltaY;
+                topNextMapScreen -= transitionDeltaY;
+                currentMiniOrdinate += transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
+                linkManager.moveLinkY(-1 * transitionDeltaY);
+            }
+            if (transitionOrientation == Orientation.LEFT) {
+                float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
+                leftCurrentMapScreen += transitionDeltaX;
+                leftNextMapScreen += transitionDeltaX;
+                currentMiniAbscissa -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
+                linkManager.moveLinkX(transitionDeltaX);
+            }
+            if (transitionOrientation == Orientation.RIGHT) {
+                float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
+                leftCurrentMapScreen -= transitionDeltaX;
+                leftNextMapScreen -= transitionDeltaX;
+                currentMiniAbscissa += transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
+                linkManager.moveLinkX(-1 * transitionDeltaX);
+            }
+            transitionCount -= TRANSITION_SPEED * deltaTime;
 
             if (transitionCount < 0) {
                 // End of the transition
@@ -207,8 +223,6 @@ public class WorldMapManager implements IZoneManager {
                 topNextMapScreen = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
                 nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate - 1;
-                transitionSpeedX = 0;
-                transitionSpeedY = TRANSITION_SPEED;
                 break;
             case DOWN :
                 transitionCount = 176 * AllImages.COEF;
@@ -216,8 +230,6 @@ public class WorldMapManager implements IZoneManager {
                 topNextMapScreen = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
                 nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate + 1;
-                transitionSpeedX = 0;
-                transitionSpeedY = -1 * TRANSITION_SPEED;
                 break;
             case LEFT :
                 transitionCount = 256 * AllImages.COEF;
@@ -225,8 +237,6 @@ public class WorldMapManager implements IZoneManager {
                 topNextMapScreen = LocationUtil.TOP_MAP;
                 nextAbscissa = currentAbscissa - 1;
                 nextOrdinate = currentOrdinate;
-                transitionSpeedX = TRANSITION_SPEED;
-                transitionSpeedY = 0;
                 break;
             case RIGHT :
                 transitionCount = 256 * AllImages.COEF;
@@ -234,14 +244,13 @@ public class WorldMapManager implements IZoneManager {
                 topNextMapScreen = LocationUtil.TOP_MAP;
                 nextAbscissa = currentAbscissa + 1;
                 nextOrdinate = currentOrdinate;
-                transitionSpeedX = -1 * TRANSITION_SPEED;
-                transitionSpeedY = 0;
                 break;
         }
         imageNextMapScreen = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
         Logger.info("Starting screen transition to " + nextAbscissa + nextOrdinate);
         exploredWorldMap[nextAbscissa][nextOrdinate] = true;
         transitionRunning = true;
+        transitionOrientation = orientation;
     }
 
     @Override
@@ -304,6 +313,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -330,6 +340,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -379,6 +390,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -413,6 +425,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -458,6 +471,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -484,6 +498,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -529,6 +544,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;
@@ -555,6 +571,7 @@ public class WorldMapManager implements IZoneManager {
             case CAVE:
             case BRIDGE:
             case LADDER:
+            case OUT_OF_BOUNDS:
                 break;
             default:
                 return false;

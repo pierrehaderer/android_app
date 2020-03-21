@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class RedFastOctorok extends Octorok {
 
-    public static final float HIGH_SPEED = 0.6f;
+    public static final float SPEED = 1.1f;
 
     /**
      * Constructor
@@ -50,7 +50,7 @@ public class RedFastOctorok extends Octorok {
 
     @Override
     protected float getSpeed() {
-        return HIGH_SPEED;
+        return SPEED;
     }
 
     @Override
