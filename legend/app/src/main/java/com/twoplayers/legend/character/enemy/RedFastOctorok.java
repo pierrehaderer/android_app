@@ -19,8 +19,8 @@ public class RedFastOctorok extends Octorok {
     /**
      * Constructor
      */
-    public RedFastOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
-        super(i, s, z, l, e, g);
+    public RedFastOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+        super(i, s, z, l, e, es, g);
     }
 
     @Override

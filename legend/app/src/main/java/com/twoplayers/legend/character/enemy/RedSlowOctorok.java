@@ -20,8 +20,8 @@ public class RedSlowOctorok extends Octorok {
     /**
      * Constructor
      */
-    public RedSlowOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
-        super(i, s, z, l, e, g);
+    public RedSlowOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+        super(i, s, z, l, e, es, g);
     }
 
     @Override

@@ -31,6 +31,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
     private LinkManager linkManager;
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
     private SoundEffectManager soundEffectManager;
+    private EnemyService enemyService;
+
     private Map<String, EnemyToSpawn[]> worldMapEnemies;
 
     private boolean loadingEnemies;
@@ -64,6 +66,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         imagesEnemyWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
+        enemyService = new EnemyService(worldMapManager);
+
         initWorldMapEnemies(game);
         enemyColorMatrix = new EnemyColorMatrix();
     }
@@ -84,7 +88,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map/world_map_spawn_enemies.properties");
         for (String key : enemiesProperties.stringPropertyNames()) {
             // Format is "EnemyClass1,EnemyClass2,EnemyClass3,..."
-            String[] enemies = enemiesProperties.getProperty(key).split(",");
+            String[] enemies = (enemiesProperties.getProperty(key).length() == 0) ? new String[0] : enemiesProperties.getProperty(key).split(",");
 
             EnemyToSpawn[] enemiesToSpawn = new EnemyToSpawn[enemies.length];
             for (int i = 0; i < enemies.length; i++) {
@@ -122,8 +126,9 @@ public class WorldMapEnemyManager implements IEnemyManager {
             for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
                 try {
                     if (enemyToSpawn.enemyClass != null) {
-                        Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(ImagesEnemyWorldMap.class, SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, Graphics.class);
-                        Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, worldMapManager, linkManager, this, g);
+                        Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(ImagesEnemyWorldMap.class,
+                                SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
+                        Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, worldMapManager, linkManager, this, enemyService, g);
                         Coordinate spawnCoordinate = getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
                         Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
                         enemy.x = spawnCoordinate.x;

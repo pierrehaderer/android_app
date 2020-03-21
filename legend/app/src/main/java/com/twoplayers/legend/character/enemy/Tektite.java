@@ -52,8 +52,8 @@ public abstract class Tektite extends Enemy {
     protected Animation prepareAnimation;
     protected Animation jumpAnimation;
 
-    public Tektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
-        super(i, s, z, l, e, g);
+    public Tektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+        super(i, s, z, l, e, es, g);
         initAnimations(g);
         initDestinationTree();
         initNotDone = true;

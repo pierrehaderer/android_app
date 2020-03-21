@@ -10,8 +10,8 @@ import com.twoplayers.legend.character.link.LinkManager;
 
 public class BlueTektite extends Tektite {
 
-    public BlueTektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
-        super(i, s, z, l, e, g);
+    public BlueTektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+        super(i, s, z, l, e, es, g);
     }
 
     @Override

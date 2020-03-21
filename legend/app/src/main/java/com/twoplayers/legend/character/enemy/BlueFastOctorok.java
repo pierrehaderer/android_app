@@ -19,8 +19,8 @@ public class BlueFastOctorok extends Octorok {
     /**
      * Constructor
      */
-    public BlueFastOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
-        super(i, s, z, l, e, g);
+    public BlueFastOctorok(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+        super(i, s, z, l, e, es, g);
     }
 
     @Override

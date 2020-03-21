@@ -21,6 +21,8 @@ public abstract class Enemy {
     protected ImagesEnemyWorldMap imagesEnemyWorldMap;
     protected SoundEffectManager soundEffectManager;
 
+    protected EnemyService enemyService;
+
     public float x;
     public float y;
     protected Hitbox hitbox;
@@ -35,12 +37,13 @@ public abstract class Enemy {
     protected boolean isInvincible;
     protected boolean isDead;
 
-    public Enemy(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
+    public Enemy(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager em, EnemyService es, Graphics g) {
         this.zoneManager = z;
         this.linkManager = l;
-        this.enemyManager = e;
+        this.enemyManager = em;
         this.imagesEnemyWorldMap = i;
         this.soundEffectManager = s;
+        this.enemyService = es;
 
         // Death animation is common to al enemies
         deathAnimation = g.newAnimation();

@@ -23,16 +23,16 @@ public class RedLeever extends Enemy {
     private boolean isSpawning;
     private boolean hasSpawned;
     private float timeBeforeSpawn;
+    private float immobilisationCounter;
 
     private Orientation orientation;
 
-    protected Animation spawnAnimation;
-    protected Animation moveAnimation;
-    protected Animation despawnAnimation;
-    protected float immobilisationCounter;
+    private Animation spawnAnimation;
+    private Animation moveAnimation;
+    private Animation despawnAnimation;
 
-    public RedLeever(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, Graphics g) {
-        super(i, s, z, l, e, g);
+    public RedLeever(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+        super(i, s, z, l, e, es, g);
         initAnimations(g);
         isActive = false;
         isSpawning = false;
@@ -41,6 +41,7 @@ public class RedLeever extends Enemy {
         isContactLethal = false;
         orientation = Orientation.UP;
         timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
+        immobilisationCounter = 0;
         life = 2;
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
         contactDamage = -0.5f;
@@ -144,6 +145,9 @@ public class RedLeever extends Enemy {
         }
     }
 
+    /**
+     * Check if a red leever can spawn
+     */
     private boolean isPossibleToSpawn() {
         if (timeBeforeSpawn > 0 || isSpawning || hasSpawned || isDead) {
             return false;
