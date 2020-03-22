@@ -57,7 +57,7 @@ public class BlueLeever extends Enemy {
         timeBeforeDespawn = 0;
         immobilisationCounter = 0;
         life = 2;
-        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         contactDamage = -0.5f;
         currentAnimation = spawnAnimation;
     }

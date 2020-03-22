@@ -65,7 +65,7 @@ public abstract class Tektite extends Enemy {
         nextMoveFunction = MOVE_FUNTION_MIDDLE;
         isInvincible = true;
         life = 1;
-        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         contactDamage = -0.5f;
         currentAnimation = initAnimation;
     }

@@ -52,7 +52,7 @@ public abstract class Octorok extends Enemy {
         life = getInitialLife();
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
-        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         contactDamage = -0.5f;
         speed = getSpeed();
         currentAnimation = animations.get(Orientation.INIT);

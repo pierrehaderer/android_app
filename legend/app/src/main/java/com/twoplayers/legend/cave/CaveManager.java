@@ -85,51 +85,6 @@ public class CaveManager implements IZoneManager {
         }
     }
 
-    @Override
-    public void update(float deltaTime, Graphics g) {
-        textCounter += deltaTime * TEXT_SPEED;
-        textCounter = Math.min(textCounter, cave.message1.length() + cave.message2.length());
-        int end1 = (int) Math.min(textCounter, cave.message1.length());
-        int end2 = (int) Math.max(0, Math.min(textCounter - cave.message1.length(), cave.message2.length()));
-        cave.displayedMessage1 = cave.message1.substring(0, end1);
-        cave.displayedMessage2 = cave.message2.substring(0, end2);
-        if (textSoundCounter < (int) textCounter) {
-            textSoundCounter = (int) textCounter;
-            soundEffectManager.play("text");
-        }
-
-        cave.fireAnimation.update(deltaTime);
-        cave.coinAnimation.update(deltaTime);
-    }
-
-    @Override
-    public void paint(float deltaTime, Graphics g) {
-        g.drawScaledImage(imagesCave.get("cave"), LocationUtil.LEFT_MAP, LocationUtil.TOP_MAP, AllImages.COEF);
-        float message1X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message1.length() / 22f) * LocationUtil.TILE_SIZE;
-        float message2X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message2.length() / 22f) * LocationUtil.TILE_SIZE;
-        g.drawString(cave.displayedMessage1, (int) message1X, (int) LocationUtil.getYFromGrid(3), TextUtil.getPaint());
-        g.drawString(cave.displayedMessage2, (int) message2X, (int) (LocationUtil.getYFromGrid(3) + LocationUtil.HALF_TILE_SIZE), TextUtil.getPaint());
-        g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(5), (int) cave.npc.y);
-        g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(10), (int) cave.npc.y);
-        g.drawScaledImage(cave.npc.image, (int) cave.npc.x, (int) cave.npc.y, AllImages.COEF);
-        boolean priceDisplayed = false;
-        for(Item item : cave.items) {
-            if (!item.hidden) {
-                g.drawScaledImage(item.image, (int) item.x, (int) item.y, AllImages.COEF);
-                if (item.price > 0) {
-                    String text = String.valueOf(item.price);
-                    int offsetX = (text.length() == 2) ? PRICE_OFFSET_X_2DIGITS : PRICE_OFFSET_X_3DIGITS;
-                    g.drawString(text, (int) item.x + offsetX, (int) item.y + PRICE_OFFSET_Y, TextUtil.getPaint());
-                    priceDisplayed = true;
-                }
-            }
-        }
-        if (priceDisplayed) {
-            g.drawAnimation(cave.coinAnimation, (int) LocationUtil.getXFromGrid(3), (int) (LocationUtil.getYFromGrid(6) + LocationUtil.HALF_TILE_SIZE));
-            g.drawString("x", (int) LocationUtil.getXFromGrid(4), (int) (LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE) + PRICE_OFFSET_Y, TextUtil.getPaint());
-        }
-    }
-
     /**
      * Init the cave based on the file properties
      */
@@ -180,6 +135,51 @@ public class CaveManager implements IZoneManager {
             item.hitbox.relocate(item.x, item.y);
             item.price = Integer.valueOf(elements[1]);
             cave.addItem(item);
+        }
+    }
+
+    @Override
+    public void update(float deltaTime, Graphics g) {
+        textCounter += deltaTime * TEXT_SPEED;
+        textCounter = Math.min(textCounter, cave.message1.length() + cave.message2.length());
+        int end1 = (int) Math.min(textCounter, cave.message1.length());
+        int end2 = (int) Math.max(0, Math.min(textCounter - cave.message1.length(), cave.message2.length()));
+        cave.displayedMessage1 = cave.message1.substring(0, end1);
+        cave.displayedMessage2 = cave.message2.substring(0, end2);
+        if (textSoundCounter < (int) textCounter) {
+            textSoundCounter = (int) textCounter;
+            soundEffectManager.play("text");
+        }
+
+        cave.fireAnimation.update(deltaTime);
+        cave.coinAnimation.update(deltaTime);
+    }
+
+    @Override
+    public void paint(float deltaTime, Graphics g) {
+        g.drawScaledImage(imagesCave.get("cave"), LocationUtil.LEFT_MAP, LocationUtil.TOP_MAP, AllImages.COEF);
+        float message1X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message1.length() / 22f) * LocationUtil.TILE_SIZE;
+        float message2X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message2.length() / 22f) * LocationUtil.TILE_SIZE;
+        g.drawString(cave.displayedMessage1, (int) message1X, (int) LocationUtil.getYFromGrid(3), TextUtil.getPaint());
+        g.drawString(cave.displayedMessage2, (int) message2X, (int) (LocationUtil.getYFromGrid(3) + LocationUtil.HALF_TILE_SIZE), TextUtil.getPaint());
+        g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(5), (int) cave.npc.y);
+        g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(10), (int) cave.npc.y);
+        g.drawScaledImage(cave.npc.image, (int) cave.npc.x, (int) cave.npc.y, AllImages.COEF);
+        boolean priceDisplayed = false;
+        for(Item item : cave.items) {
+            if (!item.hidden) {
+                g.drawScaledImage(item.image, (int) item.x, (int) item.y, AllImages.COEF);
+                if (item.price > 0) {
+                    String text = String.valueOf(item.price);
+                    int offsetX = (text.length() == 2) ? PRICE_OFFSET_X_2DIGITS : PRICE_OFFSET_X_3DIGITS;
+                    g.drawString(text, (int) item.x + offsetX, (int) item.y + PRICE_OFFSET_Y, TextUtil.getPaint());
+                    priceDisplayed = true;
+                }
+            }
+        }
+        if (priceDisplayed) {
+            g.drawAnimation(cave.coinAnimation, (int) LocationUtil.getXFromGrid(3), (int) (LocationUtil.getYFromGrid(6) + LocationUtil.HALF_TILE_SIZE));
+            g.drawString("x", (int) LocationUtil.getXFromGrid(4), (int) (LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE) + PRICE_OFFSET_Y, TextUtil.getPaint());
         }
     }
 

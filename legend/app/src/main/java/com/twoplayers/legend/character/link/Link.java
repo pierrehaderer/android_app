@@ -37,6 +37,7 @@ public class Link {
     protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
     protected static final float INITIAL_ENTER_COUNT = 75f;
     protected static final float INITIAL_SHOW_COUNT = 150f;
+    protected static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
 
     public static final float STEP_1_DURATION = 8;
     public static final float STEP_2_ATTACK_DURATION = 25;
@@ -87,6 +88,10 @@ public class Link {
     protected Bow bow;
     protected Arrow arrow;
     protected Light light;
+    protected int lightCount;
+    protected float timeBeforeUseLight;
+    protected Fire fire1;
+    protected Fire fire2;
     protected Flute flute;
     protected Meat meat;
     protected Potion potion;
@@ -112,7 +117,7 @@ public class Link {
         initAttackAnimations(imagesLink, g);
         initUseAnimations(imagesLink, g);
         initPickAnimations(imagesLink, g);
-        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        hitbox = new Hitbox(0, 0, 3, 3, 11, 12);
     }
 
     /**

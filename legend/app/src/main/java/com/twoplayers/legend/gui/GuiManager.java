@@ -79,6 +79,11 @@ public class GuiManager implements IManager {
     private static final int LEFT_HEARTS = 528;
     private static final int WIDTH_HEART = 18;
 
+    private static final int LEFT_CURSOR = 708;
+    private static final int TOP_CURSOR = 26;
+    private static final int WIDTH_ITEM = 22;
+    private static final int HEIGHT_ITEM = 18;
+
     private static final int LEFT_SWORD = 460;
     private static final int TOP_SWORD = 28;
     private static final int LEFT_ITEM_B = 388;
@@ -148,8 +153,8 @@ public class GuiManager implements IManager {
     private boolean bPressed;
     private boolean cPressed;
 
-    private int left_cursor;
-    private int top_cursor;
+    private int leftCursor;
+    private int topCursor;
 
     /**
      * Load this manager
@@ -175,8 +180,8 @@ public class GuiManager implements IManager {
         imagesGui = ((MainActivity) game).getAllImages().getImagesGui();
         imagesGui.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
-        left_cursor = 708;
-        top_cursor = 26;
+        leftCursor = LEFT_CURSOR;
+        topCursor = TOP_CURSOR;
 
         upPressed = false;
         downPressed = false;
@@ -237,29 +242,6 @@ public class GuiManager implements IManager {
                 logButtons(event);
             }
         }
-    }
-
-    /**
-     * Log pressed buttons properly
-     */
-    private void logButtons(Input.TouchEvent event) {
-        String type;
-        if (event.type == Input.TouchEvent.TOUCH_DRAGGED) {
-            type = "DRAGGED";
-        } else if (event.type == Input.TouchEvent.TOUCH_DOWN) {
-            type = "DOWN";
-        } else if (event.type == Input.TouchEvent.TOUCH_UP) {
-            type = "UP";
-        } else if (event.type == Input.TouchEvent.TOUCH_HOLD) {
-            type = "HOLD";
-        } else {
-            type = "UNKNOWN";
-        }
-        String message = String.format("%1$" + 18 + "s", "Event : " + type + "-(" + event.x + "," + event.y + ")");
-        message += "up=" + ((upPressed) ? "1" : "0") + ",down=" + ((downPressed) ? "1" : "0");
-        message += ",left=" + ((leftPressed) ? "1" : "0") + ",right=" + ((rightPressed) ? "1" : "0");
-        message += ",a=" + ((aPressed) ? "1" : "0") + ",b=" + ((bPressed) ? "1" : "0") + ",c=" + ((cPressed) ? "1" : "0");
-        Logger.debug(message);
     }
 
     @Override
@@ -389,7 +371,7 @@ public class GuiManager implements IManager {
         if (link.getSpellBook() != SpellBook.NONE) {
             g.drawImage(imagesGui.get(link.getSpellBook().name),LEFT_SPELLBOOK, TOP_SPELLBOOK);
         }
-        g.drawImage(imagesGui.get("cursor"),left_cursor, top_cursor);
+        g.drawImage(imagesGui.get("cursor"), leftCursor, topCursor);
 
         // Draw resources
         int linkCoins = link.getCoins();
@@ -397,6 +379,38 @@ public class GuiManager implements IManager {
         g.drawString(coinsToDisplay, LEFT_COINS, TOP_COINS, TextUtil.getPaint());
         g.drawString("x" + link.getKeys(), LEFT_KEYS, TOP_KEYS, TextUtil.getPaint());
         g.drawString("x" + link.getBomb(), LEFT_BOMBS, TOP_BOMBS, TextUtil.getPaint());
+    }
+
+    /**
+     * Log pressed buttons properly
+     */
+    private void logButtons(Input.TouchEvent event) {
+        String type;
+        if (event.type == Input.TouchEvent.TOUCH_DRAGGED) {
+            type = "DRAGGED";
+        } else if (event.type == Input.TouchEvent.TOUCH_DOWN) {
+            type = "DOWN";
+        } else if (event.type == Input.TouchEvent.TOUCH_UP) {
+            type = "UP";
+        } else if (event.type == Input.TouchEvent.TOUCH_HOLD) {
+            type = "HOLD";
+        } else {
+            type = "UNKNOWN";
+        }
+        String message = String.format("%1$" + 18 + "s", "Event : " + type + "-(" + event.x + "," + event.y + ")");
+        message += "up=" + ((upPressed) ? "1" : "0") + ",down=" + ((downPressed) ? "1" : "0");
+        message += ",left=" + ((leftPressed) ? "1" : "0") + ",right=" + ((rightPressed) ? "1" : "0");
+        message += ",a=" + ((aPressed) ? "1" : "0") + ",b=" + ((bPressed) ? "1" : "0") + ",c=" + ((cPressed) ? "1" : "0");
+        Logger.debug(message);
+    }
+
+    /**
+     * Update cursor position
+     */
+    public void updateCursor(int secondItem) {
+        int secondItemToUse = (secondItem == 0) ? 0 : secondItem - 1;
+        leftCursor = LEFT_CURSOR + ((secondItemToUse) % 4) * WIDTH_ITEM;
+        topCursor = TOP_CURSOR + (secondItemToUse / 4) * HEIGHT_ITEM;
     }
 
     /**
