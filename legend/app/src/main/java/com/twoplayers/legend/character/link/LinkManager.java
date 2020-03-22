@@ -166,34 +166,34 @@ public class LinkManager implements IManager {
     public void paint(float deltaTime, Graphics g) {
         // Draw link
         if (link.isShowingItem) {
-            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
-            g.drawScaledImage(link.itemToShow.image, Math.round(link.x) - 8, Math.round(link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
+            g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
         } else if (link.isInvincible) {
-            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y), invincibleColorMatrix.getCurrentColorMatrix());
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, invincibleColorMatrix.getCurrentColorMatrix());
         } else if (link.isEnteringSomewhere || link.isExitingSomewhere) {
-            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
             int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE));
             int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
             g.drawScaledImage(imagesLink.get("empty_tile"), belowCaveX, belowCaveY, AllImages.COEF);
         } else {
-            g.drawAnimation(link.currentAnimation, Math.round(link.x), Math.round(link.y));
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
         }
 
         // Draw the sword
         if (link.isAttacking) {
-            g.drawAnimation(link.sword.getAnimation(link.orientation), Math.round(link.sword.x), Math.round(link.sword.y));
+            g.drawAnimation(link.sword.getAnimation(link.orientation), (int) link.sword.x, (int) link.sword.y);
         }
 
         // Draw the boomerang
         if (link.boomerang.isMovingForward || link.boomerang.isMovingBackward) {
-            g.drawAnimation(link.boomerang.getAnimation(), Math.round(link.boomerang.x), Math.round(link.boomerang.y));
+            g.drawAnimation(link.boomerang.getAnimation(), (int) link.boomerang.x, (int) link.boomerang.y);
         }
         // Draw the fires from light
         if (link.fire1.isActive) {
-            g.drawAnimation(link.fire1.animation, Math.round(link.fire1.x), Math.round(link.fire1.y));
+            g.drawAnimation(link.fire1.animation, (int) link.fire1.x, (int) link.fire1.y);
         }
         if (link.fire2.isActive) {
-            g.drawAnimation(link.fire2.animation, Math.round(link.fire2.x), Math.round(link.fire2.y));
+            g.drawAnimation(link.fire2.animation, (int) link.fire2.x, (int) link.fire2.y);
         }
 
         // Draw the hitboxes
