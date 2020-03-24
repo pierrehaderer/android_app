@@ -32,7 +32,6 @@ import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.util.Coordinate;
-import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 

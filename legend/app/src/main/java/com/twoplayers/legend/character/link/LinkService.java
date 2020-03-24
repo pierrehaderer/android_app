@@ -212,16 +212,13 @@ public class LinkService {
             Logger.info("Link is pushed, remaining counter : " + link.pushCounter);
             if (link.orientation == Orientation.UP || link.orientation == Orientation.DOWN) {
                 float deltaY = Link.PUSH_SPEED * link.pushY * deltaTime;
-                float nextX = evaluateXAfterShift(link.x);
                 if (deltaY < 0) {
-                    if (zoneManager.isUpValid(nextX, link.y + deltaY)) {
-                        shiftLinkX(link, nextX);
+                    if (zoneManager.isUpValid(link.x, link.y + deltaY)) {
                         moveLinkY(link, deltaY);
                     }
                 }
                 if (deltaY > 0) {
-                    if (zoneManager.isDownValid(nextX, link.y + deltaY)) {
-                        shiftLinkX(link, nextX);
+                    if (zoneManager.isDownValid(link.x, link.y + deltaY)) {
                         moveLinkY(link, deltaY);
                     }
                 }
@@ -230,16 +227,13 @@ public class LinkService {
             }
             if (link.orientation == Orientation.LEFT || link.orientation == Orientation.RIGHT) {
                 float deltaX = Link.PUSH_SPEED * link.pushX * deltaTime;
-                float nextY = evaluateYAfterShift(link.y);
                 if (deltaX < 0) {
-                    if (zoneManager.isLeftValid(link.x + deltaX, nextY)) {
-                        shiftLinkY(link, nextY);
+                    if (zoneManager.isLeftValid(link.x + deltaX, link.y)) {
                         moveLinkX(link, deltaX);
                     }
                 }
                 if (deltaX > 0) {
-                    if (zoneManager.isRightValid(link.x + deltaX, nextY)) {
-                        shiftLinkY(link, nextY);
+                    if (zoneManager.isRightValid(link.x + deltaX, link.y)) {
                         moveLinkX(link, deltaX);
                     }
                 }
