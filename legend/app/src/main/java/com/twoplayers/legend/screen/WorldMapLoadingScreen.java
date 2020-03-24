@@ -7,6 +7,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.util.Coordinate;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -15,10 +16,10 @@ public class WorldMapLoadingScreen extends Screen {
     public static final int WIDTH_PHONE_SCREEN = 800;
     public static final int HEIGHT_PHONE_SCREEN = 480;
 
-    private Coordinate linkLocation;
+    private Location linkLocation;
     private Coordinate linkPosition;
 
-    public WorldMapLoadingScreen(Game game, Coordinate location, Coordinate position) {
+    public WorldMapLoadingScreen(Game game, Location location, Coordinate position) {
         super(game);
         Logger.info("Entering WorldMapLoadingScreen.");
         linkLocation = location;

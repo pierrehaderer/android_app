@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ImagesEnemyWorldMap {
+public class ImagesEnemyWorldMap implements IImagesEnemy {
 
     private Map<String, Image> images = new HashMap<>();
 
@@ -44,6 +44,7 @@ public class ImagesEnemyWorldMap {
         if (images.containsKey(name)) {
             return images.get(name);
         }
+        Logger.warn("Could not find image : " + name);
         return images.get("empty");
     }
 }

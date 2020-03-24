@@ -8,6 +8,7 @@ import com.twoplayers.legend.assets.image.ImagesItem;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.util.Coordinate;
+import com.twoplayers.legend.util.Location;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class Cave {
     protected String displayedMessage1;
     protected String displayedMessage2;
     protected Npc npc;
-    protected Coordinate location;
+    protected Location location;
     protected Coordinate entrance;
     protected List<Item> items;
 

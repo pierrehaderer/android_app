@@ -9,6 +9,7 @@ import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -43,11 +44,11 @@ public class LinkService {
         if (!link.isAttacking && !link.isUsingSecondItem && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Movement of Link
             boolean linkHasNotMovedYet = true;
-            if (guiManager.isUpPressed() && guiManager.areButtonsActivated()) {
+            if (guiManager.isUpPressed() && guiManager.areButtonsActivated() && zoneManager.upAndDownAuthorized(link)) {
                 link.orientation = Orientation.UP;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float deltaY = -1 * Link.LINK_SPEED * deltaTime;
+                float deltaY = -1 * Link.SPEED * deltaTime;
                 float nextX = evaluateXAfterShift(link.x);
                 if (zoneManager.isUpValid(nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
@@ -61,11 +62,11 @@ public class LinkService {
                 // Check if link is entering a cave
                 checkAndInitCaveEntering(link);
             }
-            if (guiManager.isDownPressed() && guiManager.areButtonsActivated()) {
+            if (guiManager.isDownPressed() && guiManager.areButtonsActivated() && zoneManager.upAndDownAuthorized(link)) {
                 link.orientation = Orientation.DOWN;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float deltaY = Link.LINK_SPEED * deltaTime;
+                float deltaY = Link.SPEED * deltaTime;
                 float nextX = evaluateXAfterShift(link.x);
                 if (zoneManager.isDownValid(nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
@@ -77,11 +78,11 @@ public class LinkService {
                     zoneManager.changeRoom(Orientation.DOWN);
                 }
             }
-            if (guiManager.isLeftPressed() && guiManager.areButtonsActivated() && linkHasNotMovedYet) {
+            if (guiManager.isLeftPressed() && guiManager.areButtonsActivated() && zoneManager.leftAndRightAuthorized(link) && linkHasNotMovedYet) {
                 link.orientation = Orientation.LEFT;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float deltaX = -1 * Link.LINK_SPEED * deltaTime;
+                float deltaX = -1 * Link.SPEED * deltaTime;
                 float nextY = evaluateYAfterShift(link.y);
                 if (zoneManager.isLeftValid(link.x + deltaX, nextY)) {
                     shiftLinkY(link, nextY);
@@ -92,11 +93,11 @@ public class LinkService {
                     zoneManager.changeRoom(Orientation.LEFT);
                 }
             }
-            if (guiManager.isRightPressed() && guiManager.areButtonsActivated() && linkHasNotMovedYet) {
+            if (guiManager.isRightPressed() && guiManager.areButtonsActivated() && zoneManager.leftAndRightAuthorized(link) && linkHasNotMovedYet) {
                 link.orientation = Orientation.RIGHT;
                 link.currentAnimation = link.moveAnimations.get(link.orientation);
                 link.currentAnimation.update(deltaTime);
-                float deltaX = Link.LINK_SPEED * deltaTime;
+                float deltaX = Link.SPEED * deltaTime;
                 float nextY = evaluateYAfterShift(link.y);
                 if (zoneManager.isRightValid(link.x + deltaX, nextY)) {
                     shiftLinkY(link, nextY);
@@ -117,7 +118,7 @@ public class LinkService {
         if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Start of link's attack
             if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE
-                    && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
+                    && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
                 link.currentAnimation = link.attackAnimations.get(link.orientation);
                 link.currentAnimation.reset();
                 link.sword.x = link.x;
@@ -256,8 +257,9 @@ public class LinkService {
     public void handleLinkEnteringSomewhere(Link link, float deltaTime) {
         if (link.isEnteringSomewhere) {
             link.currentAnimation.update(deltaTime);
-            link.enterSomewhereCounter -= deltaTime;
-            moveLinkY(link, deltaTime * Link.ENTER_CAVE_SPEED);
+            float distance = deltaTime * Link.ENTER_CAVE_SPEED;
+            link.enterSomewhereCounter -= distance;
+            moveLinkY(link, distance);
         }
     }
 
@@ -266,11 +268,16 @@ public class LinkService {
      */
     public void handleLinkExitingSomewhere(Link link, float deltaTime) {
         if (link.isExitingSomewhere) {
+            if (link.exitSomewhereDistance == LocationUtil.TILE_SIZE) {
+                soundEffectManager.play("cave");
+            }
             link.currentAnimation.update(deltaTime);
-            link.exitSomewhereCounter -= deltaTime;
-            moveLinkY(link, -1 * deltaTime * Link.ENTER_CAVE_SPEED);
-            if (link.exitSomewhereCounter < 0) {
+            float distance = Math.min(deltaTime * Link.ENTER_CAVE_SPEED, link.exitSomewhereDistance);
+            link.exitSomewhereDistance -= distance;
+            moveLinkY(link, -1 * distance);
+            if (link.exitSomewhereDistance <= 0) {
                 link.isExitingSomewhere = false;
+                enemyManager.requestEnemiesLoading();
             }
         }
     }
@@ -287,11 +294,14 @@ public class LinkService {
             enemyManager.unloadEnemies();
             linkManager.hideItemsAndEffects();
             link.isEnteringSomewhere = true;
-            link.enterSomewhereCounter = Link.INITIAL_ENTER_COUNT;
+            link.enterSomewhereCounter = LocationUtil.TILE_SIZE - 4; // Minus 4 to avoid link on the other side of the hiding tile
             link.isPushed = false;
             link.isAttacking = false;
             link.isInvincible = false;
             link.currentAnimation = link.moveAnimations.get(Orientation.UP);
+            int tileX = LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE);
+            int tileY = LocationUtil.getTileYFromPositionY(link.y + LocationUtil.TILE_SIZE);
+            link.cavePosition = new Coordinate(LocationUtil.getXFromGrid(tileX), LocationUtil.getYFromGrid(tileY));
         }
     }
 

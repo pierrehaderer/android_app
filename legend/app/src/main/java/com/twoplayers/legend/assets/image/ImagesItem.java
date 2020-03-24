@@ -39,6 +39,7 @@ public class ImagesItem {
         if (images.containsKey(name)) {
             return images.get(name);
         }
+        Logger.warn("Could not find image : " + name);
         return images.get("empty");
     }
 }

@@ -4,11 +4,11 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -52,7 +52,7 @@ public abstract class Tektite extends Enemy {
     protected Animation prepareAnimation;
     protected Animation jumpAnimation;
 
-    public Tektite(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+    public Tektite(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
         initAnimations(g);
         initDestinationTree();

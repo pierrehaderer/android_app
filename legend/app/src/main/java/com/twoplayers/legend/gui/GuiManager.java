@@ -250,7 +250,7 @@ public class GuiManager implements IManager {
         g.drawImage(imagesGui.get("gui"), 0, 0);
 
         // Draw mini map
-        g.drawImage(imagesGui.get("mini_world_map"), LEFT_MINI_MAP, TOP_MINI_MAP);
+        g.drawImage(zoneManager.getMiniMap(), LEFT_MINI_MAP, TOP_MINI_MAP);
         float miniX = LEFT_MINI_MAP + zoneManager.getCurrentMiniAbscissa() + 5;
         float miniY = TOP_MINI_MAP + zoneManager.getCurrentMiniOrdinate() + 3;
         g.drawRect((int) miniX, (int) miniY, 8, 7, Color.BLUE);

@@ -8,7 +8,9 @@ public class AllImages {
     private ImageOther imageOther;
     private ImagesWorldMap imagesWorldMap;
     private ImagesCave imagesCave;
+    private ImagesDungeon imagesDungeon;
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
+    private ImagesEnemyDungeon imagesEnemyDungeon;
     private ImagesLink imagesLink;
     private ImagesItem imagesItem;
     private ImagesGui imagesGui;
@@ -20,7 +22,9 @@ public class AllImages {
         imageOther = new ImageOther();
         imagesWorldMap = new ImagesWorldMap();
         imagesCave = new ImagesCave();
+        imagesDungeon = new ImagesDungeon();
         imagesEnemyWorldMap = new ImagesEnemyWorldMap();
+        imagesEnemyDungeon = new ImagesEnemyDungeon();
         imagesLink = new ImagesLink();
         imagesItem = new ImagesItem();
         imagesGui = new ImagesGui();
@@ -38,8 +42,16 @@ public class AllImages {
         return imagesCave;
     }
 
+    public ImagesDungeon getImagesDungeon() {
+        return imagesDungeon;
+    }
+
     public ImagesEnemyWorldMap getImagesEnemyWorldMap() {
         return imagesEnemyWorldMap;
+    }
+
+    public ImagesEnemyDungeon getImagesEnemyDungeon() {
+        return imagesEnemyDungeon;
     }
 
     public ImagesLink getImagesLink() {

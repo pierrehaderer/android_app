@@ -10,11 +10,13 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.character.Item;
+import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -35,7 +37,7 @@ public class WorldMapManager implements IZoneManager {
     private WorldMapEnemyManager worldMapEnemyManager;
     private MusicManager musicManager;
 
-    /** 16x8 MapScreens that represent the whole worldMap in this game */
+    /** 16x8 MapRooms that represent the whole worldMap in this game */
     private MapRoom[][] worldMap;
     private Boolean[][] exploredWorldMap;
 
@@ -51,17 +53,17 @@ public class WorldMapManager implements IZoneManager {
     private boolean transitionRunning;
     private float transitionCount;
     private Orientation transitionOrientation;
-    private float leftCurrentMapScreen;
-    private float topCurrentMapScreen;
-    private Image imageCurrentMapScreen;
-    private float leftNextMapScreen;
-    private float topNextMapScreen;
-    private Image imageNextMapScreen;
+    private float leftCurrentMapRoom;
+    private float topCurrentMapRoom;
+    private Image imageCurrentMapRoom;
+    private float leftNextMapRoom;
+    private float topNextMapRoom;
+    private Image imageNextMapRoom;
 
     /**
      * Load this manager
      */
-    public void load(Game game, Coordinate location) {
+    public void load(Game game, Location location) {
         if (initNotDone) {
             initNotDone = false;
             init(game);
@@ -71,20 +73,20 @@ public class WorldMapManager implements IZoneManager {
         musicManager.plan(100, "world_map_intro", false);
         musicManager.plan(0, "world_map_loop", true);
 
-        currentAbscissa = (int) location.x;
-        currentOrdinate = (int) location.y;
+        currentAbscissa = location.x;
+        currentOrdinate = location.y;
         nextAbscissa = currentAbscissa;
         nextOrdinate = currentOrdinate;
         currentMiniAbscissa = 16 * currentAbscissa;
         currentMiniOrdinate = 11 * currentOrdinate;
 
         transitionRunning = false;
-        leftCurrentMapScreen = LocationUtil.LEFT_MAP;
-        topCurrentMapScreen = LocationUtil.TOP_MAP;
-        imageCurrentMapScreen = imagesWorldMap.get(getCoordinate());
-        leftNextMapScreen = LocationUtil.LEFT_MAP;
-        topNextMapScreen = LocationUtil.TOP_MAP;
-        imageNextMapScreen = imagesWorldMap.get("empty");
+        leftCurrentMapRoom = LocationUtil.LEFT_MAP;
+        topCurrentMapRoom = LocationUtil.TOP_MAP;
+        imageCurrentMapRoom = imagesWorldMap.get(getCoordinate());
+        leftNextMapRoom = LocationUtil.LEFT_MAP;
+        topNextMapRoom = LocationUtil.TOP_MAP;
+        imageNextMapRoom = imagesWorldMap.get("empty");
     }
 
     /**
@@ -111,7 +113,7 @@ public class WorldMapManager implements IZoneManager {
         worldMap = new MapRoom[16][8];
         exploredWorldMap = new Boolean[16][8];
 
-        // Initialise the mapScreens
+        // Initialise the mapRooms
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 8; j++) {
                 worldMap[i][j] = (new MapRoom());
@@ -120,14 +122,14 @@ public class WorldMapManager implements IZoneManager {
         }
         exploredWorldMap[7][7] = true;
 
-        // Fill the mapScreens, line by line
+        // Fill the mapRooms, line by line
         int indexLine = 0;
         for (int index1 = 0; index1 < 8; index1 = index1) {
             String line = worldMapFileContent.get(indexLine++);
             for (int index2 = 0; index2 < 16; index2++) {
                 worldMap[index2][index1].addALine(line.substring(17 * index2, 17 * index2 + 16));
             }
-            // Jump over the delimiter line and go to next line of mapScreens
+            // Jump over the delimiter line and go to next line of mapRooms
             if (indexLine % 12 == 11) {
                 indexLine++;
                 index1++;
@@ -140,29 +142,29 @@ public class WorldMapManager implements IZoneManager {
         if (transitionRunning) {
             if (transitionOrientation == Orientation.UP) {
                 float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                topCurrentMapScreen += transitionDeltaY;
-                topNextMapScreen += transitionDeltaY;
+                topCurrentMapRoom += transitionDeltaY;
+                topNextMapRoom += transitionDeltaY;
                 currentMiniOrdinate -= transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkY(transitionDeltaY);
             }
             if (transitionOrientation == Orientation.DOWN) {
                 float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                topCurrentMapScreen -= transitionDeltaY;
-                topNextMapScreen -= transitionDeltaY;
+                topCurrentMapRoom -= transitionDeltaY;
+                topNextMapRoom -= transitionDeltaY;
                 currentMiniOrdinate += transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkY(-1 * transitionDeltaY);
             }
             if (transitionOrientation == Orientation.LEFT) {
                 float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                leftCurrentMapScreen += transitionDeltaX;
-                leftNextMapScreen += transitionDeltaX;
+                leftCurrentMapRoom += transitionDeltaX;
+                leftNextMapRoom += transitionDeltaX;
                 currentMiniAbscissa -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkX(transitionDeltaX);
             }
             if (transitionOrientation == Orientation.RIGHT) {
                 float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                leftCurrentMapScreen -= transitionDeltaX;
-                leftNextMapScreen -= transitionDeltaX;
+                leftCurrentMapRoom -= transitionDeltaX;
+                leftNextMapRoom -= transitionDeltaX;
                 currentMiniAbscissa += transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkX(-1 * transitionDeltaX);
             }
@@ -170,14 +172,14 @@ public class WorldMapManager implements IZoneManager {
 
             if (transitionCount < 0) {
                 // End of the transition
-                imageCurrentMapScreen = imageNextMapScreen;
-                leftCurrentMapScreen = LocationUtil.LEFT_MAP;
-                topCurrentMapScreen = LocationUtil.TOP_MAP;
+                imageCurrentMapRoom = imageNextMapRoom;
+                leftCurrentMapRoom = LocationUtil.LEFT_MAP;
+                topCurrentMapRoom = LocationUtil.TOP_MAP;
                 currentAbscissa = nextAbscissa;
                 currentOrdinate = nextOrdinate;
                 currentMiniAbscissa = 16 * currentAbscissa;
                 currentMiniOrdinate = 11 * currentOrdinate;
-                imageNextMapScreen = imagesWorldMap.get("empty");
+                imageNextMapRoom = imagesWorldMap.get("empty");
                 transitionRunning = false;
                 worldMapEnemyManager.requestEnemiesLoading();
                 guiManager.activateButtons();
@@ -187,27 +189,26 @@ public class WorldMapManager implements IZoneManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        g.drawScaledImage(imageNextMapScreen, (int) leftNextMapScreen, (int) topNextMapScreen, AllImages.COEF);
-        g.drawScaledImage(imageCurrentMapScreen, (int) leftCurrentMapScreen, (int) topCurrentMapScreen, AllImages.COEF);
+        if (transitionRunning) {
+            g.drawScaledImage(imageNextMapRoom, (int) leftNextMapRoom, (int) topNextMapRoom, AllImages.COEF);
+        }
+        g.drawScaledImage(imageCurrentMapRoom, (int) leftCurrentMapRoom, (int) topCurrentMapRoom, AllImages.COEF);
     }
 
     @Override
-    public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
+    public boolean isTileWalkable(float x, float y) {
         MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
-        int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
         MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        if (tile == MapTile.OUT_OF_BOUNDS && authorizeOutOfBound) {
-            return true;
-        }
         return tile.walkable;
     }
 
     @Override
     public boolean isTileACave(float x, float y) {
         MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
-        int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
         MapTile tile = currentMapRoom.getTile(tileX, tileY);
         return tile == MapTile.CAVE;
     }
@@ -219,60 +220,50 @@ public class WorldMapManager implements IZoneManager {
         switch (orientation) {
             case UP :
                 transitionCount = 176 * AllImages.COEF;
-                leftNextMapScreen = LocationUtil.LEFT_MAP;
-                topNextMapScreen = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
+                leftNextMapRoom = LocationUtil.LEFT_MAP;
+                topNextMapRoom = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
                 nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate - 1;
                 break;
             case DOWN :
                 transitionCount = 176 * AllImages.COEF;
-                leftNextMapScreen = LocationUtil.LEFT_MAP;
-                topNextMapScreen = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
+                leftNextMapRoom = LocationUtil.LEFT_MAP;
+                topNextMapRoom = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
                 nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate + 1;
                 break;
             case LEFT :
                 transitionCount = 256 * AllImages.COEF;
-                leftNextMapScreen = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
-                topNextMapScreen = LocationUtil.TOP_MAP;
+                leftNextMapRoom = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
+                topNextMapRoom = LocationUtil.TOP_MAP;
                 nextAbscissa = currentAbscissa - 1;
                 nextOrdinate = currentOrdinate;
                 break;
             case RIGHT :
                 transitionCount = 256 * AllImages.COEF;
-                leftNextMapScreen = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
-                topNextMapScreen = LocationUtil.TOP_MAP;
+                leftNextMapRoom = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
+                topNextMapRoom = LocationUtil.TOP_MAP;
                 nextAbscissa = currentAbscissa + 1;
                 nextOrdinate = currentOrdinate;
                 break;
         }
-        imageNextMapScreen = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
-        Logger.info("Starting screen transition to " + nextAbscissa + nextOrdinate);
+        imageNextMapRoom = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
+        Logger.info("Starting room transition to " + nextAbscissa + nextOrdinate);
         exploredWorldMap[nextAbscissa][nextOrdinate] = true;
         transitionRunning = true;
         transitionOrientation = orientation;
-    }
-
-    @Override
-    public List<Item> getItems() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public boolean isExplored(int x, int y) {
-        return exploredWorldMap[x][y];
     }
 
     /**
      * Find a tile where a enemy can spawn avoid map borders
      */
     public Coordinate findSpawnableCoordinate() {
-        /**  A counter to avoid infinite loop. */
+        // A counter to avoid infinite loop.
         int counter = 50;
         float x = (float) (Math.floor(1 + Math.random() * 14) * LocationUtil.TILE_SIZE + LocationUtil.LEFT_MAP + 1);
         float y = (float) (Math.floor(1 + Math.random() * 9) * LocationUtil.TILE_SIZE + LocationUtil.TOP_MAP + 1);
         Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
-        while (counter-- > 0 && !isTileWalkable(x, y, false)) {
+        while (counter-- > 0 && !isTileWalkable(x, y)) {
             x = (float) (Math.floor(1 + Math.random() * 14) * LocationUtil.TILE_SIZE + LocationUtil.LEFT_MAP + 1);
             y = (float) (Math.floor(1 + Math.random() * 9) * LocationUtil.TILE_SIZE + LocationUtil.TOP_MAP + 1);
             Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
@@ -580,25 +571,58 @@ public class WorldMapManager implements IZoneManager {
         return true;
     }
 
+    @Override
+    public List<Item> getItems() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public boolean isExplored(int x, int y) {
+        return exploredWorldMap[x][y];
+    }
+
+    @Override
+    public Image getMiniMap() {
+        return imagesWorldMap.get("mini_world_map");
+    }
+
+    @Override
+    public float getCurrentMiniAbscissa() {
+        return currentMiniAbscissa;
+    }
+
+    @Override
+    public float getCurrentMiniOrdinate() {
+        return currentMiniOrdinate;
+    }
+
+    @Override
+    public boolean isLinkFarEnoughFromBorderToAttack(Link link) {
+        return !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE);
+    }
+
+    @Override
+    public boolean upAndDownAuthorized(Link link) {
+        return true;
+    }
+
+    @Override
+    public boolean leftAndRightAuthorized(Link link) {
+        return true;
+    }
+
     /**
-     * Obtain the current mapScreen coordinate
+     * Obtain the current mapRoom coordinate
      */
     public String getCoordinate() {
         return String.valueOf(currentAbscissa) + currentOrdinate;
     }
 
     /**
-     * Obtain the cave information on the current mapScreen
+     * Obtain the cave information on the current mapRoom
      */
     public String getCave() {
         return worldMapCaves.getProperty(getCoordinate(), "CAVE");
     }
 
-    public float getCurrentMiniAbscissa() {
-        return currentMiniAbscissa;
-    }
-
-    public float getCurrentMiniOrdinate() {
-        return currentMiniOrdinate;
-    }
 }

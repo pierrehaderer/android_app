@@ -46,18 +46,7 @@ public class ImageOther {
         if (images.containsKey(name)) {
             return images.get(name);
         }
+        Logger.warn("Could not find image : " + name);
         return images.get("empty");
     }
-
-//    /**
-//     * Load main theme once
-//     */
-//    public static void loadTheme(Audio a) {
-//        if (firstTimeThemeLoaded) {
-//            theme = a.createMusic("sound/memory/main_theme.mp3");
-//            theme.setLooping(true);
-//            theme.setVolume(0.005f);
-//            firstTimeThemeLoaded = false;
-//        }
-//    }
 }

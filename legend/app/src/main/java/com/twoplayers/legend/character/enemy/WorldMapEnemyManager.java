@@ -6,6 +6,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
@@ -84,8 +85,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyMap.put("BlueLeever", BlueLeever.class);
 
         worldMapEnemies = new HashMap<>();
-        Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map/world_map_enemies.properties");
-        Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map/world_map_spawn_enemies.properties");
+        Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map_enemies.properties");
+        Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/world_map_spawn_enemies.properties");
         for (String key : enemiesProperties.stringPropertyNames()) {
             // Format is "EnemyClass1,EnemyClass2,EnemyClass3,..."
             String[] enemies = (enemiesProperties.getProperty(key).length() == 0) ? new String[0] : enemiesProperties.getProperty(key).split(",");
@@ -126,7 +127,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
             for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
                 try {
                     if (enemyToSpawn.enemyClass != null) {
-                        Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(ImagesEnemyWorldMap.class,
+                        Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
                                 SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
                         Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, worldMapManager, linkManager, this, enemyService, g);
                         Coordinate spawnCoordinate = getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
@@ -154,6 +155,17 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyColorMatrix.update(deltaTime);
     }
 
+    @Override
+    public void paint(float deltaTime, Graphics g) {
+        for (Enemy enemy : enemies) {
+            if (!enemy.isDead) {
+                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+                g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
+            } else if (!enemy.currentAnimation.isAnimationOver()) {
+                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+            }
+        }
+    }
 
     /**
      * Get a spawn position
@@ -167,19 +179,6 @@ public class WorldMapEnemyManager implements IEnemyManager {
             return enemyToSpawn.spawnPossibilities.get(orientation).get(index);
         }
         return new Coordinate(LocationUtil.getXFromGrid(1), LocationUtil.getYFromGrid(1));
-    }
-
-
-    @Override
-    public void paint(float deltaTime, Graphics g) {
-        for (Enemy enemy : enemies) {
-            if (!enemy.isDead) {
-                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
-                g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
-            } else if (!enemy.currentAnimation.isAnimationOver()) {
-                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
-            }
-        }
     }
 
     @Override

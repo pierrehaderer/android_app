@@ -62,39 +62,22 @@ public class LocationUtil {
      * Check if a tile is on the border of the map
      */
     public static boolean isTileAtBorder(float x, float y) {
-        int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
+        int tileX = getTileXFromPositionX(x);
         if (tileX <= 0 || tileX >= 15) return true;
-        int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
+        int tileY = getTileYFromPositionY(y);
         if (tileY <= 0 || tileY >= 10) return true;
         return false;
     }
 
     /**
-     * Check if y is out of map on the top
+     * Check if a tile is on the border of the map
      */
-    public static boolean isUpOutOfMap(float y) {
-        return y <= LocationUtil.TOP_MAP;
-    }
-
-    /**
-     * Check if y is out of map on the bottom
-     */
-    public static boolean isDownOutOfMap(float y) {
-        return y >= LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
-    }
-
-    /**
-     * Check if x is out of map on the left
-     */
-    public static boolean isLeftOutOfMap(float x) {
-        return x <= LocationUtil.LEFT_MAP;
-    }
-
-    /**
-     * Check if x is out of map on the riht
-     */
-    public static boolean isRightOutOfMap(float x) {
-        return x >= LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
+    public static boolean isTileAtBorderMinusOne(float x, float y) {
+        int tileX = getTileXFromPositionX(x);
+        if (tileX <= 0 || tileX >= 15) return true;
+        int tileY = getTileYFromPositionY(y);
+        if (tileY <= 0 || tileY >= 10) return true;
+        return false;
     }
 
     /**
@@ -123,6 +106,22 @@ public class LocationUtil {
      */
     public static int getTileYFromPositionY(float y) {
         return (int) ((y - TOP_MAP) / TILE_SIZE);
+    }
+
+    public static boolean isUpOutOfMap(float y) {
+        return y <= LocationUtil.TOP_MAP;
+    }
+
+    public static boolean isDownOutOfMap(float y) {
+        return y >= LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
+    }
+
+    public static boolean isLeftOutOfMap(float x) {
+        return x <= LocationUtil.LEFT_MAP;
+    }
+
+    public static boolean isRightOutOfMap(float x) {
+        return x >= LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
     }
 
 }

@@ -41,9 +41,11 @@ public class WorldMapScreen extends Screen {
         linkManager.update(deltaTime, game.getGraphics());
         musicManager.update(deltaTime, game.getGraphics());
         if (linkManager.hasFinishedEnteringSomewhere()) {
-            String caveInfo = worldMapManager.getCave();
-            if (caveInfo.startsWith("CAVE")) {
-                game.setScreen(new CaveLoadingScreen(game, caveInfo));
+            String caveOrDungeonInfo = worldMapManager.getCave();
+            if (caveOrDungeonInfo.startsWith("CAVE")) {
+                game.setScreen(new CaveLoadingScreen(game, caveOrDungeonInfo));
+            } else {
+                game.setScreen(new DungeonLoadingScreen(game, caveOrDungeonInfo));
             }
         }
     }

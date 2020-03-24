@@ -32,6 +32,7 @@ import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.util.Coordinate;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -50,6 +51,7 @@ public class LinkManager implements IManager {
     private ImagesLink imagesLink;
 
     private Link link;
+    private Coordinate cavePosition;
     private LinkInvincibleColorMatrix invincibleColorMatrix;
 
     /**
@@ -66,8 +68,9 @@ public class LinkManager implements IManager {
         linkService = new LinkService(guiManager, zoneManager, this, enemyManager, musicManager, soundEffectManager);
         itemService = new ItemService(guiManager, zoneManager, enemyManager, soundEffectManager);
 
-        link.x = LocationUtil.getXFromGrid((int) position.x);
-        link.y = (link.isExitingSomewhere) ? LocationUtil.getYFromGrid((int) position.y + 1) - 3 : LocationUtil.getYFromGrid((int) position.y);
+        link.x = position.x;
+        link.y = (link.isExitingSomewhere) ? position.y + LocationUtil.TILE_SIZE : position.y;
+        link.cavePosition = position;
         link.hitbox.relocate(link.x, link.y);
         Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
         link.orientation = (link.isExitingSomewhere) ? Orientation.DOWN : Orientation.UP;
@@ -172,9 +175,7 @@ public class LinkManager implements IManager {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, invincibleColorMatrix.getCurrentColorMatrix());
         } else if (link.isEnteringSomewhere || link.isExitingSomewhere) {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
-            int belowCaveX = (int) LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE));
-            int belowCaveY = (int) LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(link.y + LocationUtil.TILE_SIZE + 3)) + 1;
-            g.drawScaledImage(imagesLink.get("empty_tile"), belowCaveX, belowCaveY, AllImages.COEF);
+            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.cavePosition.x, (int) (link.cavePosition.y + LocationUtil.TILE_SIZE + 1), AllImages.COEF);
         } else {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
         }
@@ -246,8 +247,7 @@ public class LinkManager implements IManager {
      */
     public void exitZone() {
         link.isExitingSomewhere = true;
-        link.exitSomewhereCounter = Link.INITIAL_ENTER_COUNT;
-        soundEffectManager.play("cave");
+        link.exitSomewhereDistance = LocationUtil.TILE_SIZE;
     }
 
     /**

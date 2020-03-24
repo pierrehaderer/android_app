@@ -51,7 +51,7 @@ public class ItemService {
     public void handleLinkUsingSecondItem(Link link, float deltaTime) {
         if (!link.isAttacking && !link.isUsingSecondItem && guiManager.areButtonsActivated()
                 && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem
-                && !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
+                && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
             if (guiManager.isbPressed()) {
                 switch (link.secondItem) {
                     case 1:

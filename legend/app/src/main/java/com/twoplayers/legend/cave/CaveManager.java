@@ -2,6 +2,7 @@ package com.twoplayers.legend.cave;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
+import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.Orientation;
@@ -10,11 +11,13 @@ import com.twoplayers.legend.assets.image.ImagesCave;
 import com.twoplayers.legend.assets.image.ImagesItem;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Item;
+import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.link.inventory.InventoryService;
 import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.TextUtil;
@@ -25,9 +28,6 @@ public class CaveManager implements IZoneManager {
 
     private static final String DEFAULT_MESSAGE = "";
     private static final String DEFAULT_NPC = "empty";
-    private static final String DEFAULT_LOCATION = "7|7";
-    private static final String DEFAULT_ENTRANCE = "4|1";
-    private static final String DEFAULT_ITEMS = "";
 
     private static final int PRICE_OFFSET_X_2DIGITS = -1;
     private static final int PRICE_OFFSET_X_3DIGITS = -11;
@@ -97,11 +97,12 @@ public class CaveManager implements IZoneManager {
         cave.message1 = (caveArray.length > 1) ? caveArray[1] : DEFAULT_MESSAGE;
         cave.message2 = (caveArray.length > 2) ? caveArray[2] : DEFAULT_MESSAGE;
 
-        String[] location = ((caveArray.length > 3) ? caveArray[3] : DEFAULT_LOCATION).split(",");
-        cave.location = new Coordinate(Float.valueOf(location[0]), Float.valueOf(location[1]));
-
-        String[] entrance = ((caveArray.length > 4) ? caveArray[4] : DEFAULT_ENTRANCE).split(",");
-        cave.entrance = new Coordinate(Float.valueOf(entrance[0]), Float.valueOf(entrance[1]));
+        if (caveArray.length > 3) {
+            cave.location = new Location(caveArray[3]);
+        }
+        if (caveArray.length > 4) {
+            cave.entrance = new Coordinate(caveArray[4]);
+        }
 
         cave.npc = new Npc();
         cave.npc.name = (caveArray.length > 5) ? caveArray[5] : DEFAULT_NPC;
@@ -186,8 +187,8 @@ public class CaveManager implements IZoneManager {
     @Override
     public void changeRoom(Orientation orientation) {
         Logger.info("Link has exited the cave.");
-        hasExitedZone = true;
         linkManager.exitZone();
+        hasExitedZone = true;
     }
 
     @Override
@@ -196,13 +197,10 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public boolean isTileWalkable(float x, float y, boolean authorizeOutOfBound) {
-        int tileX = (int) ((x - LocationUtil.LEFT_MAP) / LocationUtil.TILE_SIZE);
-        int tileY = (int) ((y - LocationUtil.TOP_MAP) / LocationUtil.TILE_SIZE);
+    public boolean isTileWalkable(float x, float y) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
         CaveTile tile = caveRoom.getTile(tileX, tileY);
-        if (tile == CaveTile.OUT_OF_BOUNDS && authorizeOutOfBound) {
-            return true;
-        }
         return tile.walkable;
     }
 
@@ -363,8 +361,18 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
+    public List<Item> getItems() {
+        return cave.items;
+    }
+
+    @Override
     public boolean isExplored(int x, int y) {
         return false;
+    }
+
+    @Override
+    public Image getMiniMap() {
+        return imagesCave.get("empty");
     }
 
     @Override
@@ -378,14 +386,24 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public List<Item> getItems() {
-        return cave.items;
+    public boolean isLinkFarEnoughFromBorderToAttack(Link link) {
+        return true;
+    }
+
+    @Override
+    public boolean upAndDownAuthorized(Link link) {
+        return true;
+    }
+
+    @Override
+    public boolean leftAndRightAuthorized(Link link) {
+        return true;
     }
 
     /**
      * Obtain the location of the cave
      */
-    public Coordinate getCaveLocation() {
+    public Location getCaveLocation() {
         return cave.location;
     }
 
@@ -402,4 +420,5 @@ public class CaveManager implements IZoneManager {
     public boolean hasExitedZone() {
         return hasExitedZone;
     }
+
 }

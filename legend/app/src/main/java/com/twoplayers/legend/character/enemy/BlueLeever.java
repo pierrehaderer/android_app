@@ -6,7 +6,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.LinkManager;
@@ -43,7 +43,7 @@ public class BlueLeever extends Enemy {
     /**
      * Constructor
      */
-    public BlueLeever(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+    public BlueLeever(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
         initAnimations(g);
         initNotDone = true;
@@ -67,25 +67,25 @@ public class BlueLeever extends Enemy {
      */
     protected void initAnimations(Graphics g) {
         spawnAnimation = g.newAnimation();
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 10);
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_1"), AllImages.COEF, 15);
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_2"), AllImages.COEF, 15);
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("blue_leevers_3"), AllImages.COEF, 15);
+        spawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
+        spawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
+        spawnAnimation.addFrame(imagesEnemy.get("leevers_2"), AllImages.COEF, 15);
+        spawnAnimation.addFrame(imagesEnemy.get("blue_leevers_3"), AllImages.COEF, 15);
         spawnAnimation.setOccurrences(1);
 
         moveAnimation = g.newAnimation();
-        moveAnimation.addFrame(imagesEnemyWorldMap.get("blue_leevers_4"), AllImages.COEF, 15);
-        moveAnimation.addFrame(imagesEnemyWorldMap.get("blue_leevers_5"), AllImages.COEF, 15);
+        moveAnimation.addFrame(imagesEnemy.get("blue_leevers_4"), AllImages.COEF, 15);
+        moveAnimation.addFrame(imagesEnemy.get("blue_leevers_5"), AllImages.COEF, 15);
 
         despawnAnimation = g.newAnimation();
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("blue_leevers_3"), AllImages.COEF, 15);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_2"), AllImages.COEF, 15);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_1"), AllImages.COEF, 15);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_2"), AllImages.COEF, 20);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_1"), AllImages.COEF, 20);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_2"), AllImages.COEF, 25);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_1"), AllImages.COEF, 25);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 10);
+        despawnAnimation.addFrame(imagesEnemy.get("blue_leevers_3"), AllImages.COEF, 15);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_2"), AllImages.COEF, 15);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_2"), AllImages.COEF, 20);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 20);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_2"), AllImages.COEF, 25);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 25);
+        despawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         despawnAnimation.setOccurrences(1);
     }
 

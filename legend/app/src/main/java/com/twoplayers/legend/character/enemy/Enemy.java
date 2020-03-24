@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
+import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
@@ -18,7 +19,7 @@ public abstract class Enemy {
     protected IZoneManager zoneManager;
     protected LinkManager linkManager;
     protected IEnemyManager enemyManager;
-    protected ImagesEnemyWorldMap imagesEnemyWorldMap;
+    protected IImagesEnemy imagesEnemy;
     protected SoundEffectManager soundEffectManager;
 
     protected EnemyService enemyService;
@@ -37,20 +38,20 @@ public abstract class Enemy {
     protected boolean isInvincible;
     protected boolean isDead;
 
-    public Enemy(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager em, EnemyService es, Graphics g) {
+    public Enemy(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager em, EnemyService es, Graphics g) {
         this.zoneManager = z;
         this.linkManager = l;
         this.enemyManager = em;
-        this.imagesEnemyWorldMap = i;
+        this.imagesEnemy = i;
         this.soundEffectManager = s;
         this.enemyService = es;
 
         // Death animation is common to al enemies
         deathAnimation = g.newAnimation();
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_1"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_2"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("enemy_death_3"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 1);
+        deathAnimation.addFrame(imagesEnemy.get("enemy_death_1"), AllImages.COEF, 10);
+        deathAnimation.addFrame(imagesEnemy.get("enemy_death_2"), AllImages.COEF, 10);
+        deathAnimation.addFrame(imagesEnemy.get("enemy_death_3"), AllImages.COEF, 10);
+        deathAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 1);
         deathAnimation.setOccurrences(1);
 
     }

@@ -23,19 +23,19 @@ import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Coordinate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Link {
 
-    protected static final float LINK_SPEED = 1.5f;
+    public static final float SPEED = 1.5f;
     protected static final float PUSH_SPEED = 9f;
     protected static final float ENTER_CAVE_SPEED = 0.40f;
     protected static final float REMOVE_COINS_SPEED = 0.3f;
     protected static final float INITIAL_PUSH_COUNT = 9f;
     protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
-    protected static final float INITIAL_ENTER_COUNT = 75f;
     protected static final float INITIAL_SHOW_COUNT = 150f;
     protected static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
 
@@ -58,6 +58,7 @@ public class Link {
     public float y;
     protected Hitbox hitbox;
     public Orientation orientation;
+    protected Coordinate cavePosition;
 
     protected boolean isAttacking;
     protected float attackProgression;
@@ -70,7 +71,7 @@ public class Link {
     protected boolean isEnteringSomewhere;
     protected float enterSomewhereCounter;
     protected boolean isExitingSomewhere;
-    protected float exitSomewhereCounter;
+    protected float exitSomewhereDistance;
     protected boolean isShowingItem;
     protected float showItemCounter;
     protected Item itemToShow;

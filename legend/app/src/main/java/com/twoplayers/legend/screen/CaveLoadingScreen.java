@@ -25,7 +25,10 @@ public class CaveLoadingScreen extends Screen {
         super(game);
         Logger.info("Entering CaveLoadingScreen.");
         this.caveInfo = caveInfo;
-        linkPosition = new Coordinate(INITIAL_CAVE_POSITION_X, INITIAL_CAVE_POSITION_Y);
+        float positionX = LocationUtil.getXFromGrid(INITIAL_CAVE_POSITION_X) + LocationUtil.HALF_TILE_SIZE;
+        float positionY = LocationUtil.getYFromGrid(INITIAL_CAVE_POSITION_Y);
+        linkPosition = new Coordinate(positionX, positionY);
+
     }
 
     @Override

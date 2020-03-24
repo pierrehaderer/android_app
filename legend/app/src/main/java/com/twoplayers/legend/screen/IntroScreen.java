@@ -6,6 +6,7 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImageOther;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.util.Coordinate;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 import com.kilobolt.framework.Game;
@@ -43,12 +44,13 @@ public class IntroScreen extends Screen {
     public void update(float deltaTime) {
         musicManager.update(deltaTime, game.getGraphics());
         List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
-        int len = touchEvents.size();
         for (TouchEvent event : touchEvents) {
             if (event.type == TouchEvent.TOUCH_UP) {
                 if (LocationUtil.inBounds(event, LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN)) {
-                    Coordinate location = new Coordinate(INITIAL_WORLD_MAP_LOCATION_X, INITIAL_WORLD_MAP_LOCATION_Y);
-                    Coordinate position = new Coordinate(INITIAL_WORLD_MAP_POSITION_X, INITIAL_WORLD_MAP_POSITION_Y);
+                    Location location = new Location(INITIAL_WORLD_MAP_LOCATION_X, INITIAL_WORLD_MAP_LOCATION_Y);
+                    float positionX = LocationUtil.getXFromGrid(INITIAL_WORLD_MAP_POSITION_X) + LocationUtil.HALF_TILE_SIZE;
+                    float positionY = LocationUtil.getYFromGrid(INITIAL_WORLD_MAP_POSITION_Y);
+                    Coordinate position = new Coordinate(positionX, positionY);
                     game.setScreen(new WorldMapLoadingScreen(game, location, position));
                     break;
                 }

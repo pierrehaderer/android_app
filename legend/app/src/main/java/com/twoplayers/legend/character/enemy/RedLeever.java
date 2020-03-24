@@ -6,7 +6,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
+import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.Link;
@@ -31,7 +31,7 @@ public class RedLeever extends Enemy {
     private Animation moveAnimation;
     private Animation despawnAnimation;
 
-    public RedLeever(ImagesEnemyWorldMap i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
+    public RedLeever(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
         initAnimations(g);
         isActive = false;
@@ -54,21 +54,21 @@ public class RedLeever extends Enemy {
     protected void initAnimations(Graphics g) {
 
         spawnAnimation = g.newAnimation();
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 10);
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_1"), AllImages.COEF, 15);
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_2"), AllImages.COEF, 15);
-        spawnAnimation.addFrame(imagesEnemyWorldMap.get("red_leevers_3"), AllImages.COEF, 15);
+        spawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
+        spawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
+        spawnAnimation.addFrame(imagesEnemy.get("leevers_2"), AllImages.COEF, 15);
+        spawnAnimation.addFrame(imagesEnemy.get("red_leevers_3"), AllImages.COEF, 15);
         spawnAnimation.setOccurrences(1);
 
         moveAnimation = g.newAnimation();
-        moveAnimation.addFrame(imagesEnemyWorldMap.get("red_leevers_4"), AllImages.COEF, 15);
-        moveAnimation.addFrame(imagesEnemyWorldMap.get("red_leevers_5"), AllImages.COEF, 15);
+        moveAnimation.addFrame(imagesEnemy.get("red_leevers_4"), AllImages.COEF, 15);
+        moveAnimation.addFrame(imagesEnemy.get("red_leevers_5"), AllImages.COEF, 15);
 
         despawnAnimation = g.newAnimation();
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("red_leevers_3"), AllImages.COEF, 15);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_2"), AllImages.COEF, 15);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("leevers_1"), AllImages.COEF, 15);
-        despawnAnimation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 10);
+        despawnAnimation.addFrame(imagesEnemy.get("red_leevers_3"), AllImages.COEF, 15);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_2"), AllImages.COEF, 15);
+        despawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
+        despawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         despawnAnimation.setOccurrences(1);
     }
 
@@ -217,7 +217,7 @@ public class RedLeever extends Enemy {
     private void spawnUpIfPossible(Link link, int tileY) {
         if (!isSpawning) {
             float spawnY = LocationUtil.getYFromGrid(tileY - 2);
-            if (zoneManager.isTileWalkable(link.x, spawnY, false)) {
+            if (zoneManager.isTileWalkable(link.x, spawnY)) {
                 x = link.x;
                 y = spawnY;
                 hitbox.relocate(x, y);
@@ -234,7 +234,7 @@ public class RedLeever extends Enemy {
         if (!isSpawning) {
             float spawnY;
             spawnY = LocationUtil.getYFromGrid(tileY + 3);
-            if (zoneManager.isTileWalkable(link.x, spawnY, false)) {
+            if (zoneManager.isTileWalkable(link.x, spawnY)) {
                 x = link.x;
                 y = spawnY;
                 hitbox.relocate(x, y);
@@ -250,7 +250,7 @@ public class RedLeever extends Enemy {
     private void spawnLeftIfPossible(Link link, int tileX) {
         if (!isSpawning) {
             float spawnX = LocationUtil.getXFromGrid(tileX - 2);
-            if (zoneManager.isTileWalkable(spawnX, link.y, false)) {
+            if (zoneManager.isTileWalkable(spawnX, link.y)) {
                 x = spawnX;
                 y = link.y;
                 hitbox.relocate(x, y);
@@ -266,7 +266,7 @@ public class RedLeever extends Enemy {
     private void spawnRightIfPossible(Link link, int tileX) {
         if (!isSpawning) {
             float spawnX = LocationUtil.getXFromGrid(tileX + 3);
-            if (zoneManager.isTileWalkable(spawnX, link.y, false)) {
+            if (zoneManager.isTileWalkable(spawnX, link.y)) {
                 x = spawnX;
                 y = link.y;
                 hitbox.relocate(x, y);

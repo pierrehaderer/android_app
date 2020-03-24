@@ -214,7 +214,7 @@ public class EnemyService {
             case DOWN:
                 if ((LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
                         || !LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE))
-                        && zoneManager.isTileWalkable(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE, false)) {
+                        && zoneManager.isTileWalkable(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE)) {
                     return new Destination(nextTileX, nextTileYCandidate, chosenOrientation, true);
                 }
                 break;
@@ -222,7 +222,7 @@ public class EnemyService {
             case RIGHT:
                 if ((LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
                         || !LocationUtil.isTileAtBorder(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE))
-                        && zoneManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE, false)) {
+                        && zoneManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)) {
                     return new Destination(nextTileXCandidate, nextTileY, chosenOrientation, true);
                 }
                 break;
