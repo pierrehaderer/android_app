@@ -12,7 +12,7 @@ import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.enemy.WorldMapEnemyManager;
+import com.twoplayers.legend.character.enemy.worldmap.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
@@ -102,8 +102,8 @@ public class WorldMapManager implements IZoneManager {
         imagesWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         MapTile.initHashMap();
-        initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "map/world_map.txt"));
-        worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "cave/world_map_caves.properties");
+        initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map.txt"));
+        worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_caves.properties");
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
@@ -9,6 +9,8 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.enemy.EnemyService;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.Logger;
@@ -56,7 +58,7 @@ public class BlueLeever extends Enemy {
         timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
         timeBeforeDespawn = 0;
         immobilisationCounter = 0;
-        life = 2;
+        life = 3;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         contactDamage = -0.5f;
         currentAnimation = spawnAnimation;

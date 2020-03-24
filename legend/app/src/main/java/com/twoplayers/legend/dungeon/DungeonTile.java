@@ -9,6 +9,7 @@ public enum DungeonTile {
     WATER('w', false),
     DOOR_LEFT('e', false),
     DOOR_RIGHT('f', false),
+    DOOR_UP('X', false),
     BOMB_LEFT('E', false),
     BOMB_RIGHT('F', false),
     BOMB('b', false),

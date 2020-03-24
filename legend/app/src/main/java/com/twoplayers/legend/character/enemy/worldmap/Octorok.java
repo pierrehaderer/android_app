@@ -1,20 +1,19 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
-import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.enemy.EnemyService;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Destination;
-import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Octorok extends Enemy {
@@ -46,6 +45,7 @@ public abstract class Octorok extends Enemy {
         initAnimations(g);
         initNotDone = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
+        isContactLethal = false;
         isActive = false;
         isInvincible = true;
         chooseTimeBeforeAttack();
@@ -56,6 +56,7 @@ public abstract class Octorok extends Enemy {
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         contactDamage = -0.5f;
         speed = getSpeed();
+        immobilisationCounter = 0;
         currentAnimation = animations.get(Orientation.INIT);
     }
 

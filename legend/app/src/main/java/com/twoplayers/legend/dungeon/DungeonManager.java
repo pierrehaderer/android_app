@@ -10,7 +10,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesDungeon;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.character.Item;
-import com.twoplayers.legend.character.enemy.DungeonEnemyManager;
+import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.gui.GuiManager;
@@ -79,7 +79,7 @@ public class DungeonManager implements IZoneManager {
         dungeon.entrance = new Coordinate(dungeonArray[4]);
         hasExitedZone = false;
 
-        initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "dungeon/dungeon" + dungeon.id + ".txt"), start);
+        initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"), start);
 
         musicManager.clear();
         musicManager.plan(100, "dungeon_loop", true);
@@ -375,6 +375,7 @@ public class DungeonManager implements IZoneManager {
                 if (deltaX < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
+            case DOOR_UP:
             case PATH:
             case OUT_OF_BOUNDS:
                 break;
@@ -391,6 +392,7 @@ public class DungeonManager implements IZoneManager {
                 }
                 break;
             case DOOR_RIGHT:
+            case DOOR_UP:
             case PATH:
             case OUT_OF_BOUNDS:
                 break;
@@ -427,6 +429,7 @@ public class DungeonManager implements IZoneManager {
                 }
                 break;
             case PATH:
+            case DOOR_UP:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -442,6 +445,7 @@ public class DungeonManager implements IZoneManager {
                 }
                 break;
             case DOOR_RIGHT:
+            case DOOR_UP:
             case PATH:
             case OUT_OF_BOUNDS:
                 break;

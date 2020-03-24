@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character.enemy.dungeon;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
@@ -10,6 +10,11 @@ import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.enemy.EnemyColorMatrix;
+import com.twoplayers.legend.character.enemy.EnemyService;
+import com.twoplayers.legend.character.enemy.EnemyToSpawn;
+import com.twoplayers.legend.character.enemy.SpawnMode;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.dungeon.DungeonManager;
 import com.twoplayers.legend.util.Coordinate;
@@ -69,17 +74,17 @@ public class DungeonEnemyManager implements IEnemyManager {
 
         enemyService = new EnemyService(dungeonManager);
 
-        initWorldMapEnemies(game);
+        initDungeonEnemies(game);
         enemyColorMatrix = new EnemyColorMatrix();
     }
 
-    private void initWorldMapEnemies(Game game) {
+    private void initDungeonEnemies(Game game) {
         Map<String, Class<? extends Enemy>> enemyMap = new HashMap<>();
-        enemyMap.put("Skeleton", Skeleton.class);
+        enemyMap.put("Stalfos", Stalfos.class);
 
         dungeonEnemies = new HashMap<>();
-        Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/dungeon1_enemies.properties");
-        Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "enemy/dungeon1_spawn_enemies.properties");
+        Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon1_enemies.properties");
+        Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon1_spawn_enemies.properties");
         for (String key : enemiesProperties.stringPropertyNames()) {
             // Format is "EnemyClass1,EnemyClass2,EnemyClass3,..."
             String[] enemies = (enemiesProperties.getProperty(key).length() == 0) ? new String[0] : enemiesProperties.getProperty(key).split(",");

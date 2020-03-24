@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
@@ -9,6 +9,8 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.enemy.EnemyService;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
@@ -291,13 +293,13 @@ public class RedLeever extends Enemy {
     }
 
     @Override
-    protected void hasHitLink() {
+    public void hasHitLink() {
         Logger.info("RedLeever has hit link, change its direction.");
         orientation = Orientation.reverseOrientation(orientation);
     }
 
     @Override
-    protected void isDamaged(int damage) {
+    public void isDamaged(int damage) {
         super.isDamaged(damage);
         if (isDead) {
             isSpawning = false;

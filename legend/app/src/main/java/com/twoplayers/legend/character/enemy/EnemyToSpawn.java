@@ -11,10 +11,10 @@ import java.util.Map;
 
 public class EnemyToSpawn {
 
-    protected String name;
-    protected Class<? extends Enemy> enemyClass;
-    protected SpawnMode mode;
-    protected Map<Orientation, List<Coordinate>> spawnPossibilities;
+    public String name;
+    public Class<? extends Enemy> enemyClass;
+    public SpawnMode mode;
+    public Map<Orientation, List<Coordinate>> spawnPossibilities;
 
     /**
      * Constructor

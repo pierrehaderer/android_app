@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
@@ -8,6 +8,8 @@ import com.twoplayers.legend.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.enemy.EnemyService;
+import com.twoplayers.legend.character.enemy.EnemyUtil;
 import com.twoplayers.legend.character.link.LinkManager;
 
 import java.util.HashMap;
@@ -28,7 +30,7 @@ public class BlueSlowOctorok extends Octorok {
         animations = new HashMap<>();
 
         EnemyUtil enemyUtil = new EnemyUtil();
-        animations.put(Orientation.INIT, enemyUtil.getCloudAnimation(imagesEnemy, g));
+        animations.put(Orientation.INIT, enemyUtil.getSlowCloudAnimation(imagesEnemy, g));
 
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imagesEnemy.get("blue_octorok_up_1"), AllImages.COEF, 15);

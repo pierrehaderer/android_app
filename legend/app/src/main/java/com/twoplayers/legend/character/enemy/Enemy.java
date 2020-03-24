@@ -26,9 +26,9 @@ public abstract class Enemy {
 
     public float x;
     public float y;
-    protected Hitbox hitbox;
+    public Hitbox hitbox;
 
-    protected Animation currentAnimation;
+    public Animation currentAnimation;
     protected Animation deathAnimation;
 
     protected boolean isContactLethal;
@@ -36,7 +36,7 @@ public abstract class Enemy {
 
     protected int life;
     protected boolean isInvincible;
-    protected boolean isDead;
+    public boolean isDead;
 
     public Enemy(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager em, EnemyService es, Graphics g) {
         this.zoneManager = z;
@@ -85,14 +85,14 @@ public abstract class Enemy {
     /**
      * This method is overridden if something special happens to the enemy which is hitting link
      */
-    protected void hasHitLink() {
+    public void hasHitLink() {
         Logger.info("This enemy has hit link.");
     }
 
     /**
      * This method can be overridden if something special happens to enemy when it is damaged
      */
-    protected void isDamaged(int damage) {
+    public void isDamaged(int damage) {
         this.life -= damage;
         if (this.life <= 0) {
             this.isDead = true;

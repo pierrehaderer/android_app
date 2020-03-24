@@ -77,7 +77,7 @@ public class CaveManager implements IZoneManager {
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
         CaveTile.initHashMap();
-        List<String> caveFileContent = FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "cave/cave.txt");
+        List<String> caveFileContent = FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/cave.txt");
         caveRoom = new CaveRoom();
         for (int index = 0; index < 11; index++) {
             String line = caveFileContent.get(index);

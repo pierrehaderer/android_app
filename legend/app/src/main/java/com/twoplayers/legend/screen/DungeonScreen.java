@@ -6,7 +6,7 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.sound.MusicManager;
-import com.twoplayers.legend.character.enemy.DungeonEnemyManager;
+import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.dungeon.DungeonManager;
 import com.twoplayers.legend.gui.GuiManager;
