@@ -4,7 +4,8 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.character.enemy.MoveOnTileEnemy;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -16,12 +17,11 @@ import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-public class RedLeever extends Enemy {
+public class RedLeever extends MoveOnTileEnemy {
 
     private static final float INITIAL_TIME_BEFORE_SPAWN = 100f;
     private static final float SPEED = 0.8f;
 
-    private boolean isActive;
     private boolean isSpawning;
     private boolean hasSpawned;
     private float timeBeforeSpawn;
@@ -39,7 +39,6 @@ public class RedLeever extends Enemy {
         isActive = false;
         isSpawning = false;
         hasSpawned = false;
-        isInvincible = true;
         isContactLethal = false;
         orientation = Orientation.UP;
         timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
@@ -126,7 +125,6 @@ public class RedLeever extends Enemy {
                         currentAnimation = moveAnimation;
                         isActive = true;
                         isContactLethal = true;
-                        isInvincible = false;
                         isSpawning = false;
                         hasSpawned = true;
                     } else {
@@ -207,7 +205,6 @@ public class RedLeever extends Enemy {
         if (mustDespawn) {
             isActive = false;
             isContactLethal = false;
-            isInvincible = true;
             despawnAnimation.reset();
             currentAnimation = despawnAnimation;
         }
@@ -288,19 +285,14 @@ public class RedLeever extends Enemy {
     }
 
     @Override
-    public boolean isActive() {
-        return isActive;
-    }
-
-    @Override
     public void hasHitLink() {
         Logger.info("RedLeever has hit link, change its direction.");
         orientation = Orientation.reverseOrientation(orientation);
     }
 
     @Override
-    public void isDamaged(int damage) {
-        super.isDamaged(damage);
+    public void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
+        super.isWounded(damage, hitbox, orientation);
         if (isDead) {
             isSpawning = false;
             hasSpawned = false;

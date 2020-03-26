@@ -2,7 +2,8 @@ package com.twoplayers.legend.character.link;
 
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
@@ -117,27 +118,26 @@ public class LinkService {
     public void handleLinkAttack(Link link, float deltaTime) {
         if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
             // Start of link's attack
-            if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE
-                    && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
+            if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
                 link.currentAnimation = link.attackAnimations.get(link.orientation);
                 link.currentAnimation.reset();
                 link.sword.x = link.x;
                 link.sword.y = link.y;
-                link.sword.getAnimation(link.orientation).reset();
-                link.sword.hitbox = link.sword.hitboxes.get(link.orientation);
-                link.sword.hitbox.relocate(link.x, link.y);
+                link.sword.orientation = link.orientation;
+                link.sword.getAnimation().reset();
+                link.sword.getHitbox().relocate(link.x, link.y);
                 soundEffectManager.play("sword");
                 link.isAttacking = true;
                 link.attackProgression = 0;
             }
         }
         if (link.isAttacking) {
-            link.sword.getAnimation(link.orientation).update(deltaTime);
+            link.sword.getAnimation().update(deltaTime);
             link.attackProgression += deltaTime;
             if (link.attackProgression > Link.STEP_1_DURATION && link.attackProgression < Link.STEP_1_DURATION + Link.STEP_2_ATTACK_DURATION) {
                 // Sword hitbox is active
                 for (Enemy enemy : enemyManager.getEnemies()) {
-                    if (!enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.hitbox, enemy.getHitbox())) {
+                    if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.getHitbox(), enemy.getHitbox())) {
                         Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit by link sword.");
                         if (!link.isInvincible && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
                             Logger.info("Link has collided with enemy : " + enemy.getClass());
@@ -152,7 +152,7 @@ public class LinkService {
                             link.pushY = pushDirections[1];
                             Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
                         }
-                        enemyManager.damageEnemy(enemy, link.sword.type.damage);
+                        enemyManager.isHitBySword(enemy, link.sword);
                     }
                 }
             }
@@ -162,14 +162,14 @@ public class LinkService {
     /**
      * Handle when link is wounded
      */
-    public void handleLinkWounded(Link link, float deltaTime, LinkInvincibleColorMatrix invincibleColorMatrix) {
+    public void handleLinkWounded(Link link, float deltaTime, MyColorMatrix colorMatrix) {
         if (link.isInvincible) {
             Logger.info("Link is invincible, remaining counter : " + link.invicibleCounter);
             link.invicibleCounter -= deltaTime;
             if (link.invicibleCounter < 0) {
                 link.isInvincible = false;
             }
-            invincibleColorMatrix.update(deltaTime);
+            colorMatrix.update(deltaTime);
         } else {
             if (!link.isShowingItem) {
                 Hitbox woundingHitbox = null;
@@ -357,7 +357,7 @@ public class LinkService {
             }
             link.hitbox.x = link.x + link.hitbox.x_offset;
             link.sword.x = link.x;
-            link.sword.hitbox.x = link.x + link.sword.hitbox.x_offset;
+            link.sword.getHitbox().x = link.x + link.sword.getHitbox().x_offset;
         }
     }
 
@@ -375,7 +375,7 @@ public class LinkService {
             }
             link.hitbox.y = link.y + link.hitbox.y_offset;
             link.sword.y = link.y;
-            link.sword.hitbox.y = link.y + link.sword.hitbox.y_offset;
+            link.sword.getHitbox().y = link.y + link.sword.getHitbox().y_offset;
         }
     }
 

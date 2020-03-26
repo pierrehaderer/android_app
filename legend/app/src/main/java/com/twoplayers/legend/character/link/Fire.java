@@ -2,7 +2,7 @@ package com.twoplayers.legend.character.link;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
@@ -95,4 +95,11 @@ public class Fire {
         }
     }
 
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public Hitbox getHitbox() {
+        return hitbox;
+    }
 }

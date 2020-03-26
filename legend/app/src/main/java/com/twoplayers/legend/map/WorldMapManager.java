@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
 import com.twoplayers.legend.assets.sound.MusicManager;

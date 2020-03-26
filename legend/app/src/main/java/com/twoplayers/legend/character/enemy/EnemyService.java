@@ -1,7 +1,7 @@
 package com.twoplayers.legend.character.enemy;
 
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.LocationUtil;
 
@@ -154,6 +154,7 @@ public class EnemyService {
             default:
                 remainingMoves = 0;
         }
+
         return remainingMoves;
     }
 

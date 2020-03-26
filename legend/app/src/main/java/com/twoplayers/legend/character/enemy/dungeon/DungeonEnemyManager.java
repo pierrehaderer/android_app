@@ -5,17 +5,19 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
-import com.twoplayers.legend.character.enemy.EnemyColorMatrix;
 import com.twoplayers.legend.character.enemy.EnemyService;
 import com.twoplayers.legend.character.enemy.EnemyToSpawn;
 import com.twoplayers.legend.character.enemy.SpawnMode;
+import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.LinkManager;
+import com.twoplayers.legend.character.link.Sword;
 import com.twoplayers.legend.dungeon.DungeonManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
@@ -45,7 +47,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     private List<Enemy> enemies;
     private int spawnCounter;
 
-    private EnemyColorMatrix enemyColorMatrix;
+    private MyColorMatrix colorMatrix;
 
     /**
      * Load this manager
@@ -75,7 +77,7 @@ public class DungeonEnemyManager implements IEnemyManager {
         enemyService = new EnemyService(dungeonManager);
 
         initDungeonEnemies(game);
-        enemyColorMatrix = new EnemyColorMatrix();
+        colorMatrix = new MyColorMatrix();
     }
 
     private void initDungeonEnemies(Game game) {
@@ -119,6 +121,7 @@ public class DungeonEnemyManager implements IEnemyManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        colorMatrix.update(deltaTime);
         if (loadingEnemies) {
             int currentSpawnCounter = spawnCounter++;
             EnemyToSpawn[] enemiesToSpawn = dungeonEnemies.get(dungeonManager.getCoordinate());
@@ -150,14 +153,17 @@ public class DungeonEnemyManager implements IEnemyManager {
                 enemy.update(deltaTime, g);
             }
         }
-        enemyColorMatrix.update(deltaTime);
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         for (Enemy enemy : enemies) {
             if (!enemy.isDead) {
-                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+                if (enemy.isInvincible()) {
+                    g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y), colorMatrix.getMatrix());
+                } else {
+                    g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+                }
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
             } else if (!enemy.currentAnimation.isAnimationOver()) {
                 g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
@@ -196,13 +202,18 @@ public class DungeonEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void damageEnemy(Enemy enemy, int damage) {
-        enemy.isDamaged(damage);
+    public void isHitBySword(Enemy enemy, Sword sword) {
+        enemy.isHitBySword(sword);
     }
 
     @Override
-    public void boomerangHits(Enemy enemy) {
+    public void isHitByBoomerang(Enemy enemy) {
         enemy.isHitByBoomerang();
+    }
+
+    @Override
+    public void isHitByFire(Enemy enemy, Fire fire) {
+        enemy.isHitByFire(fire);
     }
 
     @Override

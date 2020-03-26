@@ -6,20 +6,20 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.SwordType;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Sword {
 
-    protected SwordType type;
-
     public float x;
     public float y;
+    protected Orientation orientation;
 
-    protected Hitbox hitbox;
     protected Map<Orientation, Hitbox> hitboxes;
+
+    protected SwordType type;
 
     protected Map<SwordType, Map<Orientation, Animation>> animations;
 
@@ -28,12 +28,12 @@ public class Sword {
      */
     public Sword(ImagesLink imagesLink, Graphics g) {
         initAnimations(imagesLink, g);
+        orientation = Orientation.UP;
         hitboxes = new HashMap<>();
         hitboxes.put(Orientation.UP, new Hitbox(0, 0, 3, -11, 8, 18));
         hitboxes.put(Orientation.DOWN, new Hitbox(0, 0, 5, 9, 8, 18));
         hitboxes.put(Orientation.LEFT, new Hitbox(0, 0, -12, 6, 19, 8));
         hitboxes.put(Orientation.RIGHT, new Hitbox(0, 0, 10, 6, 19, 8));
-        hitbox = hitboxes.get(Orientation.UP);
     }
 
     /**
@@ -85,7 +85,15 @@ public class Sword {
         return type;
     }
 
-    public Animation getAnimation(Orientation orientation) {
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public Hitbox getHitbox() {
+        return hitboxes.get(orientation);
+    }
+
+    public Animation getAnimation() {
         return animations.get(type).get(orientation);
     }
 }

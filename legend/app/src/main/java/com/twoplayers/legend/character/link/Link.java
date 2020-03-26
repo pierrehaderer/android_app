@@ -22,7 +22,7 @@ import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Coordinate;
 
 import java.util.HashMap;

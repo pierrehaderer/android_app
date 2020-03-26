@@ -4,17 +4,20 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
-import com.twoplayers.legend.assets.image.ImagesEnemyWorldMap;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.LinkManager;
+import com.twoplayers.legend.character.link.Sword;
 import com.twoplayers.legend.util.Logger;
 
 public abstract class Enemy {
 
     public static final float INITIAL_IMMOBILISATION_COUNTER = 300f;
+    protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
 
     protected IZoneManager zoneManager;
     protected LinkManager linkManager;
@@ -33,10 +36,12 @@ public abstract class Enemy {
 
     protected boolean isContactLethal;
     protected float contactDamage;
+    protected boolean isInvincible;
+    protected float invicibleCounter;
+    public boolean isDead;
+    protected boolean isActive;
 
     protected int life;
-    protected boolean isInvincible;
-    public boolean isDead;
 
     public Enemy(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager em, EnemyService es, Graphics g) {
         this.zoneManager = z;
@@ -54,9 +59,20 @@ public abstract class Enemy {
         deathAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 1);
         deathAnimation.setOccurrences(1);
 
+        isInvincible = false;
     }
 
-    public abstract void update(float deltaTime, Graphics g);
+    /**
+     * Update the enemy has it is existing in the room
+     */
+    public void update(float deltaTime, Graphics g) {
+        if (invicibleCounter >= 0) {
+            invicibleCounter -= deltaTime;
+            if (invicibleCounter < 0) {
+                isInvincible = false;
+            }
+        }
+    }
 
     public Hitbox getHitbox() {
         return hitbox;
@@ -78,32 +94,49 @@ public abstract class Enemy {
         return isInvincible;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
     public abstract void isHitByBoomerang();
 
-    public abstract boolean isActive();
+    /**
+     * This method is overridden if something special happens to the enemy which is hitting link
+     */
+    public void isHitBySword(Sword sword) {
+        isWounded(sword.getType().damage, sword.getHitbox(), sword.getOrientation());
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy which is hitting link
+     */
+    public void isHitByFire(Fire fire) {
+        isWounded(Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
+    }
+
+        /**
+         * This method is overridden if something special happens to the enemy which is hitting link
+         */
+        protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
+            this.life -= damage;
+            if (this.life <= 0) {
+                this.isDead = true;
+                // Move hitbox away when enemy is dead
+                this.hitbox.x = 0;
+                this.hitbox.y = 0;
+                soundEffectManager.play("enemy_dies");
+                this.currentAnimation = this.deathAnimation;
+            } else {
+                isInvincible = true;
+                invicibleCounter = INITIAL_INVINCIBLE_COUNT;
+                soundEffectManager.play("enemy_wounded");
+            }
+        }
 
     /**
      * This method is overridden if something special happens to the enemy which is hitting link
      */
     public void hasHitLink() {
         Logger.info("This enemy has hit link.");
-    }
-
-    /**
-     * This method can be overridden if something special happens to enemy when it is damaged
-     */
-    public void isDamaged(int damage) {
-        this.life -= damage;
-        if (this.life <= 0) {
-            this.isDead = true;
-            // Move hitbox away when enemy is dead
-            this.hitbox.x = 0;
-            this.hitbox.y = 0;
-            soundEffectManager.play("enemy_dies");
-            this.currentAnimation = this.deathAnimation;
-        } else {
-            soundEffectManager.play("enemy_wounded");
-        }
-
     }
 }

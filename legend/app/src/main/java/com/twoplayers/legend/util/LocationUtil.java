@@ -59,6 +59,40 @@ public class LocationUtil {
     }
 
     /**
+     * Compute the directions where pushingHitbox is pushing pushedHitbox
+     */
+    public static Float[] computePushDirections(Hitbox pushingHitbox, Hitbox pushedHitbox, Orientation pushedOrientation) {
+        float deltaX = 0;
+        float deltaY = 0;
+        if (pushedOrientation == Orientation.UP || pushedOrientation == Orientation.DOWN) {
+            deltaY = (pushedHitbox.y + pushedHitbox.height / 2) - (pushingHitbox.y + pushingHitbox.height / 2);
+            deltaY = (deltaY == 0) ? 1 : deltaY / Math.abs(deltaY);
+        }
+        if (pushedOrientation == Orientation.LEFT || pushedOrientation == Orientation.RIGHT) {
+            deltaX = (pushedHitbox.x + pushedHitbox.width / 2) - (pushingHitbox.x + pushingHitbox.width / 2);
+            deltaX = (deltaX == 0) ? 1 : deltaX / Math.abs(deltaX);
+        }
+        return new Float[] {deltaX, deltaY};
+    }
+
+    /**
+     * Compute the directions where pushingHitbox is pushing pushedHitbox
+     */
+    public static Float[] computePushDirections(Hitbox pushingHitbox, Orientation pushingOrientation, Hitbox pushedHitbox) {
+        float deltaX = 0;
+        float deltaY = 0;
+        if (pushingOrientation == Orientation.UP || pushingOrientation == Orientation.DOWN) {
+            deltaY = (pushedHitbox.y + pushedHitbox.height / 2) - (pushingHitbox.y + pushingHitbox.height / 2);
+            deltaY = (deltaY == 0) ? 1 : deltaY / Math.abs(deltaY);
+        }
+        if (pushingOrientation == Orientation.LEFT || pushingOrientation == Orientation.RIGHT) {
+            deltaX = (pushedHitbox.x + pushedHitbox.width / 2) - (pushingHitbox.x + pushingHitbox.width / 2);
+            deltaX = (deltaX == 0) ? 1 : deltaX / Math.abs(deltaX);
+        }
+        return new Float[] {deltaX, deltaY};
+    }
+
+    /**
      * Check if a tile is on the border of the map
      */
     public static boolean isTileAtBorder(float x, float y) {
@@ -74,9 +108,9 @@ public class LocationUtil {
      */
     public static boolean isTileAtBorderMinusOne(float x, float y) {
         int tileX = getTileXFromPositionX(x);
-        if (tileX <= 0 || tileX >= 15) return true;
+        if (tileX <= 1 || tileX >= 14) return true;
         int tileY = getTileYFromPositionY(y);
-        if (tileY <= 0 || tileY >= 10) return true;
+        if (tileY <= 1 || tileY >= 9) return true;
         return false;
     }
 

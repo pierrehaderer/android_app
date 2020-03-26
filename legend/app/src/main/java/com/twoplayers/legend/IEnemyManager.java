@@ -1,20 +1,24 @@
 package com.twoplayers.legend;
 
 import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.link.Fire;
+import com.twoplayers.legend.character.link.Sword;
 
 import java.util.List;
 
 public interface IEnemyManager extends IManager {
     /** Ask for the loading of enemies */
-    public void requestEnemiesLoading();
+    void requestEnemiesLoading();
     /** Unload enemies */
-    public void unloadEnemies();
-    /** Enemy has been damaged */
-    public void damageEnemy(Enemy enemyDamaged, int damage);
+    void unloadEnemies();
     /** Get enemies */
-    public List<Enemy> getEnemies();
+    List<Enemy> getEnemies();
+    /** Enemy has been damaged */
+    void isHitBySword(Enemy enemy, Sword sword);
     /** Enemy has been hit by boomerang */
-    void boomerangHits(Enemy enemy);
+    void isHitByBoomerang(Enemy enemy);
+    /** Enemy has been hit by fire */
+    void isHitByFire(Enemy enemy, Fire fire);
     /** Enemy has hit link */
     void hasHitLink(Enemy enemy);
 }

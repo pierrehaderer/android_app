@@ -31,7 +31,6 @@ public abstract class Tektite extends Enemy {
 
     private boolean initNotDone;
     private float timeBeforeFirstMove;
-    private boolean isActive;
 
     private float pauseBeforeJump;
     private boolean isJumping;
@@ -64,7 +63,6 @@ public abstract class Tektite extends Enemy {
         computePauseBeforeNextJump();
         moveFunction = MOVE_FUNTION_MIDDLE;
         nextMoveFunction = MOVE_FUNTION_MIDDLE;
-        isInvincible = true;
         life = 1;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         contactDamage = -0.5f;
@@ -148,7 +146,6 @@ public abstract class Tektite extends Enemy {
             }
             if (timeBeforeFirstMove <= 0) {
                 isContactLethal = true;
-                isInvincible = false;
                 isActive = true;
                 currentAnimation = waitAnimation;
             }
@@ -176,15 +173,6 @@ public abstract class Tektite extends Enemy {
                 }
             }
             currentAnimation.update(deltaTime);
-        }
-    }
-
-    @Override
-    public void isHitByBoomerang() {
-        soundEffectManager.play("enemy_wounded");
-        if (isActive) {
-            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isContactLethal = false;
         }
     }
 
@@ -345,7 +333,12 @@ public abstract class Tektite extends Enemy {
     }
 
     @Override
-    public boolean isActive() {
-        return isActive;
+    public void isHitByBoomerang() {
+        soundEffectManager.play("enemy_wounded");
+        if (isActive) {
+            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
+            isContactLethal = false;
+        }
     }
+
 }

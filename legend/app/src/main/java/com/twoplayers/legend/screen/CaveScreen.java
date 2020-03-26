@@ -6,7 +6,7 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.cave.CaveManager;
-import com.twoplayers.legend.character.enemy.CaveEnemyManager;
+import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Logger;

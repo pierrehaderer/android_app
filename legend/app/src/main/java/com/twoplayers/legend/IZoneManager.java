@@ -3,6 +3,7 @@ package com.twoplayers.legend;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
+import com.twoplayers.legend.util.Orientation;
 
 import java.util.List;
 

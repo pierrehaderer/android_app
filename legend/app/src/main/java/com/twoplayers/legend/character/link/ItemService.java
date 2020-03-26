@@ -2,7 +2,7 @@ package com.twoplayers.legend.character.link;
 
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.enemy.Enemy;
@@ -251,7 +251,7 @@ public class ItemService {
             for (Enemy enemy : enemyManager.getEnemies()) {
                 if (enemy.isActive() && !enemy.isDead() && LocationUtil.areColliding(boomerang.hitbox, enemy.getHitbox())) {
                     Logger.info("Boomerang has hit an enemy and starts to move backward at position (" + boomerang.x + "," + boomerang.y + ")");
-                    enemyManager.boomerangHits(enemy);
+                    enemyManager.isHitByBoomerang(enemy);
                     if (boomerang.soundCounter == Boomerang.INITIAL_SOUND_COUNTER) {
                         soundEffectManager.play("enemy_wounded");
                     }
@@ -283,7 +283,8 @@ public class ItemService {
             boomerang.hitbox.y += ratioY * deltaTime * speed;
             for (Enemy enemy : enemyManager.getEnemies()) {
                 if (enemy.isActive() && !enemy.isDead() && LocationUtil.areColliding(boomerang.hitbox, enemy.getHitbox())) {
-                    enemyManager.boomerangHits(enemy);
+                    Logger.info("Link has hit enemy with boomerang backward.");
+                    enemyManager.isHitByBoomerang(enemy);
                     if (boomerang.soundCounter == Boomerang.INITIAL_SOUND_COUNTER) {
                         soundEffectManager.play("enemy_wounded");
                     }
@@ -341,11 +342,13 @@ public class ItemService {
         link.fire2.update(deltaTime);
         for (Enemy enemy : enemyManager.getEnemies()) {
             if (enemy.isActive() && !enemy.isDead()) {
-                if (link.fire1.isActive && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
-                    enemyManager.damageEnemy(enemy, Fire.DAMAGE_TO_ENEMY);
+                if (link.fire1.isActive && enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
+                    Logger.info("Link has hit enemy with fire 1.");
+                    enemyManager.isHitByFire(enemy, link.fire1);
                 }
-                if (link.fire2.isActive && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
-                    enemyManager.damageEnemy(enemy, Fire.DAMAGE_TO_ENEMY);
+                if (link.fire2.isActive && enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
+                    Logger.info("Link has hit enemy with fire 2.");
+                    enemyManager.isHitByFire(enemy, link.fire2);
                 }
             }
         }

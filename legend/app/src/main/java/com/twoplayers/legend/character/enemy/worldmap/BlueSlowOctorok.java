@@ -4,7 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -16,13 +16,16 @@ import java.util.HashMap;
 
 public class BlueSlowOctorok extends Octorok {
 
-    public static final float SPEED = 0.6f;
-    
+    private static final float SPEED = 0.6f;
+    private static final int INITIAL_LIFE = 2;
+
     /**
      * Constructor
      */
     public BlueSlowOctorok(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
+        life = INITIAL_LIFE;
+        speed = SPEED;
     }
 
     @Override
@@ -48,15 +51,5 @@ public class BlueSlowOctorok extends Octorok {
         animationRight.addFrame(imagesEnemy.get("blue_octorok_right_1"), AllImages.COEF, 15);
         animationRight.addFrame(imagesEnemy.get("blue_octorok_right_2"), AllImages.COEF, 15);
         animations.put(Orientation.RIGHT, animationRight);
-    }
-
-    @Override
-    protected float getSpeed() {
-        return SPEED;
-    }
-
-    @Override
-    protected int getInitialLife() {
-        return 2;
     }
 }

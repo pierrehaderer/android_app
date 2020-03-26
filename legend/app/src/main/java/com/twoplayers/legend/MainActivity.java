@@ -7,7 +7,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.cave.CaveManager;
-import com.twoplayers.legend.character.enemy.CaveEnemyManager;
+import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.worldmap.WorldMapEnemyManager;

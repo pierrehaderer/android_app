@@ -1,8 +1,11 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character.enemy.cave;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
+import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.link.Fire;
+import com.twoplayers.legend.character.link.Sword;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,16 +45,20 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void damageEnemy(Enemy enemyDamaged, int damage) {
-    }
-
-    @Override
     public List<Enemy> getEnemies() {
         return enemies;
     }
 
     @Override
-    public void boomerangHits(Enemy enemy) {
+    public void isHitBySword(Enemy enemy, Sword sword) {
+    }
+
+    @Override
+    public void isHitByBoomerang(Enemy enemy) {
+    }
+
+    @Override
+    public void isHitByFire(Enemy enemy, Fire fire) {
     }
 
     @Override

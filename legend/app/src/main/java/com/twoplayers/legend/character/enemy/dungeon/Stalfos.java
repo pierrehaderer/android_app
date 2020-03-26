@@ -4,7 +4,8 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.character.enemy.MoveOnTileEnemy;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -16,26 +17,17 @@ import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.Logger;
 
-public class Stalfos extends Enemy {
+public class Stalfos extends MoveOnTileEnemy {
 
     private static final int TIME_BEFORE_FIRST_MOVE = 36;
     private static final float SPEED = 0.6f;
-
-    private Orientation orientation;
-    private Orientation nextOrientation;
 
     private Animation moveAnimation;
     private Animation initialAnimation;
 
     private boolean initNotDone;
     private float timeBeforeFirstMove;
-    private boolean isActive;
     private float immobilisationCounter;
-
-    private float nextTileX;
-    private float nextTileY;
-    private float nextNextTileX;
-    private float nextNextTileY;
 
     public Stalfos(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
@@ -44,7 +36,6 @@ public class Stalfos extends Enemy {
         timeBeforeFirstMove = TIME_BEFORE_FIRST_MOVE;
         isContactLethal = false;
         isActive = false;
-        isInvincible = true;
         life = 2;
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
@@ -92,7 +83,6 @@ public class Stalfos extends Enemy {
             }
             if (timeBeforeFirstMove <= 0) {
                 isContactLethal = true;
-                isInvincible = false;
                 isActive = true;
                 currentAnimation = moveAnimation;
             }
@@ -130,17 +120,5 @@ public class Stalfos extends Enemy {
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
             isContactLethal = false;
         }
-    }
-
-    @Override
-    public boolean isActive() {
-        return isActive;
-    }
-
-    /**
-     * Obtain the speed of the Octorok
-     */
-    protected float getSpeed() {
-        return SPEED;
     }
 }

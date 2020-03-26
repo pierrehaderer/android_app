@@ -10,6 +10,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.Arrow;
 import com.twoplayers.legend.character.link.inventory.BoomerangType;
@@ -30,7 +31,7 @@ import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -50,8 +51,7 @@ public class LinkManager implements IManager {
     private ImagesLink imagesLink;
 
     private Link link;
-    private Coordinate cavePosition;
-    private LinkInvincibleColorMatrix invincibleColorMatrix;
+    private MyColorMatrix colorMatrix;
 
     /**
      * Load this manager
@@ -135,7 +135,7 @@ public class LinkManager implements IManager {
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
         link.isUsingSecondItem = false;
 
-        invincibleColorMatrix = new LinkInvincibleColorMatrix();
+        colorMatrix = new MyColorMatrix();
     }
 
     @Override
@@ -154,7 +154,7 @@ public class LinkManager implements IManager {
         itemService.handleLinkUsingSecondItem(link, deltaTime);
 
         // Link is wounded
-        linkService.handleLinkWounded(link, deltaTime, invincibleColorMatrix);
+        linkService.handleLinkWounded(link, deltaTime, colorMatrix);
         linkService.handleLinkPushed(link, deltaTime);
 
         // Link is entering somewhere
@@ -171,7 +171,7 @@ public class LinkManager implements IManager {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
             g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
         } else if (link.isInvincible) {
-            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, invincibleColorMatrix.getCurrentColorMatrix());
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, colorMatrix.getMatrix());
         } else if (link.isEnteringSomewhere || link.isExitingSomewhere) {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
             g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.cavePosition.x, (int) (link.cavePosition.y + LocationUtil.TILE_SIZE + 1), AllImages.COEF);
@@ -181,7 +181,7 @@ public class LinkManager implements IManager {
 
         // Draw the sword
         if (link.isAttacking) {
-            g.drawAnimation(link.sword.getAnimation(link.orientation), (int) link.sword.x, (int) link.sword.y);
+            g.drawAnimation(link.sword.getAnimation(), (int) link.sword.x, (int) link.sword.y);
         }
 
         // Draw the boomerang
@@ -198,7 +198,7 @@ public class LinkManager implements IManager {
 
         // Draw the hitboxes
         g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Hitbox.COLOR);
-        g.drawRect((int) link.sword.hitbox.x, (int) link.sword.hitbox.y, (int) link.sword.hitbox.width, (int) link.sword.hitbox.height, Hitbox.COLOR);
+        g.drawRect((int) link.sword.getHitbox().x, (int) link.sword.getHitbox().y, (int) link.sword.getHitbox().width, (int) link.sword.getHitbox().height, Hitbox.COLOR);
         g.drawRect((int) link.boomerang.hitbox.x, (int) link.boomerang.hitbox.y, (int) link.boomerang.hitbox.width, (int) link.boomerang.hitbox.height, Hitbox.COLOR);
         g.drawRect((int) link.fire1.hitbox.x, (int) link.fire1.hitbox.y, (int) link.fire1.hitbox.width, (int) link.fire1.hitbox.height, Hitbox.COLOR);
         g.drawRect((int) link.fire2.hitbox.x, (int) link.fire2.hitbox.y, (int) link.fire2.hitbox.width, (int) link.fire2.hitbox.height, Hitbox.COLOR);

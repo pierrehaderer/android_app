@@ -1,15 +1,15 @@
-package com.twoplayers.legend.character.enemy;
+package com.twoplayers.legend.character;
 
 import android.graphics.ColorMatrix;
 
-public class EnemyColorMatrix {
+public class MyColorMatrix {
 
     private static final float ROTATION_SPEED = 0.15f;
     private ColorMatrix[] matrixList;
 
     private float count;
 
-    public EnemyColorMatrix() {
+    public MyColorMatrix() {
         count = 0;
         matrixList = new ColorMatrix[8];
         matrixList[0] = createColorMatrix(2); // Rouge sombre
@@ -57,7 +57,7 @@ public class EnemyColorMatrix {
         count = (nextCount < matrixList.length) ? nextCount : nextCount % matrixList.length;
     }
 
-    public ColorMatrix getCurrentColorMatrix() {
+    public ColorMatrix getMatrix() {
         return matrixList[(int) count];
     }
 }

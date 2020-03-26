@@ -1,7 +1,5 @@
 package com.twoplayers.legend.util;
 
-import com.twoplayers.legend.Orientation;
-
 public class Destination extends Coordinate {
 
     public boolean isValid;

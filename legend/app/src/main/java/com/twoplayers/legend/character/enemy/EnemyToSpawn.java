@@ -1,6 +1,6 @@
 package com.twoplayers.legend.character.enemy;
 
-import com.twoplayers.legend.Orientation;
+import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 

@@ -1,4 +1,4 @@
-package com.twoplayers.legend;
+package com.twoplayers.legend.util;
 
 public enum Orientation {
     INIT,
@@ -17,5 +17,17 @@ public enum Orientation {
                 return LEFT;
         }
         return INIT;
+    }
+
+    public boolean isSameAs(Orientation orientation) {
+        switch (this) {
+            case UP:
+            case DOWN:
+                return (orientation == UP || orientation == DOWN);
+            case LEFT:
+            case RIGHT:
+                return (orientation == LEFT || orientation == RIGHT);
+        }
+        return false;
     }
 }
