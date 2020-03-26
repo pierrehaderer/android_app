@@ -6,6 +6,8 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.map.CaveInfo;
+import com.twoplayers.legend.map.DungeonInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -18,10 +20,10 @@ public class DungeonLoadingScreen extends Screen {
     private static final int INITIAL_DUNGEON_POSITION_X = 7;
     private static final int INITIAL_DUNGEON_POSITION_Y = 9;
 
-    private String dungeonInfo;
+    private DungeonInfo dungeonInfo;
     private Coordinate linkPosition;
 
-    public DungeonLoadingScreen(Game game, String dungeonInfo) {
+    public DungeonLoadingScreen(Game game, DungeonInfo dungeonInfo) {
         super(game);
         Logger.info("Entering DungeonLoadingScreen.");
         this.dungeonInfo = dungeonInfo;

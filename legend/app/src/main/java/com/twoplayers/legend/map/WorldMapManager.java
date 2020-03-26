@@ -21,7 +21,9 @@ import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class WorldMapManager implements IZoneManager {
@@ -41,7 +43,7 @@ public class WorldMapManager implements IZoneManager {
     private MapRoom[][] worldMap;
     private Boolean[][] exploredWorldMap;
 
-    private Properties worldMapCaves;
+    private Map<String, EntranceInfo> worldMapEntrances;
 
     private int currentAbscissa;
     private int currentOrdinate;
@@ -103,7 +105,41 @@ public class WorldMapManager implements IZoneManager {
 
         MapTile.initHashMap();
         initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map.txt"));
-        worldMapCaves = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_caves.properties");
+        initWolrdMapCaves(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_entrance.properties"));
+    }
+
+    /**
+     * Initiate all the caves from the world_map_caves file
+     */
+    private void initWolrdMapCaves(Properties entranceProperties) {
+        worldMapEntrances = new HashMap<>();
+        for (String key : entranceProperties.stringPropertyNames()) {
+            Location location = new Location(Integer.parseInt(key.substring(0, key.length() - 1)), Integer.parseInt(key.substring(key.length() - 1)));
+            String[] entranceArray = entranceProperties.getProperty(key).split("\\|");
+            if ("DUNGEON".equals(entranceArray[0])) {
+                DungeonInfo dungeonInfo = new DungeonInfo();
+                dungeonInfo.location = location;
+                dungeonInfo.entrance = new Coordinate(entranceArray[1]);
+                dungeonInfo.type = EntranceInfo.DUNGEON;
+                dungeonInfo.id = entranceArray[2];
+                dungeonInfo.startLocation = new Location(entranceArray[3]);
+                worldMapEntrances.put(key, dungeonInfo);
+            } else if ("CAVE".equals(entranceArray[0])) {
+                CaveInfo caveInfo = new CaveInfo();
+                caveInfo.type = EntranceInfo.CAVE;
+                caveInfo.location = location;
+                caveInfo.entrance = new Coordinate(entranceArray[1]);
+                caveInfo.message1 = entranceArray[2];
+                caveInfo.message2 = entranceArray[3];
+                caveInfo.npcName = (entranceArray[4].length() > 0) ? entranceArray[4] : CaveInfo.DEFAULT_NPC;
+                for (int i = 5; i < entranceArray.length; i++) {
+                    caveInfo.itemsAndPrices.add(entranceArray[i]);
+                }
+                worldMapEntrances.put(key, caveInfo);
+            } else {
+                worldMapEntrances.put(key, new CaveInfo());
+            }
+        }
     }
 
     /**
@@ -621,8 +657,12 @@ public class WorldMapManager implements IZoneManager {
     /**
      * Obtain the cave information on the current mapRoom
      */
-    public String getCave() {
-        return worldMapCaves.getProperty(getCoordinate(), "CAVE");
+    public EntranceInfo getCave() {
+        String coordinate = getCoordinate();
+        if (worldMapEntrances.containsKey(coordinate)) {
+            return worldMapEntrances.get(coordinate);
+        }
+        return new CaveInfo();
     }
 
 }

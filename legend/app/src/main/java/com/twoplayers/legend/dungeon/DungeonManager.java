@@ -14,6 +14,8 @@ import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.gui.GuiManager;
+import com.twoplayers.legend.map.CaveInfo;
+import com.twoplayers.legend.map.DungeonInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.Location;
@@ -65,18 +67,14 @@ public class DungeonManager implements IZoneManager {
     /**
      * Load this manager
      */
-    public void load(Game game, String dungeonInfo) {
+    public void load(Game game, DungeonInfo dungeonInfo) {
         if (initNotDone) {
             initNotDone = false;
             init(game);
         }
 
-        String[] dungeonArray = dungeonInfo.split("\\|");
-        dungeon = new Dungeon();
-        dungeon.id = dungeonArray[1];
-        Location start = new Location(dungeonArray[2]);
-        dungeon.location = new Location(dungeonArray[3]);
-        dungeon.entrance = new Coordinate(dungeonArray[4]);
+        dungeon = new Dungeon(dungeonInfo);
+        Location start = dungeonInfo.startLocation;
         hasExitedZone = false;
 
         initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"), start);

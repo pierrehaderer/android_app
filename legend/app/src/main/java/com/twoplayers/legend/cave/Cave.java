@@ -7,6 +7,7 @@ import com.twoplayers.legend.assets.image.ImagesCave;
 import com.twoplayers.legend.assets.image.ImagesItem;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.npc.Npc;
+import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Location;
 
@@ -27,7 +28,12 @@ public class Cave {
     protected Animation fireAnimation;
     protected Animation coinAnimation;
 
-    public Cave(ImagesCave imagesCave, ImagesItem imagesItem, Graphics g) {
+    public Cave(ImagesCave imagesCave, ImagesItem imagesItem, Graphics g, CaveInfo caveInfo) {
+        message1 = caveInfo.message1;
+        message2 = caveInfo.message2;
+        location = caveInfo.location;
+        entrance = caveInfo.entrance;
+
         items = new ArrayList<>();
         displayedMessage1 = "";
         displayedMessage2 = "";

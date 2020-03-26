@@ -4,9 +4,12 @@ import android.graphics.Color;
 
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.sound.MusicManager;
+import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.worldmap.WorldMapEnemyManager;
 import com.twoplayers.legend.gui.GuiManager;
+import com.twoplayers.legend.map.DungeonInfo;
+import com.twoplayers.legend.map.EntranceInfo;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.util.Logger;
 import com.kilobolt.framework.Game;
@@ -41,11 +44,11 @@ public class WorldMapScreen extends Screen {
         linkManager.update(deltaTime, game.getGraphics());
         musicManager.update(deltaTime, game.getGraphics());
         if (linkManager.hasFinishedEnteringSomewhere()) {
-            String caveOrDungeonInfo = worldMapManager.getCave();
-            if (caveOrDungeonInfo.startsWith("CAVE")) {
-                game.setScreen(new CaveLoadingScreen(game, caveOrDungeonInfo));
+            EntranceInfo entranceInfo = worldMapManager.getCave();
+            if (entranceInfo.type == CaveInfo.CAVE) {
+                game.setScreen(new CaveLoadingScreen(game, (CaveInfo) entranceInfo));
             } else {
-                game.setScreen(new DungeonLoadingScreen(game, caveOrDungeonInfo));
+                game.setScreen(new DungeonLoadingScreen(game, (DungeonInfo) entranceInfo));
             }
         }
     }

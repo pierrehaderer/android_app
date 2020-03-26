@@ -15,6 +15,7 @@ import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.link.inventory.InventoryService;
 import com.twoplayers.legend.character.npc.Npc;
+import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.Location;
@@ -25,9 +26,6 @@ import com.twoplayers.legend.util.TextUtil;
 import java.util.List;
 
 public class CaveManager implements IZoneManager {
-
-    private static final String DEFAULT_MESSAGE = "";
-    private static final String DEFAULT_NPC = "empty";
 
     private static final int PRICE_OFFSET_X_2DIGITS = -1;
     private static final int PRICE_OFFSET_X_3DIGITS = -11;
@@ -53,7 +51,7 @@ public class CaveManager implements IZoneManager {
     /**
      * Load this manager
      */
-    public void load(Game game, String caveInfo) {
+    public void load(Game game, CaveInfo caveInfo) {
         if (initNotDone) {
             initNotDone = false;
             init(game);
@@ -88,24 +86,17 @@ public class CaveManager implements IZoneManager {
     /**
      * Init the cave based on the file properties
      */
-    private void initCave(Game game, String caveInfo) {
-        String[] caveArray = caveInfo.split("\\|");
-
-        cave = new Cave(imagesCave, imagesItem, game.getGraphics());
+    private void initCave(Game game, CaveInfo caveInfo) {
+        cave = new Cave(imagesCave, imagesItem, game.getGraphics(), caveInfo);
         hasExitedZone = false;
 
-        cave.message1 = (caveArray.length > 1) ? caveArray[1] : DEFAULT_MESSAGE;
-        cave.message2 = (caveArray.length > 2) ? caveArray[2] : DEFAULT_MESSAGE;
-
-        if (caveArray.length > 3) {
-            cave.location = new Location(caveArray[3]);
-        }
-        if (caveArray.length > 4) {
-            cave.entrance = new Coordinate(caveArray[4]);
-        }
+        cave.message1 = caveInfo.message1;
+        cave.message2 = caveInfo.message2;
+        cave.location = caveInfo.location;
+        cave.entrance = caveInfo.entrance;
 
         cave.npc = new Npc();
-        cave.npc.name = (caveArray.length > 5) ? caveArray[5] : DEFAULT_NPC;
+        cave.npc.name = caveInfo.npcName;
         Logger.info("Loading cave with NPC '" + cave.npc.name + "'");
         cave.npc.image = imagesCave.get(cave.npc.name);
         cave.npc.x = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
@@ -113,9 +104,9 @@ public class CaveManager implements IZoneManager {
         cave.npc.hitbox.relocate(cave.npc.x, cave.npc.y);
 
         float[] itemPositionsX = new float[3];
-        if (caveArray.length == 7) {
+        if (caveInfo.itemsAndPrices.size() == 1) {
             itemPositionsX[0] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
-        } else if (caveArray.length == 8) {
+        } else if (caveInfo.itemsAndPrices.size() == 2) {
             itemPositionsX[0] = LocationUtil.getXFromGrid(6) + LocationUtil.HALF_TILE_SIZE;
             itemPositionsX[1] = LocationUtil.getXFromGrid(8) + LocationUtil.HALF_TILE_SIZE;
         } else {
@@ -123,15 +114,15 @@ public class CaveManager implements IZoneManager {
             itemPositionsX[1] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
             itemPositionsX[2] = LocationUtil.getXFromGrid(9) + LocationUtil.HALF_TILE_SIZE;
         }
-        for (int index = 6; index < caveArray.length; index++) {
-            String itemAndPrice = caveArray[index];
+        for (int index = 0; index < caveInfo.itemsAndPrices.size(); index++) {
+            String itemAndPrice = caveInfo.itemsAndPrices.get(index);
             Logger.info("Loading item with '" + itemAndPrice + "'");
-            String[] elements = itemAndPrice.split(",");
+            String[] elements = itemAndPrice.split(";");
             Item item = new Item();
             item.name = elements[0];
             item.image = imagesItem.get(item.name);
             item.pickAnimation = inventoryService.findPickAnimation(item.name);
-            item.x = itemPositionsX[index - 6];
+            item.x = itemPositionsX[index];
             item.y = LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
             item.hitbox.relocate(item.x, item.y);
             item.price = Integer.valueOf(elements[1]);

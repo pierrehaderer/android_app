@@ -6,6 +6,7 @@ import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -18,10 +19,10 @@ public class CaveLoadingScreen extends Screen {
     private static final int INITIAL_CAVE_POSITION_X = 7;
     private static final int INITIAL_CAVE_POSITION_Y = 10;
 
-    private String caveInfo;
+    private CaveInfo caveInfo;
     private Coordinate linkPosition;
 
-    public CaveLoadingScreen(Game game, String caveInfo) {
+    public CaveLoadingScreen(Game game, CaveInfo caveInfo) {
         super(game);
         Logger.info("Entering CaveLoadingScreen.");
         this.caveInfo = caveInfo;

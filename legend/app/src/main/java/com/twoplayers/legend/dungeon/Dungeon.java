@@ -1,5 +1,6 @@
 package com.twoplayers.legend.dungeon;
 
+import com.twoplayers.legend.map.DungeonInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Location;
 
@@ -9,6 +10,10 @@ public class Dungeon {
     protected Location location;
     protected Coordinate entrance;
 
-    public Dungeon() {
+    public Dungeon(DungeonInfo dungeonInfo) {
+        id = dungeonInfo.id;
+        location = dungeonInfo.location;
+        entrance = dungeonInfo.entrance;
+
     }
 }
