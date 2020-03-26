@@ -18,7 +18,7 @@ import com.twoplayers.legend.util.Logger;
 
 public class Stalfos extends Enemy {
 
-    private static final int TIME_BEFORE_FIRST_MOVE = 60;
+    private static final int TIME_BEFORE_FIRST_MOVE = 36;
     private static final float SPEED = 0.6f;
 
     private Orientation orientation;
