@@ -68,7 +68,19 @@ public abstract class Missile {
         }
     }
 
+    public void hasHitLink() {
+        isActive = false;
+    }
+
     public Hitbox getHitbox() {
         return hitbox;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public float getDamage() {
+        return damage;
     }
 }

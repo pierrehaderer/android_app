@@ -34,13 +34,13 @@ public class Stalfos extends MoveOnTileEnemy {
         initAnimations(g);
         initNotDone = true;
         timeBeforeFirstMove = TIME_BEFORE_FIRST_MOVE;
-        isContactLethal = false;
+        isLethal = false;
         isActive = false;
         life = 2;
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
-        contactDamage = -0.5f;
+        damage = -0.5f;
         immobilisationCounter = 0;
         currentAnimation = initialAnimation;
     }
@@ -82,7 +82,7 @@ public class Stalfos extends MoveOnTileEnemy {
                 currentAnimation.update(deltaTime);
             }
             if (timeBeforeFirstMove <= 0) {
-                isContactLethal = true;
+                isLethal = true;
                 isActive = true;
                 currentAnimation = moveAnimation;
             }
@@ -90,7 +90,7 @@ public class Stalfos extends MoveOnTileEnemy {
             if (immobilisationCounter > 0) {
                 immobilisationCounter -= deltaTime;
                 if (immobilisationCounter <= 0) {
-                    isContactLethal = true;
+                    isLethal = true;
                 }
             } else {
                 // The enemy moves
@@ -118,7 +118,7 @@ public class Stalfos extends MoveOnTileEnemy {
         soundEffectManager.play("enemy_wounded");
         if (isActive) {
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isContactLethal = false;
+            isLethal = false;
         }
     }
 }

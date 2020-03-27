@@ -1,11 +1,14 @@
 package com.twoplayers.legend.character.enemy;
 
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.LocationUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EnemyService {
@@ -105,14 +108,13 @@ public class EnemyService {
      * Move until the enemy has arrived at the next tile or until remainingMoves is consumed
      */
     public float goToNextTile(Orientation orientation, MoveOnTileEnemy enemy, float remainingMoves, float nextTileX, float nextTileY) {
-        boolean nextTileIsReachable;
+        boolean nextTileIsReachable = false;
         switch (orientation) {
             case UP:
                 nextTileIsReachable = (enemy.y - remainingMoves < nextTileY);
                 if (nextTileIsReachable) {
                     remainingMoves -= (enemy.y - nextTileY);
                     enemy.y = nextTileY;
-                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.y -= remainingMoves;
                     remainingMoves = 0;
@@ -124,7 +126,6 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (nextTileY - enemy.y);
                     enemy.y = nextTileY;
-                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.y += remainingMoves;
                     remainingMoves = 0;
@@ -136,7 +137,6 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (enemy.x - nextTileX);
                     enemy.x = nextTileX;
-                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.x -= remainingMoves;
                     remainingMoves = 0;
@@ -148,7 +148,6 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (nextTileX - enemy.x);
                     enemy.x = nextTileX;
-                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.x += remainingMoves;
                     remainingMoves = 0;
@@ -157,6 +156,10 @@ public class EnemyService {
                 break;
             default:
                 remainingMoves = 0;
+        }
+        if (nextTileIsReachable) {
+            enemy.orientation = enemy.nextOrientation;
+            enemy.currentAnimation = enemy.moveAnimations.get(enemy.orientation);
         }
 
         return remainingMoves;
@@ -233,5 +236,35 @@ public class EnemyService {
                 break;
         }
         return new Destination(0, 0, Orientation.UP, false);
+    }
+
+    /**
+     * Get a spawn position
+     */
+    public Coordinate getSpawnPosition(EnemyToSpawn enemyToSpawn, Orientation orientation, int spawnCounter) {
+        if (enemyToSpawn.mode == SpawnMode.RANDOM) {
+            return zoneManager.findSpawnableCoordinate();
+        }
+        if (enemyToSpawn.spawnPossibilities.containsKey(orientation)) {
+            int index = (spawnCounter / 2) % enemyToSpawn.spawnPossibilities.get(orientation).size();
+            return enemyToSpawn.spawnPossibilities.get(orientation).get(index);
+        }
+        return new Coordinate(LocationUtil.getXFromGrid(1), LocationUtil.getYFromGrid(1));
+    }
+
+    /**
+     * Remove the missiles that are not active anymore
+     */
+    public List<Missile> cleanMissiles(List<Missile> missiles, boolean cleanRequired) {
+        if (cleanRequired) {
+            List<Missile> newMissiles = new ArrayList<>();
+            for (Missile missile : missiles) {
+                if (missile.isActive) {
+                    newMissiles.add(missile);
+                }
+            }
+            return newMissiles;
+        }
+        return missiles;
     }
 }

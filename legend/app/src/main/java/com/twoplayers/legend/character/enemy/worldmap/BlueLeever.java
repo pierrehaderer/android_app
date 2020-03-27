@@ -45,14 +45,14 @@ public class BlueLeever extends MoveOnTileEnemy {
         isActive = false;
         isSpawning = false;
         hasSpawned = false;
-        isContactLethal = false;
+        isLethal = false;
         orientation = Orientation.UP;
         timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
         timeBeforeDespawn = 0;
         immobilisationCounter = 0;
         life = 3;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
-        contactDamage = -0.5f;
+        damage = -0.5f;
         currentAnimation = spawnAnimation;
     }
 
@@ -96,12 +96,6 @@ public class BlueLeever extends MoveOnTileEnemy {
             nextOrientation = destination.orientation;
         }
 
-        // Move hitbox away when enemy is dead
-        if (isDead) {
-            hitbox.x = 0;
-            hitbox.y = 0;
-        }
-
         if (timeBeforeSpawn > 0) {
             timeBeforeSpawn -= deltaTime;
             moveEnemy(deltaTime * SPAWNING_SPEED);
@@ -124,7 +118,7 @@ public class BlueLeever extends MoveOnTileEnemy {
                         moveAnimation.reset();
                         currentAnimation = moveAnimation;
                         isActive = true;
-                        isContactLethal = true;
+                        isLethal = true;
                         isSpawning = false;
                         hasSpawned = true;
                         timeBeforeDespawn = TIME_BEFORE_DESPAWN;
@@ -138,7 +132,7 @@ public class BlueLeever extends MoveOnTileEnemy {
                 if (immobilisationCounter > 0) {
                     immobilisationCounter -= deltaTime;
                     if (immobilisationCounter <= 0) {
-                        isContactLethal = true;
+                        isLethal = true;
                     }
                 } else {
                     moveEnemy(deltaTime * SPEED);
@@ -147,7 +141,7 @@ public class BlueLeever extends MoveOnTileEnemy {
                         despawnAnimation.reset();
                         currentAnimation = despawnAnimation;
                         isActive = false;
-                        isContactLethal = false;
+                        isLethal = false;
                     }
                 }
             }
@@ -195,7 +189,7 @@ public class BlueLeever extends MoveOnTileEnemy {
         soundEffectManager.play("enemy_wounded");
         if (isActive) {
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isContactLethal = false;
+            isLethal = false;
         }
     }
 

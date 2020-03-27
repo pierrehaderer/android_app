@@ -65,7 +65,7 @@ public abstract class Tektite extends Enemy {
         nextMoveFunction = MOVE_FUNTION_MIDDLE;
         life = 1;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
-        contactDamage = -0.5f;
+        damage = -0.5f;
         immobilisationCounter = 0;
         currentAnimation = initAnimation;
     }
@@ -133,25 +133,22 @@ public abstract class Tektite extends Enemy {
             chooseNextNextPosition();
         }
 
-        // Move hitbox away when enemy is dead
-        if (isDead) {
-            hitbox.x = 0;
-            hitbox.y = 0;
-        }
-
         if (timeBeforeFirstMove > 0) {
             timeBeforeFirstMove -= deltaTime;
             if (timeBeforeFirstMove <= 60) {
                 currentAnimation.update(deltaTime);
             }
             if (timeBeforeFirstMove <= 0) {
-                isContactLethal = true;
+                isLethal = true;
                 isActive = true;
                 currentAnimation = waitAnimation;
             }
         } else {
             if (immobilisationCounter > 0) {
                 immobilisationCounter -= deltaTime;
+                if (immobilisationCounter <= 0) {
+                    isLethal = true;
+                }
             } else {
                 if (!isJumping && pauseBeforeJump > 0) {
                     pauseBeforeJump -= deltaTime;
@@ -337,8 +334,7 @@ public abstract class Tektite extends Enemy {
         soundEffectManager.play("enemy_wounded");
         if (isActive) {
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isContactLethal = false;
+            isLethal = false;
         }
     }
-
 }

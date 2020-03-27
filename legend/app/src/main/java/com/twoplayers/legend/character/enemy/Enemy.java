@@ -34,10 +34,11 @@ public abstract class Enemy {
     public Animation currentAnimation;
     protected Animation deathAnimation;
 
-    protected boolean isContactLethal;
-    protected float contactDamage;
+    protected boolean isLethal;
+    protected float damage;
     protected boolean isInvincible;
     protected float invicibleCounter;
+    private boolean hasBeenHit;
     public boolean isDead;
     protected boolean isActive;
 
@@ -59,13 +60,36 @@ public abstract class Enemy {
         deathAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 1);
         deathAnimation.setOccurrences(1);
 
+        x = 0;
+        y = 0;
+        hitbox = new Hitbox(0,0,0,0,0,0);
+        isLethal = false;
+        damage = 0;
         isInvincible = false;
+        invicibleCounter = 0;
+        hasBeenHit = false;
+        isDead = false;
     }
 
     /**
      * Update the enemy has it is existing in the room
      */
     public void update(float deltaTime, Graphics g) {
+        if (hasBeenHit) {
+            hasBeenHit = false;
+            if (this.life <= 0) {
+                // Move hitbox away when enemy is dead
+                this.hitbox.x = 0;
+                this.hitbox.y = 0;
+                isDead = true;
+                soundEffectManager.play("enemy_dies");
+                this.currentAnimation = this.deathAnimation;
+            } else {
+                isInvincible = true;
+                invicibleCounter = INITIAL_INVINCIBLE_COUNT;
+                soundEffectManager.play("enemy_wounded");
+            }
+        }
         if (invicibleCounter >= 0) {
             invicibleCounter -= deltaTime;
             if (invicibleCounter < 0) {
@@ -78,12 +102,13 @@ public abstract class Enemy {
         return hitbox;
     }
 
-    public boolean isContactLethal() {
-        return isContactLethal;
+    public boolean isLethal() {
+        // Enemy becomes shortly lethal when it has been hit by link
+        return isLethal || hasBeenHit;
     }
 
-    public float getContactDamage() {
-        return contactDamage;
+    public float getDamage() {
+        return damage;
     }
 
     public boolean isDead() {
@@ -114,24 +139,13 @@ public abstract class Enemy {
         isWounded(Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
     }
 
-        /**
-         * This method is overridden if something special happens to the enemy which is hitting link
-         */
-        protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
-            this.life -= damage;
-            if (this.life <= 0) {
-                this.isDead = true;
-                // Move hitbox away when enemy is dead
-                this.hitbox.x = 0;
-                this.hitbox.y = 0;
-                soundEffectManager.play("enemy_dies");
-                this.currentAnimation = this.deathAnimation;
-            } else {
-                isInvincible = true;
-                invicibleCounter = INITIAL_INVINCIBLE_COUNT;
-                soundEffectManager.play("enemy_wounded");
-            }
-        }
+    /**
+     * This method is overridden if something special happens to the enemy which is hitting link
+     */
+    protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
+        this.life -= damage;
+        this.hasBeenHit = true;
+    }
 
     /**
      * This method is overridden if something special happens to the enemy which is hitting link

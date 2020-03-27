@@ -3,6 +3,7 @@ package com.twoplayers.legend;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
+import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Orientation;
 
 import java.util.List;
@@ -40,4 +41,6 @@ public interface IZoneManager extends IManager {
     boolean upAndDownAuthorized(Link link);
     /** check if link can move left or right */
     boolean leftAndRightAuthorized(Link link);
+    /** Find spawnable corrdinate for an enemy */
+    Coordinate findSpawnableCoordinate();
 }

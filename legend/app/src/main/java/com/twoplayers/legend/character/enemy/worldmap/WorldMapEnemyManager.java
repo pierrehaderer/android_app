@@ -2,7 +2,6 @@ package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
-import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
@@ -47,10 +46,9 @@ public class WorldMapEnemyManager implements IEnemyManager {
     private Graphics graphics;
 
     private Map<String, EnemyToSpawn[]> worldMapEnemies;
-    Map<String, Class<? extends Enemy>> enemyMap;
-    Map<Class<? extends AttackingEnemy>, Class<? extends Missile>> missileMap;
+    private Map<String, Class<? extends Enemy>> enemyMap;
+    private Map<Class<? extends AttackingEnemy>, Class<? extends Missile>> missileMap;
 
-    private boolean loadingEnemies;
     private List<Enemy> enemies;
     private List<Missile> missiles;
     private int spawnCounter;
@@ -66,7 +64,6 @@ public class WorldMapEnemyManager implements IEnemyManager {
             init(game);
         }
 
-        loadingEnemies = false;
         enemies = new ArrayList<>();
         missiles = new ArrayList<>();
         spawnCounter = 0;
@@ -118,8 +115,10 @@ public class WorldMapEnemyManager implements IEnemyManager {
         missileMap.put(BlueFastOctorok.class, Rock.class);
     }
 
+    /**
+     * Init the enemies position on the world map
+     */
     private void initWorldMapEnemies(Game game) {
-
         worldMapEnemies = new HashMap<>();
         Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_enemies.properties");
         Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_spawn_enemies.properties");
@@ -173,7 +172,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
                 cleanRequired = true;
             }
         }
-        cleanInactiveMissiles(cleanRequired);
+        missiles = enemyService.cleanMissiles(missiles, cleanRequired);
     }
 
     @Override
@@ -208,7 +207,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
                     Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
                             SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
                     Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, worldMapManager, linkManager, this, enemyService, graphics);
-                    Coordinate spawnCoordinate = getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
+                    Coordinate spawnCoordinate = enemyService.getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
                     Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
                     enemy.x = spawnCoordinate.x;
                     enemy.y = spawnCoordinate.y;
@@ -223,20 +222,6 @@ public class WorldMapEnemyManager implements IEnemyManager {
         }
     }
 
-    /**
-     * Get a spawn position
-     */
-    private Coordinate getSpawnPosition(EnemyToSpawn enemyToSpawn, Orientation orientation, int spawnCounter) {
-        if (enemyToSpawn.mode == SpawnMode.RANDOM) {
-            return worldMapManager.findSpawnableCoordinate();
-        }
-        if (enemyToSpawn.spawnPossibilities.containsKey(orientation)) {
-            int index = (spawnCounter / 2) % enemyToSpawn.spawnPossibilities.get(orientation).size();
-            return enemyToSpawn.spawnPossibilities.get(orientation).get(index);
-        }
-        return new Coordinate(LocationUtil.getXFromGrid(1), LocationUtil.getYFromGrid(1));
-    }
-
     @Override
     public void spawnMissile(AttackingEnemy enemy) {
         try {
@@ -245,6 +230,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
             Missile missile = constructor.newInstance(imagesEnemyWorldMap, worldMapManager, graphics);
             missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
             missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
+            missile.hitbox.relocate(missile.x, missile.y);
             missile.orientation = enemy.orientation;
             missiles.add(missile);
         } catch (Exception e) {
@@ -252,30 +238,19 @@ public class WorldMapEnemyManager implements IEnemyManager {
         }
     }
 
-    /**
-     * Remove the missiles that are not active anymore
-     */
-    private void cleanInactiveMissiles(boolean cleanRequired) {
-        if (cleanRequired) {
-            List<Missile> newMissiles = new ArrayList<>();
-            for (Missile missile : missiles) {
-                if (missile.isActive) {
-                    newMissiles.add(missile);
-                }
-            }
-            missiles = newMissiles;
-        }
-    }
-
     @Override
     public void unloadEnemies() {
-        loadingEnemies = false;
         enemies.clear();
     }
 
     @Override
     public List<Enemy> getEnemies() {
         return enemies;
+    }
+
+    @Override
+    public List<Missile> getMissiles() {
+        return missiles;
     }
 
     @Override
@@ -296,5 +271,10 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public void hasHitLink(Enemy enemy) {
         enemy.hasHitLink();
+    }
+
+    @Override
+    public void hasHitLink(Missile missile) {
+        missile.hasHitLink();
     }
 }

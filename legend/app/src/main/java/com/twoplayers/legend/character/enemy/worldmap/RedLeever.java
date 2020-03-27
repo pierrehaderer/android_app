@@ -39,13 +39,13 @@ public class RedLeever extends MoveOnTileEnemy {
         isActive = false;
         isSpawning = false;
         hasSpawned = false;
-        isContactLethal = false;
+        isLethal = false;
         orientation = Orientation.UP;
         timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
         immobilisationCounter = 0;
         life = 2;
         hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
-        contactDamage = -0.5f;
+        damage = -0.5f;
         currentAnimation = spawnAnimation;
     }
 
@@ -75,12 +75,6 @@ public class RedLeever extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-
-        // Move hitbox away when enemy is dead
-        if (isDead) {
-            hitbox.x = 0;
-            hitbox.y = 0;
-        }
 
         // Spawn in front of link
         if (timeBeforeSpawn > 0) {
@@ -124,7 +118,7 @@ public class RedLeever extends MoveOnTileEnemy {
                         moveAnimation.reset();
                         currentAnimation = moveAnimation;
                         isActive = true;
-                        isContactLethal = true;
+                        isLethal = true;
                         isSpawning = false;
                         hasSpawned = true;
                     } else {
@@ -136,7 +130,7 @@ public class RedLeever extends MoveOnTileEnemy {
                 if (immobilisationCounter > 0) {
                     immobilisationCounter -= deltaTime;
                     if (immobilisationCounter <= 0) {
-                        isContactLethal = true;
+                        isLethal = true;
                     }
                 } else {
                     moveEnemy(deltaTime * SPEED);
@@ -204,7 +198,7 @@ public class RedLeever extends MoveOnTileEnemy {
         }
         if (mustDespawn) {
             isActive = false;
-            isContactLethal = false;
+            isLethal = false;
             despawnAnimation.reset();
             currentAnimation = despawnAnimation;
         }
@@ -280,7 +274,7 @@ public class RedLeever extends MoveOnTileEnemy {
         soundEffectManager.play("enemy_wounded");
         if (isActive) {
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isContactLethal = false;
+            isLethal = false;
         }
     }
 

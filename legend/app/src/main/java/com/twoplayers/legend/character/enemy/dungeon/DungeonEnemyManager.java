@@ -7,6 +7,12 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
+import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.missile.Rock;
+import com.twoplayers.legend.character.enemy.worldmap.BlueFastOctorok;
+import com.twoplayers.legend.character.enemy.worldmap.BlueSlowOctorok;
+import com.twoplayers.legend.character.enemy.worldmap.RedFastOctorok;
+import com.twoplayers.legend.character.enemy.worldmap.RedSlowOctorok;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
@@ -41,11 +47,14 @@ public class DungeonEnemyManager implements IEnemyManager {
     private ImagesEnemyDungeon imagesEnemyDungeon;
     private SoundEffectManager soundEffectManager;
     private EnemyService enemyService;
+    private Graphics graphics;
 
     private Map<String, EnemyToSpawn[]> dungeonEnemies;
+    private Map<String, Class<? extends Enemy>> enemyMap;
+    private Map<Class<? extends AttackingEnemy>, Class<? extends Missile>> missileMap;
 
-    private boolean loadingEnemies;
     private List<Enemy> enemies;
+    private List<Missile> missiles;
     private int spawnCounter;
 
     private MyColorMatrix colorMatrix;
@@ -59,8 +68,8 @@ public class DungeonEnemyManager implements IEnemyManager {
             init(game);
         }
 
-        loadingEnemies = false;
         enemies = new ArrayList<>();
+        missiles = new ArrayList<>();
         spawnCounter = 0;
     }
 
@@ -74,17 +83,39 @@ public class DungeonEnemyManager implements IEnemyManager {
         imagesEnemyDungeon = ((MainActivity) game).getAllImages().getImagesEnemyDungeon();
         imagesEnemyDungeon.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
+        graphics = game.getGraphics();
 
         enemyService = new EnemyService(dungeonManager);
 
+        initEnemyMap();
+        initMissileMap();
         initDungeonEnemies(game);
         colorMatrix = new MyColorMatrix();
     }
 
-    private void initDungeonEnemies(Game game) {
-        Map<String, Class<? extends Enemy>> enemyMap = new HashMap<>();
+    /**
+     * Init the enemy map
+     */
+    private void initEnemyMap() {
+        enemyMap = new HashMap<>();
         enemyMap.put("Stalfos", Stalfos.class);
+    }
 
+    /**
+     * Init the missile map
+     */
+    private void initMissileMap() {
+        missileMap = new HashMap<>();
+        missileMap.put(RedSlowOctorok.class, Rock.class);
+        missileMap.put(RedFastOctorok.class, Rock.class);
+        missileMap.put(BlueSlowOctorok.class, Rock.class);
+        missileMap.put(BlueFastOctorok.class, Rock.class);
+    }
+
+    /**
+     * Init the enemies position in the dungeon
+     */
+    private void initDungeonEnemies(Game game) {
         dungeonEnemies = new HashMap<>();
         Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon1_enemies.properties");
         Properties spawnEnemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon1_spawn_enemies.properties");
@@ -123,37 +154,22 @@ public class DungeonEnemyManager implements IEnemyManager {
     @Override
     public void update(float deltaTime, Graphics g) {
         colorMatrix.update(deltaTime);
-        if (loadingEnemies) {
-            int currentSpawnCounter = spawnCounter++;
-            EnemyToSpawn[] enemiesToSpawn = dungeonEnemies.get(dungeonManager.getCoordinate());
-            for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
-                try {
-                    if (enemyToSpawn.enemyClass != null) {
-                        Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
-                                SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
-                        Enemy enemy = constructor.newInstance(imagesEnemyDungeon, soundEffectManager, dungeonManager, linkManager, this, enemyService, g);
-                        Coordinate spawnCoordinate = getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
-                        Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
-                        enemy.x = spawnCoordinate.x;
-                        enemy.y = spawnCoordinate.y;
-                        enemy.hitbox.relocate(enemy.x, enemy.y);
-                        this.enemies.add(enemy);
-                    } else {
-                        Logger.error("Could not find the enemy type : " + enemyToSpawn.name);
-                    }
-                } catch (Exception e) {
-                    Logger.error("Could not create enemy class with type " + enemyToSpawn.name + " : " + e.getMessage());
-                }
-            }
-            loadingEnemies = false;
-        }
         for (Enemy enemy : enemies) {
-            if (enemy.isDead) {
+            if (enemy.isDead && !enemy.currentAnimation.isAnimationOver()) {
                 enemy.currentAnimation.update(deltaTime);
             } else {
                 enemy.update(deltaTime, g);
             }
         }
+        boolean cleanRequired = false;
+        for (Missile missile : missiles) {
+            if (missile.isActive) {
+                missile.update(deltaTime, g);
+            } else {
+                cleanRequired = true;
+            }
+        }
+        missiles = enemyService.cleanMissiles(missiles, cleanRequired);
     }
 
     @Override
@@ -172,34 +188,59 @@ public class DungeonEnemyManager implements IEnemyManager {
         }
     }
 
-    /**
-     * Get a spawn position
-     */
-    private Coordinate getSpawnPosition(EnemyToSpawn enemyToSpawn, Orientation orientation, int spawnCounter) {
-        if (enemyToSpawn.mode == SpawnMode.RANDOM) {
-            return dungeonManager.findSpawnableCoordinate();
+    @Override
+    public void spawnEnemies() {
+        int currentSpawnCounter = spawnCounter++;
+        EnemyToSpawn[] enemiesToSpawn = dungeonEnemies.get(dungeonManager.getCoordinate());
+        for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
+            try {
+                if (enemyToSpawn.enemyClass != null) {
+                    Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
+                            SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
+                    Enemy enemy = constructor.newInstance(imagesEnemyDungeon, soundEffectManager, dungeonManager, linkManager, this, enemyService, graphics);
+                    Coordinate spawnCoordinate = enemyService.getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
+                    Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
+                    enemy.x = spawnCoordinate.x;
+                    enemy.y = spawnCoordinate.y;
+                    enemy.hitbox.relocate(enemy.x, enemy.y);
+                    this.enemies.add(enemy);
+                } else {
+                    Logger.error("Could not find the enemy type : " + enemyToSpawn.name);
+                }
+            } catch (Exception e) {
+                Logger.error("Could not create enemy class with type " + enemyToSpawn.name + " : " + e.getMessage());
+            }
         }
-        if (enemyToSpawn.spawnPossibilities.containsKey(orientation)) {
-            int index = (spawnCounter / 2) % enemyToSpawn.spawnPossibilities.get(orientation).size();
-            return enemyToSpawn.spawnPossibilities.get(orientation).get(index);
-        }
-        return new Coordinate(LocationUtil.getXFromGrid(1), LocationUtil.getYFromGrid(1));
     }
 
     @Override
-    public void spawnEnemies() {
-        loadingEnemies = true;
+    public void spawnMissile(AttackingEnemy enemy) {
+        try {
+            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
+            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
+            Missile missile = constructor.newInstance(imagesEnemyDungeon, dungeonManager, graphics);
+            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
+            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
+            missile.orientation = enemy.orientation;
+            missiles.add(missile);
+        } catch (Exception e) {
+            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
+        }
     }
 
     @Override
     public void unloadEnemies() {
-        loadingEnemies = false;
         enemies.clear();
     }
 
     @Override
     public List<Enemy> getEnemies() {
         return enemies;
+    }
+
+    @Override
+    public List<Missile> getMissiles() {
+        return new ArrayList<>();
     }
 
     @Override
@@ -223,6 +264,8 @@ public class DungeonEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void spawnMissile(AttackingEnemy enemy) {
+    public void hasHitLink(Missile missile) {
+        missile.hasHitLink();
     }
+
 }

@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Enemy;
+import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Sword;
 
@@ -42,12 +43,21 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
+    public void spawnMissile(AttackingEnemy enemy) {
+    }
+
+    @Override
     public void unloadEnemies() {
     }
 
     @Override
     public List<Enemy> getEnemies() {
         return enemies;
+    }
+
+    @Override
+    public List<Missile> getMissiles() {
+        return new ArrayList<>();
     }
 
     @Override
@@ -67,6 +77,6 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void spawnMissile(AttackingEnemy enemy) {
+    public void hasHitLink(Missile missile) {
     }
 }

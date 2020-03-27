@@ -396,6 +396,11 @@ public class CaveManager implements IZoneManager {
         return true;
     }
 
+    @Override
+    public Coordinate findSpawnableCoordinate() {
+        return new Coordinate();
+    }
+
     /**
      * Obtain the location of the cave
      */

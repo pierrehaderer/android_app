@@ -154,7 +154,8 @@ public class LinkManager implements IManager {
         itemService.handleLinkUsingSecondItem(link, deltaTime);
 
         // Link is wounded
-        linkService.handleLinkWounded(link, deltaTime, colorMatrix);
+        linkService.handleLinkInvincible(link, deltaTime, colorMatrix);
+        linkService.handleLinkWounded(link, deltaTime);
         linkService.handleLinkPushed(link, deltaTime);
 
         // Link is entering somewhere

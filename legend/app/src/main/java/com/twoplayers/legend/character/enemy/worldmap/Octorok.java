@@ -1,6 +1,5 @@
 package com.twoplayers.legend.character.enemy.worldmap;
 
-import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
@@ -16,16 +15,12 @@ import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-import java.util.Map;
-
 public abstract class Octorok extends AttackingEnemy {
 
     private static final float PAUSE_BEFORE_FIRST_MOVE = 300f;
     private static final float PAUSE_BEFORE_ATTACK = 100f;
     private static final float MIN_TIME_BEFORE_ATTACK = 300.0f;
     private static final float MAX_TIME_BEFORE_ATTACK = 700.0f;
-
-    protected Map<Orientation, Animation> animations;
 
     private boolean initNotDone;
     private float timeBeforeFirstMove;
@@ -40,16 +35,16 @@ public abstract class Octorok extends AttackingEnemy {
         initAnimations(g);
         initNotDone = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
-        isContactLethal = false;
+        isLethal = false;
         isActive = false;
         isInvincible = true;
         chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
-        contactDamage = -0.5f;
+        damage = -0.5f;
         immobilisationCounter = 0;
-        currentAnimation = animations.get(Orientation.INIT);
+        currentAnimation = moveAnimations.get(Orientation.INIT);
     }
 
     /**
@@ -71,12 +66,6 @@ public abstract class Octorok extends AttackingEnemy {
             nextOrientation = destination.orientation;
         }
 
-        // Move hitbox away when enemy is dead
-        if (isDead) {
-            hitbox.x = 0;
-            hitbox.y = 0;
-        }
-
         // The enemy appears
         if (timeBeforeFirstMove > 0) {
             timeBeforeFirstMove -= deltaTime;
@@ -84,7 +73,7 @@ public abstract class Octorok extends AttackingEnemy {
                 currentAnimation.update(deltaTime);
             }
             if (timeBeforeFirstMove <= 0) {
-                isContactLethal = true;
+                isLethal = true;
                 isInvincible = false;
                 isActive = true;
             }
@@ -95,7 +84,7 @@ public abstract class Octorok extends AttackingEnemy {
             immobilisationCounter -= deltaTime;
             if (immobilisationCounter <= 0) {
                 isImmobilised = false;
-                isContactLethal = true;
+                isLethal = true;
             }
         }
 
@@ -125,7 +114,7 @@ public abstract class Octorok extends AttackingEnemy {
         }
 
         // The enemy attacks
-        if (isAttacking && !isImmobilised) {
+        if (!isDead && isAttacking && !isImmobilised) {
             timeBeforeAttack -= deltaTime;
             if (timeBeforeAttack < 0) {
                 Logger.info("Octorok is attacking (" + x + "," + y + ")");
@@ -136,7 +125,7 @@ public abstract class Octorok extends AttackingEnemy {
         }
 
         // The enemy moves
-        if (isActive && !isAttacking && !isImmobilised) {
+        if (!isDead && isActive && !isAttacking && !isImmobilised) {
             if (timeBeforeAttack > PAUSE_BEFORE_ATTACK) {
                 timeBeforeAttack -= deltaTime;
             }
@@ -156,7 +145,7 @@ public abstract class Octorok extends AttackingEnemy {
                 nextTileX = nextNextTileX;
                 nextTileY = nextNextTileY;
                 orientation = nextOrientation;
-                currentAnimation = animations.get(orientation);
+                currentAnimation = moveAnimations.get(orientation);
                 Destination destination = enemyService.chooseNextNextTile(orientation, nextTileX, nextTileY);
                 nextNextTileX = destination.x;
                 nextNextTileY = destination.y;
@@ -177,7 +166,7 @@ public abstract class Octorok extends AttackingEnemy {
         if (isActive) {
             isImmobilised = true;
             immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isContactLethal = false;
+            isLethal = false;
         }
     }
 }

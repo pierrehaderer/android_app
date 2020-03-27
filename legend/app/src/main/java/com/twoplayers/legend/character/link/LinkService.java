@@ -3,6 +3,7 @@ package com.twoplayers.legend.character.link;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -139,19 +140,6 @@ public class LinkService {
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.getHitbox(), enemy.getHitbox())) {
                         Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit by link sword.");
-                        if (!link.isInvincible && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
-                            Logger.info("Link has collided with enemy : " + enemy.getClass());
-                            soundEffectManager.play("link_wounded");
-                            updateLinkLife(link, enemy.getContactDamage());
-                            link.isInvincible = true;
-                            link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
-                            link.isPushed = true;
-                            link.pushCounter = Link.INITIAL_PUSH_COUNT;
-                            Float[] pushDirections = LocationUtil.computePushDirections(enemy.getHitbox(), link.hitbox);
-                            link.pushX = pushDirections[0];
-                            link.pushY = pushDirections[1];
-                            Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
-                        }
                         enemyManager.isHitBySword(enemy, link.sword);
                     }
                 }
@@ -160,9 +148,9 @@ public class LinkService {
     }
 
     /**
-     * Handle when link is wounded
+     * Handle when link is invincible
      */
-    public void handleLinkWounded(Link link, float deltaTime, MyColorMatrix colorMatrix) {
+    public void handleLinkInvincible(Link link, float deltaTime, MyColorMatrix colorMatrix) {
         if (link.isInvincible) {
             Logger.info("Link is invincible, remaining counter : " + link.invicibleCounter);
             link.invicibleCounter -= deltaTime;
@@ -170,36 +158,49 @@ public class LinkService {
                 link.isInvincible = false;
             }
             colorMatrix.update(deltaTime);
-        } else {
-            if (!link.isShowingItem) {
-                Hitbox woundingHitbox = null;
-                for (Enemy enemy : enemyManager.getEnemies()) {
-                    if (woundingHitbox == null && !enemy.isDead() && enemy.isContactLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
-                        Logger.info("Link has collided with enemy : " + enemy.getClass());
-                        enemyManager.hasHitLink(enemy);
-                        updateLinkLife(link, enemy.getContactDamage());
-                        woundingHitbox = enemy.getHitbox();
-                    }
+        }
+    }
+
+    /**
+     * Handle when link is wounded
+     */
+    public void handleLinkWounded(Link link, float deltaTime) {
+        if (!link.isInvincible && !link.isShowingItem) {
+            Hitbox woundingHitbox = null;
+            Fire[] fireList = new Fire[] {link.fire1, link.fire2};
+            for (Fire fire : fireList) {
+                if (woundingHitbox == null && fire.isActive && LocationUtil.areColliding(link.hitbox, fire.hitbox)) {
+                    Logger.info("Link has collided with fire.");
+                    updateLinkLife(link, Fire.DAMAGE_TO_LINK);
+                    woundingHitbox = fire.hitbox;
                 }
-                Fire[] fireList = new Fire[] {link.fire1, link.fire2};
-                for (Fire fire : fireList) {
-                    if (woundingHitbox == null && fire.isActive && LocationUtil.areColliding(link.hitbox, fire.hitbox)) {
-                        Logger.info("Link has collided with fire.");
-                        updateLinkLife(link, Fire.DAMAGE_TO_LINK);
-                        woundingHitbox = fire.hitbox;
-                    }
+            }
+            for (Missile missile : enemyManager.getMissiles()) {
+                if (woundingHitbox == null && missile.isActive() && LocationUtil.areColliding(link.hitbox, missile.getHitbox())) {
+                    Logger.info("Link has collided with missile : " + missile.getClass().getSimpleName());
+                    enemyManager.hasHitLink(missile);
+                    updateLinkLife(link, missile.getDamage());
+                    woundingHitbox = missile.getHitbox();
                 }
-                if (woundingHitbox != null) {
-                    soundEffectManager.play("link_wounded");
-                    link.isInvincible = true;
-                    link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
-                    link.isPushed = true;
-                    link.pushCounter = Link.INITIAL_PUSH_COUNT;
-                    Float[] pushDirections = LocationUtil.computePushDirections(woundingHitbox, link.hitbox);
-                    link.pushX = pushDirections[0];
-                    link.pushY = pushDirections[1];
-                    Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
+            }
+            for (Enemy enemy : enemyManager.getEnemies()) {
+                if (woundingHitbox == null && !enemy.isDead() && enemy.isLethal() && LocationUtil.areColliding(link.hitbox, enemy.getHitbox())) {
+                    Logger.info("Link has collided with enemy : " + enemy.getClass().getSimpleName());
+                    enemyManager.hasHitLink(enemy);
+                    updateLinkLife(link, enemy.getDamage());
+                    woundingHitbox = enemy.getHitbox();
                 }
+            }
+            if (woundingHitbox != null) {
+                soundEffectManager.play("link_wounded");
+                link.isInvincible = true;
+                link.invicibleCounter = Link.INITIAL_INVINCIBLE_COUNT;
+                link.isPushed = true;
+                link.pushCounter = Link.INITIAL_PUSH_COUNT;
+                Float[] pushDirections = LocationUtil.computePushDirections(woundingHitbox, link.hitbox);
+                link.pushX = pushDirections[0];
+                link.pushY = pushDirections[1];
+                Logger.info("Link push direction : " + link.pushX + ", " + link.pushY);
             }
         }
     }
@@ -275,7 +276,6 @@ public class LinkService {
             }
         }
     }
-
 
     /**
      * Check if entering a cave and set the variables to make link enter a cave
@@ -399,5 +399,4 @@ public class LinkService {
     private void updateLinkLife(Link link, float value) {
         link.life = Math.min(link.lifeMax, link.life + value);
     }
-
 }
