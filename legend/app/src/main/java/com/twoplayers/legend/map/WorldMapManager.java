@@ -328,10 +328,16 @@ public class WorldMapManager implements IZoneManager {
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
             case BLOC_TOP_LOWER:
+            case TREE_LEFT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 if (tileDownLeft == MapTile.BLOC_TOP_UPPER) {
+                    return false;
+                }
+                break;
+            case TREE_RIGHT:
+                if (deltaX < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
@@ -354,6 +360,7 @@ public class WorldMapManager implements IZoneManager {
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
             case BLOC_TOP_UPPER:
+            case TREE_RIGHT:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
@@ -363,6 +370,7 @@ public class WorldMapManager implements IZoneManager {
                     return false;
                 }
                 break;
+            case TREE_LEFT:
             case PATH:
             case CAVE:
             case BRIDGE:
@@ -394,6 +402,7 @@ public class WorldMapManager implements IZoneManager {
             case STATUE:
             case TOMB:
             case BLOC_BOT_UPPER:
+            case TREE_LEFT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
@@ -413,6 +422,11 @@ public class WorldMapManager implements IZoneManager {
                     return false;
                 }
                 break;
+            case TREE_RIGHT:
+                if (deltaX < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
             case PATH:
             case CAVE:
             case BRIDGE:
@@ -429,6 +443,7 @@ public class WorldMapManager implements IZoneManager {
             case STATUE:
             case TOMB:
             case BLOC_BOT_LOWER:
+            case TREE_RIGHT:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
@@ -448,6 +463,7 @@ public class WorldMapManager implements IZoneManager {
                     return false;
                 }
                 break;
+            case TREE_LEFT:
             case PATH:
             case CAVE:
             case BRIDGE:
@@ -480,11 +496,13 @@ public class WorldMapManager implements IZoneManager {
             case TOMB:
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
+            case TREE_LEFT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case BLOC_TOP_UPPER:
+            case TREE_RIGHT:
                 if (deltaX < LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
@@ -512,12 +530,18 @@ public class WorldMapManager implements IZoneManager {
             case BLOC_TOP_UPPER:
             case BLOC_TOP_LOWER:
             case BLOC_BOT_UPPER:
+            case TREE_LEFT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case BLOC_BOT_LOWER:
                 if ((deltaY > LocationUtil.OBSTACLE_TOLERANCE && deltaX < LocationUtil.HALF_TILE_SIZE) || deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case TREE_RIGHT:
+                if (deltaY > LocationUtil.OBSTACLE_TOLERANCE && deltaX < LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
@@ -553,6 +577,7 @@ public class WorldMapManager implements IZoneManager {
             case TOMB:
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
+            case TREE_RIGHT:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
@@ -564,6 +589,11 @@ public class WorldMapManager implements IZoneManager {
                 break;
             case BLOC_TOP_LOWER:
                 if (deltaX > LocationUtil.HALF_TILE_SIZE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case TREE_LEFT:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
@@ -594,6 +624,12 @@ public class WorldMapManager implements IZoneManager {
                     return false;
                 }
                 break;
+            case TREE_LEFT:
+                if (deltaX > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                    return false;
+                }
+                break;
+            case TREE_RIGHT:
             case PATH:
             case CAVE:
             case BRIDGE:

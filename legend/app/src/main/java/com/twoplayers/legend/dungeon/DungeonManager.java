@@ -372,6 +372,7 @@ public class DungeonManager implements IZoneManager {
                 if (deltaX < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
+                break;
             case DOOR_UP:
             case PATH:
             case OUT_OF_BOUNDS:

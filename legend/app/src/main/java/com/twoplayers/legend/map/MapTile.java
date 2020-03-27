@@ -16,6 +16,8 @@ public enum MapTile {
     STATUE('s', false),
     TOMB('t', false),
     BRIDGE('b', true),
+    TREE_LEFT('f', false),
+    TREE_RIGHT('e', false),
     OUT_OF_BOUNDS('%', false);
 
     public char character;
