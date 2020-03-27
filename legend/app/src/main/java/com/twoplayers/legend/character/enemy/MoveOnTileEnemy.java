@@ -17,7 +17,7 @@ public abstract class MoveOnTileEnemy extends Enemy {
     protected static final float PUSH_SPEED = 9f;
     protected static final float INITIAL_PUSH_DISTANCE = 4 * LocationUtil.TILE_SIZE;
 
-    protected Orientation orientation;
+    public Orientation orientation;
     protected Orientation nextOrientation;
 
     protected float nextTileX;

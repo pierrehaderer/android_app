@@ -42,4 +42,10 @@ public abstract class AttackingEnemy extends MoveOnTileEnemy {
         }
     }
 
+    /**
+     * Randomly choose a duration before the next attack
+     */
+    protected void chooseTimeBeforeAttack(float min, float max) {
+        timeBeforeAttack = (float) ((max - min) * Math.random() + min);
+    }
 }

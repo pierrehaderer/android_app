@@ -2,10 +2,14 @@ package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
+import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.character.enemy.AttackingEnemy;
+import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.missile.Rock;
 import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Sword;
 import com.twoplayers.legend.util.Orientation;
@@ -40,11 +44,15 @@ public class WorldMapEnemyManager implements IEnemyManager {
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
     private SoundEffectManager soundEffectManager;
     private EnemyService enemyService;
+    private Graphics graphics;
 
     private Map<String, EnemyToSpawn[]> worldMapEnemies;
+    Map<String, Class<? extends Enemy>> enemyMap;
+    Map<Class<? extends AttackingEnemy>, Class<? extends Missile>> missileMap;
 
     private boolean loadingEnemies;
     private List<Enemy> enemies;
+    private List<Missile> missiles;
     private int spawnCounter;
 
     private MyColorMatrix colorMatrix;
@@ -60,6 +68,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
         loadingEnemies = false;
         enemies = new ArrayList<>();
+        missiles = new ArrayList<>();
         spawnCounter = 0;
     }
 
@@ -73,15 +82,21 @@ public class WorldMapEnemyManager implements IEnemyManager {
         imagesEnemyWorldMap = ((MainActivity) game).getAllImages().getImagesEnemyWorldMap();
         imagesEnemyWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
+        graphics = game.getGraphics();
 
         enemyService = new EnemyService(worldMapManager);
 
+        initEnemyMap();
+        initMissileMap();
         initWorldMapEnemies(game);
         colorMatrix = new MyColorMatrix();
     }
 
-    private void initWorldMapEnemies(Game game) {
-        Map<String, Class<? extends Enemy>> enemyMap = new HashMap<>();
+    /**
+     * Init the enemy map
+     */
+    private void initEnemyMap() {
+        enemyMap = new HashMap<>();
         enemyMap.put("RedSlowOctorok", RedSlowOctorok.class);
         enemyMap.put("RedFastOctorok", RedFastOctorok.class);
         enemyMap.put("BlueSlowOctorok", BlueSlowOctorok.class);
@@ -90,6 +105,20 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyMap.put("BlueTektite", BlueTektite.class);
         enemyMap.put("RedLeever", RedLeever.class);
         enemyMap.put("BlueLeever", BlueLeever.class);
+    }
+
+    /**
+     * Init the missile map
+     */
+    private void initMissileMap() {
+        missileMap = new HashMap<>();
+        missileMap.put(RedSlowOctorok.class, Rock.class);
+        missileMap.put(RedFastOctorok.class, Rock.class);
+        missileMap.put(BlueSlowOctorok.class, Rock.class);
+        missileMap.put(BlueFastOctorok.class, Rock.class);
+    }
+
+    private void initWorldMapEnemies(Game game) {
 
         worldMapEnemies = new HashMap<>();
         Properties enemiesProperties = FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_enemies.properties");
@@ -129,37 +158,22 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public void update(float deltaTime, Graphics g) {
         colorMatrix.update(deltaTime);
-        if (loadingEnemies) {
-            int currentSpawnCounter = spawnCounter++;
-            EnemyToSpawn[] enemiesToSpawn = worldMapEnemies.get(worldMapManager.getCoordinate());
-            for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
-                try {
-                    if (enemyToSpawn.enemyClass != null) {
-                        Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
-                                SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
-                        Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, worldMapManager, linkManager, this, enemyService, g);
-                        Coordinate spawnCoordinate = getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
-                        Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
-                        enemy.x = spawnCoordinate.x;
-                        enemy.y = spawnCoordinate.y;
-                        enemy.hitbox.relocate(enemy.x, enemy.y);
-                        this.enemies.add(enemy);
-                    } else {
-                        Logger.error("Could not find the enemy type : " + enemyToSpawn.name);
-                    }
-                } catch (Exception e) {
-                    Logger.error("Could not create enemy class with type " + enemyToSpawn.name + " : " + e.getMessage());
-                }
-            }
-            loadingEnemies = false;
-        }
         for (Enemy enemy : enemies) {
-            if (enemy.isDead) {
+            if (enemy.isDead && !enemy.currentAnimation.isAnimationOver()) {
                 enemy.currentAnimation.update(deltaTime);
             } else {
                 enemy.update(deltaTime, g);
             }
         }
+        boolean cleanRequired = false;
+        for (Missile missile : missiles) {
+            if (missile.isActive) {
+                missile.update(deltaTime, g);
+            } else {
+                cleanRequired = true;
+            }
+        }
+        cleanInactiveMissiles(cleanRequired);
     }
 
     @Override
@@ -167,13 +181,44 @@ public class WorldMapEnemyManager implements IEnemyManager {
         for (Enemy enemy : enemies) {
             if (!enemy.isDead) {
                 if (enemy.isInvincible()) {
-                    g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y), colorMatrix.getMatrix());
+                    g.drawAnimation(enemy.currentAnimation, (int) enemy.x, (int) enemy.y, colorMatrix.getMatrix());
                 } else {
-                    g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+                    g.drawAnimation(enemy.currentAnimation, (int) enemy.x, (int) enemy.y);
                 }
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
             } else if (!enemy.currentAnimation.isAnimationOver()) {
-                g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+                g.drawAnimation(enemy.currentAnimation, (int) enemy.x, (int) enemy.y);
+            }
+        }
+        for (Missile missile: missiles) {
+            if (missile.isActive) {
+                g.drawAnimation(missile.animation, (int) missile.x, (int) missile.y);
+                g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
+            }
+        }
+    }
+
+    @Override
+    public void spawnEnemies() {
+        int currentSpawnCounter = spawnCounter++;
+        EnemyToSpawn[] enemiesToSpawn = worldMapEnemies.get(worldMapManager.getCoordinate());
+        for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
+            try {
+                if (enemyToSpawn.enemyClass != null) {
+                    Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
+                            SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
+                    Enemy enemy = constructor.newInstance(imagesEnemyWorldMap, soundEffectManager, worldMapManager, linkManager, this, enemyService, graphics);
+                    Coordinate spawnCoordinate = getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
+                    Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
+                    enemy.x = spawnCoordinate.x;
+                    enemy.y = spawnCoordinate.y;
+                    enemy.hitbox.relocate(enemy.x, enemy.y);
+                    this.enemies.add(enemy);
+                } else {
+                    Logger.error("Could not find the enemy type : " + enemyToSpawn.name);
+                }
+            } catch (Exception e) {
+                Logger.error("Could not create enemy class with type " + enemyToSpawn.name + " : " + e.getMessage());
             }
         }
     }
@@ -193,8 +238,33 @@ public class WorldMapEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void requestEnemiesLoading() {
-        loadingEnemies = true;
+    public void spawnMissile(AttackingEnemy enemy) {
+        try {
+            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
+            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
+            Missile missile = constructor.newInstance(imagesEnemyWorldMap, worldMapManager, graphics);
+            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
+            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
+            missile.orientation = enemy.orientation;
+            missiles.add(missile);
+        } catch (Exception e) {
+            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Remove the missiles that are not active anymore
+     */
+    private void cleanInactiveMissiles(boolean cleanRequired) {
+        if (cleanRequired) {
+            List<Missile> newMissiles = new ArrayList<>();
+            for (Missile missile : missiles) {
+                if (missile.isActive) {
+                    newMissiles.add(missile);
+                }
+            }
+            missiles = newMissiles;
+        }
     }
 
     @Override

@@ -271,7 +271,7 @@ public class LinkService {
             moveLinkY(link, -1 * distance);
             if (link.exitSomewhereDistance <= 0) {
                 link.isExitingSomewhere = false;
-                enemyManager.requestEnemiesLoading();
+                enemyManager.spawnEnemies();
             }
         }
     }

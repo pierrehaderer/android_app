@@ -43,7 +43,7 @@ public abstract class Octorok extends AttackingEnemy {
         isContactLethal = false;
         isActive = false;
         isInvincible = true;
-        chooseTimeBeforeAttack();
+        chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         orientation = Orientation.UP;
         nextOrientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
@@ -99,6 +99,7 @@ public abstract class Octorok extends AttackingEnemy {
             }
         }
 
+        // The enemy is pushed
         if (isPushed) {
             Logger.info("Enemy is pushed, remaining counter : " + pushCounter);
             float distance = Math.min(deltaTime * PUSH_SPEED, pushCounter);
@@ -123,21 +124,33 @@ public abstract class Octorok extends AttackingEnemy {
             }
         }
 
+        // The enemy attacks
         if (isAttacking && !isImmobilised) {
-            // The enemy attacks
             timeBeforeAttack -= deltaTime;
             if (timeBeforeAttack < 0) {
                 Logger.info("Octorok is attacking (" + x + "," + y + ")");
                 isAttacking = false;
-                // TODO ATTACK !!!!!
-                chooseTimeBeforeAttack();
+                enemyManager.spawnMissile(this);
+                chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
             }
         }
 
         // The enemy moves
         if (isActive && !isAttacking && !isImmobilised) {
+            if (timeBeforeAttack > PAUSE_BEFORE_ATTACK) {
+                timeBeforeAttack -= deltaTime;
+            }
             float remainingMoves = deltaTime * speed;
             remainingMoves = enemyService.goToNextTile(orientation, this, remainingMoves, nextTileX, nextTileY);
+            if (timeBeforeAttack <= PAUSE_BEFORE_ATTACK) {
+                // The enemy wants to attack check its position first : on tile or half tile only
+                if (remainingMoves > 0
+                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaX(x)) < ATTACK_TOLERANCE
+                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaY(y)) < ATTACK_TOLERANCE) {
+                    isAttacking = true;
+                    remainingMoves = 0;
+                }
+            }
             while (remainingMoves > 0) {
                 Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
                 nextTileX = nextNextTileX;
@@ -149,19 +162,6 @@ public abstract class Octorok extends AttackingEnemy {
                 nextNextTileY = destination.y;
                 nextOrientation = destination.orientation;
                 remainingMoves = enemyService.goToNextTile(orientation, this, remainingMoves, nextTileX, nextTileY);
-                // The enemy wants to attack check its position first : on tile or half tile only
-                if (timeBeforeAttack > PAUSE_BEFORE_ATTACK) {
-                    timeBeforeAttack -= deltaTime;
-                } else {
-                    float deltaX = x - LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(x));
-                    float deltaY = x - LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(y));
-                    if (remainingMoves > 0
-                            || Math.abs(LocationUtil.HALF_TILE_SIZE - deltaX) < ATTACK_TOLERANCE
-                            || Math.abs(LocationUtil.HALF_TILE_SIZE - deltaY) < ATTACK_TOLERANCE) {
-                        isAttacking = true;
-                        remainingMoves = 0;
-                    }
-                }
             }
         }
 
@@ -169,13 +169,6 @@ public abstract class Octorok extends AttackingEnemy {
             currentAnimation.update(deltaTime);
         }
 
-    }
-
-    /**
-     * Randomly choose a duration before the next attack
-     */
-    private void chooseTimeBeforeAttack() {
-        timeBeforeAttack = (float) ((MAX_TIME_BEFORE_ATTACK - MIN_TIME_BEFORE_ATTACK) * Math.random() + MIN_TIME_BEFORE_ATTACK);
     }
 
     @Override

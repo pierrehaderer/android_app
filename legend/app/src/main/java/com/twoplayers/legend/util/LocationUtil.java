@@ -158,4 +158,12 @@ public class LocationUtil {
         return x >= LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
     }
 
+    public static float getDeltaY(float y) {
+        return y - getYFromGrid(getTileYFromPositionY(y));
+    }
+
+    public static float getDeltaX(float x) {
+        return x - getXFromGrid(getTileXFromPositionX(x));
+    }
+
 }

@@ -207,7 +207,7 @@ public class DungeonManager implements IZoneManager {
                 currentMiniOrdinate = 11 * currentOrdinate;
                 imageNextDungeonRoom = imagesDungeon.get("empty");
                 transitionRunning = false;
-                dungeonEnemyManager.requestEnemiesLoading();
+                dungeonEnemyManager.spawnEnemies();
                 guiManager.activateButtons();
             }
         }
@@ -241,6 +241,11 @@ public class DungeonManager implements IZoneManager {
         int tileY = LocationUtil.getTileYFromPositionY(y);
         DungeonTile tile = currentMapRoom.getTile(tileX, tileY);
         return tile.walkable;
+    }
+
+    @Override
+    public boolean isTileBlockingMissile(float x, float y) {
+        return false;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
@@ -186,7 +187,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void requestEnemiesLoading() {
+    public void spawnEnemies() {
         loadingEnemies = true;
     }
 
@@ -219,5 +220,9 @@ public class DungeonEnemyManager implements IEnemyManager {
     @Override
     public void hasHitLink(Enemy enemy) {
         enemy.hasHitLink();
+    }
+
+    @Override
+    public void spawnMissile(AttackingEnemy enemy) {
     }
 }

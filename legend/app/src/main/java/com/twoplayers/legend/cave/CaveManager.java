@@ -196,6 +196,11 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
+    public boolean isTileBlockingMissile(float x, float y) {
+        return false;
+    }
+
+    @Override
     public boolean isUpValid(float x, float y) {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);

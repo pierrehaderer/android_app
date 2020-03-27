@@ -217,7 +217,7 @@ public class WorldMapManager implements IZoneManager {
                 currentMiniOrdinate = 11 * currentOrdinate;
                 imageNextMapRoom = imagesWorldMap.get("empty");
                 transitionRunning = false;
-                worldMapEnemyManager.requestEnemiesLoading();
+                worldMapEnemyManager.spawnEnemies();
                 guiManager.activateButtons();
             }
         }
@@ -238,6 +238,15 @@ public class WorldMapManager implements IZoneManager {
         int tileY = LocationUtil.getTileYFromPositionY(y);
         MapTile tile = currentMapRoom.getTile(tileX, tileY);
         return tile.walkable;
+    }
+
+    @Override
+    public boolean isTileBlockingMissile(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile.isblockingMissile;
     }
 
     @Override
@@ -459,7 +468,7 @@ public class WorldMapManager implements IZoneManager {
                 }
                 break;
             case BLOC_BOT_UPPER:
-                if (deltaX > LocationUtil.HALF_TILE_SIZE || deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
+                if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;

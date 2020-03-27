@@ -104,7 +104,7 @@ public class EnemyService {
     /**
      * Move until the enemy has arrived at the next tile or until remainingMoves is consumed
      */
-    public float goToNextTile(Orientation orientation, Enemy enemy, float remainingMoves, float nextTileX, float nextTileY) {
+    public float goToNextTile(Orientation orientation, MoveOnTileEnemy enemy, float remainingMoves, float nextTileX, float nextTileY) {
         boolean nextTileIsReachable;
         switch (orientation) {
             case UP:
@@ -112,6 +112,7 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (enemy.y - nextTileY);
                     enemy.y = nextTileY;
+                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.y -= remainingMoves;
                     remainingMoves = 0;
@@ -123,6 +124,7 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (nextTileY - enemy.y);
                     enemy.y = nextTileY;
+                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.y += remainingMoves;
                     remainingMoves = 0;
@@ -134,6 +136,7 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (enemy.x - nextTileX);
                     enemy.x = nextTileX;
+                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.x -= remainingMoves;
                     remainingMoves = 0;
@@ -145,6 +148,7 @@ public class EnemyService {
                 if (nextTileIsReachable) {
                     remainingMoves -= (nextTileX - enemy.x);
                     enemy.x = nextTileX;
+                    enemy.orientation = enemy.nextOrientation;
                 } else {
                     enemy.x += remainingMoves;
                     remainingMoves = 0;

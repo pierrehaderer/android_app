@@ -18,6 +18,8 @@ public interface IZoneManager extends IManager {
     List<Item> getItems();
     /** Check if a tile is walkable */
     boolean isTileWalkable(float x, float y);
+    /** Check if a tile is walkable */
+    boolean isTileBlockingMissile(float x, float y);
     /** Check if a position is valid */
     boolean isUpValid(float x, float y);
     /** Check if a position is valid */
