@@ -106,10 +106,6 @@ public class DungeonEnemyManager implements IEnemyManager {
      */
     private void initMissileMap() {
         missileMap = new HashMap<>();
-        missileMap.put(RedSlowOctorok.class, Rock.class);
-        missileMap.put(RedFastOctorok.class, Rock.class);
-        missileMap.put(BlueSlowOctorok.class, Rock.class);
-        missileMap.put(BlueFastOctorok.class, Rock.class);
     }
 
     /**
