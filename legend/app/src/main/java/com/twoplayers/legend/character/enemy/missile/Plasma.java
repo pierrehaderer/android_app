@@ -6,23 +6,25 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.character.enemy.Missile;
 
-public class Rock extends Missile {
+public class Plasma extends Missile {
 
-    private static final float SPEED = 3f;
+    private static final float SPEED = 2f;
     private static final float DAMAGE = -0.5f;
 
-    public Rock(IImagesEnemy imagesEnemyWorldMap, IZoneManager zoneManager, Graphics g) {
+    public Plasma(IImagesEnemy imagesEnemyWorldMap, IZoneManager zoneManager, Graphics g) {
         super(imagesEnemyWorldMap, zoneManager, g);
         damage = DAMAGE;
         speed = SPEED;
-        isBlockedByObstacle = true;
+        isBlockedByObstacle = false;
     }
 
     @Override
     public void initAnimations(IImagesEnemy imagesEnemyWorldMap, Graphics g) {
         animation = g.newAnimation();
         animation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 5f);
-        animation.addFrame(imagesEnemyWorldMap.get("rock"), AllImages.COEF, 20f);
-        animation.setOccurrences(1);
+        animation.addFrame(imagesEnemyWorldMap.get("plasma_1"), AllImages.COEF, 5f);
+        animation.addFrame(imagesEnemyWorldMap.get("plasma_2"), AllImages.COEF, 5f);
+        animation.addFrame(imagesEnemyWorldMap.get("plasma_3"), AllImages.COEF, 5f);
+        animation.addFrame(imagesEnemyWorldMap.get("plasma_4"), AllImages.COEF, 5f);
     }
 }

@@ -85,6 +85,7 @@ public class BlueLeever extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        super.update(deltaTime, g);
         // Init
         if (initNotDone) {
             initNotDone = false;
@@ -196,7 +197,7 @@ public class BlueLeever extends MoveOnTileEnemy {
     @Override
     public void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
         super.isWounded(damage, hitbox, orientation);
-        if (isDead) {
+        if (life <= 0) {
             isSpawning = false;
             hasSpawned = false;
         }

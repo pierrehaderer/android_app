@@ -322,6 +322,11 @@ public class DungeonManager implements IZoneManager {
         return new Coordinate(x, y);
     }
 
+    @Override
+    public Coordinate findSpawnableCoordinateInWater() {
+        return new Coordinate();
+    }
+
     /**
      * Update the door cache of the current room or the next one.
      */

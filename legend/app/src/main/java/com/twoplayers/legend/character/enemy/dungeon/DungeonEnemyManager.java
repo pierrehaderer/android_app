@@ -8,6 +8,7 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.enemy.missile.Rock;
 import com.twoplayers.legend.character.enemy.worldmap.BlueFastOctorok;
 import com.twoplayers.legend.character.enemy.worldmap.BlueSlowOctorok;
@@ -51,7 +52,7 @@ public class DungeonEnemyManager implements IEnemyManager {
 
     private Map<String, EnemyToSpawn[]> dungeonEnemies;
     private Map<String, Class<? extends Enemy>> enemyMap;
-    private Map<Class<? extends AttackingEnemy>, Class<? extends Missile>> missileMap;
+    private Map<Class<? extends Enemy>, Class<? extends Missile>> missileMap;
 
     private List<Enemy> enemies;
     private List<Missile> missiles;
@@ -217,6 +218,22 @@ public class DungeonEnemyManager implements IEnemyManager {
             Missile missile = constructor.newInstance(imagesEnemyDungeon, dungeonManager, graphics);
             missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
             missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
+            missile.orientation = enemy.orientation;
+            missiles.add(missile);
+        } catch (Exception e) {
+            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void spawnMissile(TurretEnemy enemy) {
+        try {
+            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
+            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
+            Missile missile = constructor.newInstance(imagesEnemyDungeon, dungeonManager, graphics);
+            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
+            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
+            missile.hitbox.relocate(missile.x, missile.y);
             missile.orientation = enemy.orientation;
             missiles.add(missile);
         } catch (Exception e) {

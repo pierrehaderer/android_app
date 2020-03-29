@@ -5,15 +5,15 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Orientation;
 
 public abstract class Missile {
 
-    public static final float SPEED = 3f;
-
     private final IZoneManager zoneManager;
 
     protected float damage;
+    protected float speed;
     public Animation animation;
 
     public Orientation orientation;
@@ -22,6 +22,7 @@ public abstract class Missile {
     public Hitbox hitbox;
 
     public boolean isActive;
+    protected boolean isBlockedByObstacle;
 
     /**
      * Constructor
@@ -45,23 +46,29 @@ public abstract class Missile {
             animation.update(deltaTime);
             switch (orientation) {
                 case UP:
-                    y -= deltaTime * SPEED;
-                    hitbox.y -= deltaTime * SPEED;
+                    y -= deltaTime * speed;
+                    hitbox.y -= deltaTime * speed;
                     break;
                 case DOWN:
-                    y += deltaTime * SPEED;
-                    hitbox.y += deltaTime * SPEED;
+                    y += deltaTime * speed;
+                    hitbox.y += deltaTime * speed;
                     break;
                 case LEFT:
-                    x -= deltaTime * SPEED;
-                    hitbox.x -= deltaTime * SPEED;
+                    x -= deltaTime * speed;
+                    hitbox.x -= deltaTime * speed;
                     break;
                 case RIGHT:
-                    x += deltaTime * SPEED;
-                    hitbox.x += deltaTime * SPEED;
+                    x += deltaTime * speed;
+                    hitbox.x += deltaTime * speed;
+                    break;
+                default:
+                    y += deltaTime * speed * Math.sin(orientation.angle);
+                    x += deltaTime * speed * Math.cos(orientation.angle);
+                    hitbox.relocate(x, y);
                     break;
             }
-            if (zoneManager.isTileBlockingMissile(x, y)) {
+            if ((zoneManager.isTileBlockingMissile(x, y) && isBlockedByObstacle)
+                    || LocationUtil.isTileAtBorder(x, y)|| LocationUtil.isTileAtBorder(x + LocationUtil.QUARTER_TILE_SIZE, y + LocationUtil.QUARTER_TILE_SIZE)) {
                 hitbox.relocate(0, 0);
                 isActive = false;
             }

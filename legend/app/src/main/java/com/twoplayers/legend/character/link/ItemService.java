@@ -158,17 +158,17 @@ public class ItemService {
             Logger.info("Boomerang is starting at position (" + boomerang.x + "," + boomerang.y + ")");
             if (guiManager.isUpPressed()) {
                 if (guiManager.isLeftPressed()) {
-                    boomerang.orientation = Orientation.UP_LEFT;
+                    boomerang.orientation = Orientation.DEGREES_135;
                 } else if (guiManager.isRightPressed()) {
-                    boomerang.orientation = Orientation.UP_RIGHT;
+                    boomerang.orientation = Orientation.DEGREES_45;
                 } else {
                     boomerang.orientation = Orientation.UP;
                 }
             } else if (guiManager.isDownPressed()) {
                 if (guiManager.isLeftPressed()) {
-                    boomerang.orientation = Orientation.DOWN_LEFT;
+                    boomerang.orientation = Orientation.DEGREES_225;
                 } else if (guiManager.isRightPressed()) {
-                    boomerang.orientation = Orientation.DOWN_RIGHT;
+                    boomerang.orientation = Orientation.DEGREES_315;
                 } else {
                     boomerang.orientation = Orientation.DOWN;
                 }
@@ -197,13 +197,13 @@ public class ItemService {
                     boomerang.y -= deltaTime * speed;
                     boomerang.hitbox.y -= deltaTime * speed;
                     break;
-                case UP_LEFT:
+                case DEGREES_135:
                     boomerang.x -= deltaTime * speed;
                     boomerang.y -= deltaTime * speed;
                     boomerang.hitbox.x -= deltaTime * speed;
                     boomerang.hitbox.y -= deltaTime * speed;
                     break;
-                case UP_RIGHT:
+                case DEGREES_45:
                     boomerang.x += deltaTime * speed;
                     boomerang.y -= deltaTime * speed;
                     boomerang.hitbox.x += deltaTime * speed;
@@ -221,13 +221,13 @@ public class ItemService {
                     boomerang.y += deltaTime * speed;
                     boomerang.hitbox.y += deltaTime * speed;
                     break;
-                case DOWN_LEFT:
+                case DEGREES_225:
                     boomerang.x -= deltaTime * speed;
                     boomerang.y += deltaTime * speed;
                     boomerang.hitbox.x -= deltaTime * speed;
                     boomerang.hitbox.y += deltaTime * speed;
                     break;
-                case DOWN_RIGHT:
+                case DEGREES_315:
                     boomerang.x += deltaTime * speed;
                     boomerang.y += deltaTime * speed;
                     boomerang.hitbox.x += deltaTime * speed;

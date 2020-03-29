@@ -3,6 +3,7 @@ package com.twoplayers.legend;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Sword;
 
@@ -13,6 +14,8 @@ public interface IEnemyManager extends IManager {
     void spawnEnemies();
     /** Enemy is throwing a missile */
     void spawnMissile(AttackingEnemy enemy);
+    /** Enemy is throwing a missile */
+    void spawnMissile(TurretEnemy enemy);
     /** Unload enemies */
     void unloadEnemies();
     /** Get enemies */

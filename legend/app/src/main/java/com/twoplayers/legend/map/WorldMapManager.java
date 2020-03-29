@@ -61,6 +61,7 @@ public class WorldMapManager implements IZoneManager {
     private float leftNextMapRoom;
     private float topNextMapRoom;
     private Image imageNextMapRoom;
+    private List<Coordinate> waterCoordinate;
 
     /**
      * Load this manager
@@ -106,6 +107,7 @@ public class WorldMapManager implements IZoneManager {
         MapTile.initHashMap();
         initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map.txt"));
         initWolrdMapCaves(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_entrance.properties"));
+        waterCoordinate = new ArrayList<>();
     }
 
     /**
@@ -217,6 +219,7 @@ public class WorldMapManager implements IZoneManager {
                 currentMiniOrdinate = 11 * currentOrdinate;
                 imageNextMapRoom = imagesWorldMap.get("empty");
                 transitionRunning = false;
+                listWaterCoordinates();
                 worldMapEnemyManager.spawnEnemies();
                 guiManager.activateButtons();
             }
@@ -300,6 +303,21 @@ public class WorldMapManager implements IZoneManager {
     }
 
     /**
+     * Find all the water coordinates in this room
+     */
+    private void listWaterCoordinates() {
+        waterCoordinate.clear();
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        for (int i = 1; i < 15; i++) {
+            for(int j = 1; j < 10; j++) {
+                if (currentMapRoom.getTile(i, j) == MapTile.WATER) {
+                    waterCoordinate.add(new Coordinate(LocationUtil.getXFromGrid(i), LocationUtil.getYFromGrid(j)));
+                }
+            }
+        }
+    }
+
+    /**
      * Find a tile where a enemy can spawn avoid map borders
      */
     public Coordinate findSpawnableCoordinate() {
@@ -314,6 +332,11 @@ public class WorldMapManager implements IZoneManager {
             Logger.info("Checking if (" + x + "," + y + ") is a spawnable coordinate.");
         }
         return new Coordinate(x, y);
+    }
+
+    @Override
+    public Coordinate findSpawnableCoordinateInWater() {
+        return waterCoordinate.isEmpty() ? new Coordinate() : waterCoordinate.get((int) (Math.random() * waterCoordinate.size()));
     }
 
     @Override

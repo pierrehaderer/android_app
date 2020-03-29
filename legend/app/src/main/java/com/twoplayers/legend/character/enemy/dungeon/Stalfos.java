@@ -59,6 +59,7 @@ public class Stalfos extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        super.update(deltaTime, g);
         // Init
         if (initNotDone) {
             initNotDone = false;

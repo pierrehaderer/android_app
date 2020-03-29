@@ -43,4 +43,6 @@ public interface IZoneManager extends IManager {
     boolean leftAndRightAuthorized(Link link);
     /** Find spawnable corrdinate for an enemy */
     Coordinate findSpawnableCoordinate();
+    /** Find spawnable corrdinate for an water enemy */
+    Coordinate findSpawnableCoordinateInWater();
 }

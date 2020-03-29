@@ -27,8 +27,6 @@ public class RedLeever extends MoveOnTileEnemy {
     private float timeBeforeSpawn;
     private float immobilisationCounter;
 
-    private Orientation orientation;
-
     private Animation spawnAnimation;
     private Animation moveAnimation;
     private Animation despawnAnimation;
@@ -53,7 +51,6 @@ public class RedLeever extends MoveOnTileEnemy {
      * Initialise the move animations
      */
     protected void initAnimations(Graphics g) {
-
         spawnAnimation = g.newAnimation();
         spawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         spawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
@@ -75,6 +72,7 @@ public class RedLeever extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        super.update(deltaTime, g);
 
         // Spawn in front of link
         if (timeBeforeSpawn > 0) {
@@ -287,7 +285,7 @@ public class RedLeever extends MoveOnTileEnemy {
     @Override
     public void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
         super.isWounded(damage, hitbox, orientation);
-        if (isDead) {
+        if (life <= 0) {
             isSpawning = false;
             hasSpawned = false;
         }

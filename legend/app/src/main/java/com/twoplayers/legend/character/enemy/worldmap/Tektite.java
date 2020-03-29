@@ -120,6 +120,7 @@ public abstract class Tektite extends Enemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        super.update(deltaTime, g);
         // Init
         if (initNotDone) {
             initNotDone = false;

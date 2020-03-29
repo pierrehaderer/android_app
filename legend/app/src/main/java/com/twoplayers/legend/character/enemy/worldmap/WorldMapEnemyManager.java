@@ -8,6 +8,8 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.TurretEnemy;
+import com.twoplayers.legend.character.enemy.missile.Plasma;
 import com.twoplayers.legend.character.enemy.missile.Rock;
 import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Sword;
@@ -47,7 +49,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
     private Map<String, EnemyToSpawn[]> worldMapEnemies;
     private Map<String, Class<? extends Enemy>> enemyMap;
-    private Map<Class<? extends AttackingEnemy>, Class<? extends Missile>> missileMap;
+    private Map<Class<? extends Enemy>, Class<? extends Missile>> missileMap;
 
     private List<Enemy> enemies;
     private List<Missile> missiles;
@@ -102,6 +104,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyMap.put("BlueTektite", BlueTektite.class);
         enemyMap.put("RedLeever", RedLeever.class);
         enemyMap.put("BlueLeever", BlueLeever.class);
+        enemyMap.put("Zora", Zora.class);
     }
 
     /**
@@ -113,6 +116,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         missileMap.put(RedFastOctorok.class, Rock.class);
         missileMap.put(BlueSlowOctorok.class, Rock.class);
         missileMap.put(BlueFastOctorok.class, Rock.class);
+        missileMap.put(Zora.class, Plasma.class);
     }
 
     /**
@@ -224,6 +228,22 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
     @Override
     public void spawnMissile(AttackingEnemy enemy) {
+        try {
+            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
+            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
+            Missile missile = constructor.newInstance(imagesEnemyWorldMap, worldMapManager, graphics);
+            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
+            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
+            missile.hitbox.relocate(missile.x, missile.y);
+            missile.orientation = enemy.orientation;
+            missiles.add(missile);
+        } catch (Exception e) {
+            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void spawnMissile(TurretEnemy enemy) {
         try {
             Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
             Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
