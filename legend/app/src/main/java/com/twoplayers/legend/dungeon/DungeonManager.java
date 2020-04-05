@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesDungeon;
@@ -26,6 +27,7 @@ import java.util.List;
 
 public class DungeonManager implements IZoneManager {
 
+    private static final float INITIAL_IMMOBILISATION_COUNTER = 50f;
     private static final float TRANSITION_SPEED = 4.0f;
 
     private ImagesDungeon imagesDungeon;
@@ -40,6 +42,7 @@ public class DungeonManager implements IZoneManager {
     private Boolean[][] exploredDungeon;
 
     private boolean initNotDone = true;
+    private float immobilisationCounter;
     private Dungeon dungeon;
     private boolean hasExitedZone;
 
@@ -71,6 +74,7 @@ public class DungeonManager implements IZoneManager {
             initNotDone = false;
             init(game);
         }
+        immobilisationCounter = INITIAL_IMMOBILISATION_COUNTER;
 
         dungeon = new Dungeon(dungeonInfo);
         Location start = dungeonInfo.startLocation;
@@ -148,6 +152,12 @@ public class DungeonManager implements IZoneManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        if (immobilisationCounter > 0) {
+            immobilisationCounter -= deltaTime;
+            if (immobilisationCounter <= 0) {
+                guiManager.activateButtons();
+            }
+        }
         if (transitionRunning) {
             if (transitionCount> 0) {
                 float transitionDelta = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
@@ -249,7 +259,12 @@ public class DungeonManager implements IZoneManager {
     }
 
     @Override
-    public boolean isTileACave(float x, float y) {
+    public boolean isTileADoor(float x, float y) {
+        return false;
+    }
+
+    @Override
+    public boolean isTileStairs(float x, float y) {
         return false;
     }
 
@@ -612,6 +627,10 @@ public class DungeonManager implements IZoneManager {
                 && link.y < LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - 10 * LocationUtil.QUARTER_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE;
     }
 
+    @Override
+    public void burnTheBushes(Fire fire) {
+    }
+
     /**
      * Obtain the current room coordinate
      */
@@ -629,8 +648,8 @@ public class DungeonManager implements IZoneManager {
     /**
      * Obtain the entrance of the dungeon
      */
-    public Coordinate getDungeonEntrance() {
-        return dungeon.entrance;
+    public Coordinate getDungeonExit() {
+        return dungeon.exit;
     }
 
     /**

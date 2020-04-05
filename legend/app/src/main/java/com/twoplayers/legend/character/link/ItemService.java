@@ -50,7 +50,7 @@ public class ItemService {
      */
     public void handleLinkUsingSecondItem(Link link, float deltaTime) {
         if (!link.isAttacking && !link.isUsingSecondItem && guiManager.areButtonsActivated()
-                && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem
+                && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem
                 && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
             if (guiManager.isbPressed()) {
                 switch (link.secondItem) {
@@ -346,11 +346,23 @@ public class ItemService {
                     Logger.info("Link has hit enemy with fire 1.");
                     enemyManager.isHitByFire(enemy, link.fire1);
                 }
-                if (link.fire2.isActive && enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
+                if (link.fire2.isActive && enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.fire2.hitbox, enemy.getHitbox())) {
                     Logger.info("Link has hit enemy with fire 2.");
                     enemyManager.isHitByFire(enemy, link.fire2);
                 }
             }
+        }
+        if (link.fire1.hasJustFinished) {
+            zoneManager.burnTheBushes(link.fire1);
+            link.fire1.hasJustFinished = false;
+            link.fire1.isActive = false;
+            link.fire1.hitbox.relocate(0, 0);
+        }
+        if (link.fire2.hasJustFinished) {
+            zoneManager.burnTheBushes(link.fire2);
+            link.fire2.hasJustFinished = false;
+            link.fire2.isActive = false;
+            link.fire2.hitbox.relocate(0, 0);
         }
     }
 

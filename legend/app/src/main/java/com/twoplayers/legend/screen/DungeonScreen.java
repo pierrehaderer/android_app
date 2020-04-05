@@ -41,7 +41,7 @@ public class DungeonScreen extends Screen {
         linkManager.update(deltaTime, game.getGraphics());
         musicManager.update(deltaTime, game.getGraphics());
         if (dungeonManager.hasExitedZone()) {
-            game.setScreen(new WorldMapLoadingScreen(game, dungeonManager.getDungeonLocation(), dungeonManager.getDungeonEntrance()));
+            game.setScreen(new WorldMapLoadingScreen(game, dungeonManager.getDungeonLocation(), dungeonManager.getDungeonExit()));
         }
 
     }

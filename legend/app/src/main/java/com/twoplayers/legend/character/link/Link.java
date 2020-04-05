@@ -32,7 +32,7 @@ public class Link {
 
     public static final float SPEED = 1.5f;
     protected static final float PUSH_SPEED = 9f;
-    protected static final float ENTER_CAVE_SPEED = 0.40f;
+    protected static final float ENTER_DOOR_SPEED = 0.40f;
     protected static final float REMOVE_COINS_SPEED = 0.3f;
     protected static final float INITIAL_PUSH_COUNT = 9f;
     protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
@@ -58,7 +58,7 @@ public class Link {
     public float y;
     protected Hitbox hitbox;
     public Orientation orientation;
-    protected Coordinate cavePosition;
+    protected Coordinate underTheDoor;
 
     protected boolean isAttacking;
     protected float attackProgression;
@@ -68,9 +68,9 @@ public class Link {
     protected float pushCounter;
     protected boolean isInvincible;
     protected float invicibleCounter;
-    protected boolean isEnteringSomewhere;
+    protected boolean isEnteringADoor;
     protected float enterSomewhereCounter;
-    protected boolean isExitingSomewhere;
+    protected boolean isExitingADoor;
     protected float exitSomewhereDistance;
     protected boolean isShowingItem;
     protected float showItemCounter;

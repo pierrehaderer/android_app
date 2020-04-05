@@ -2,6 +2,7 @@ package com.twoplayers.legend.screen;
 
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImageOther;
+import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.util.Logger;
@@ -19,6 +20,7 @@ public class SplashLoadingScreen extends Screen {
     private ImageOther imageOther;
     private SoundEffectManager soundEffectManager;
     private MusicManager musicManager;
+    private SaveManager saveManager;
 
     public SplashLoadingScreen(Game game) {
         super(game);
@@ -26,6 +28,7 @@ public class SplashLoadingScreen extends Screen {
         imageOther = ((MainActivity) game).getAllImages().getImageOther();
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         musicManager = ((MainActivity) game).getMusicManager();
+        saveManager = ((MainActivity) game).getSaveManager();
     }
 
     @Override
@@ -33,6 +36,7 @@ public class SplashLoadingScreen extends Screen {
         imageOther.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         soundEffectManager.init(((MainActivity) game).getAssetManager(), game.getAudio());
         musicManager.init(((MainActivity) game).getAssetManager(), game.getAudio());
+        saveManager.init(game);
         game.setScreen(new IntroScreen(game));
     }
 

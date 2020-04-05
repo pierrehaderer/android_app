@@ -68,15 +68,15 @@ public class LinkManager implements IManager {
         itemService = new ItemService(guiManager, zoneManager, enemyManager, soundEffectManager);
 
         link.x = position.x;
-        link.y = (link.isExitingSomewhere) ? position.y + LocationUtil.TILE_SIZE : position.y;
-        link.cavePosition = position;
+        link.y = position.y;
+        link.underTheDoor = position;
         link.hitbox.relocate(link.x, link.y);
         Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
-        link.orientation = (link.isExitingSomewhere) ? Orientation.DOWN : Orientation.UP;
+        link.orientation = (link.isExitingADoor) ? Orientation.DOWN : Orientation.UP;
         link.currentAnimation = link.moveAnimations.get(link.orientation);
         link.isAttacking = false;
         link.isInvincible = false;
-        link.isEnteringSomewhere = false;
+        link.isEnteringADoor = false;
         link.enterSomewhereCounter = 0;
     }
 
@@ -97,7 +97,7 @@ public class LinkManager implements IManager {
         link.lifeMax = 3;
         link.coins = 255;
         link.keys = 1;
-        link.isExitingSomewhere = false;
+        link.isExitingADoor = false;
 
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
@@ -141,6 +141,12 @@ public class LinkManager implements IManager {
     @Override
     public void update(float deltaTime, Graphics g) {
 
+        // Link is entering somewhere
+        linkService.handleLinkEnteringSomewhere(link, deltaTime);
+
+        // Link is exiting somewhere
+        linkService.handleLinkExitingSomewhere(link, deltaTime);
+
         // Movement of Link
         linkService.handleLinkMovement(link, deltaTime);
 
@@ -157,12 +163,6 @@ public class LinkManager implements IManager {
         linkService.handleLinkInvincible(link, deltaTime, colorMatrix);
         linkService.handleLinkWounded(link, deltaTime);
         linkService.handleLinkPushed(link, deltaTime);
-
-        // Link is entering somewhere
-        linkService.handleLinkEnteringSomewhere(link, deltaTime);
-
-        // Link is exiting somewhere
-        linkService.handleLinkExitingSomewhere(link, deltaTime);
     }
 
     @Override
@@ -173,9 +173,9 @@ public class LinkManager implements IManager {
             g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
         } else if (link.isInvincible) {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, colorMatrix.getMatrix());
-        } else if (link.isEnteringSomewhere || link.isExitingSomewhere) {
+        } else if (link.isEnteringADoor || link.isExitingADoor) {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
-            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.cavePosition.x, (int) (link.cavePosition.y + LocationUtil.TILE_SIZE + 1), AllImages.COEF);
+            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) (link.underTheDoor.y + 1), AllImages.COEF);
         } else {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
         }
@@ -246,8 +246,7 @@ public class LinkManager implements IManager {
      * Prepare link to re-enter the world map
      */
     public void exitZone() {
-        link.isExitingSomewhere = true;
-        link.exitSomewhereDistance = LocationUtil.TILE_SIZE;
+        link.isExitingADoor = true;
     }
 
     /**

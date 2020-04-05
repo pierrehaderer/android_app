@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImageOther;
+import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Location;
@@ -31,12 +32,14 @@ public class IntroScreen extends Screen {
 
     private ImageOther imageOther;
     private MusicManager musicManager;
+    private SaveManager saveManager;
 
     public IntroScreen(Game game) {
         super(game);
         Logger.info("Entering IntroScreen.");
         imageOther = ((MainActivity) game).getAllImages().getImageOther();
         musicManager = ((MainActivity) game).getMusicManager();
+        saveManager = ((MainActivity) game).getSaveManager();
         musicManager.plan(10, "intro", false);
     }
 
@@ -52,6 +55,10 @@ public class IntroScreen extends Screen {
                     float positionY = LocationUtil.getYFromGrid(INITIAL_WORLD_MAP_POSITION_Y);
                     Coordinate position = new Coordinate(positionX, positionY);
                     game.setScreen(new WorldMapLoadingScreen(game, location, position));
+                    break;
+                }
+                if (LocationUtil.inBounds(event, 0, TOP_SCREEN, LEFT_SCREEN, HEIGHT_SCREEN)) {
+                    saveManager.reset();
                     break;
                 }
             }

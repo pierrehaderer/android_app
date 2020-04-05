@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class EnemyToSpawn {
 
+    public int id;
     public String name;
     public Class<? extends Enemy> enemyClass;
     public SpawnMode mode;
@@ -19,7 +20,8 @@ public class EnemyToSpawn {
     /**
      * Constructor
      */
-    public EnemyToSpawn(String name, Map<String, Class<? extends Enemy>> enemyMap) {
+    public EnemyToSpawn(int id, String name, Map<String, Class<? extends Enemy>> enemyMap) {
+        this.id = id;
         this.name = name;
         this.enemyClass = enemyMap.get(name);
         spawnPossibilities = new HashMap<>();

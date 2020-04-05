@@ -11,13 +11,14 @@ public enum MapTile {
     BLOC_TOP_LOWER('d', false, true),
     BLOC_BOT_UPPER('U', false, true),
     BLOC_BOT_LOWER('D', false, true),
-    CAVE('g', true, false),
+    DOOR('g', true, false),
     WATER('w', false, false),
-    STATUE('s', false, true),
+    ARMOS('a', false, true),
     TOMB('t', false, true),
     BRIDGE('b', true, false),
     TREE_LEFT('f', false, true),
     TREE_RIGHT('e', false, true),
+    STAIRS('s', true, false),
     OUT_OF_BOUNDS('%', false, true);
 
     public char character;

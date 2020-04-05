@@ -2,6 +2,7 @@ package com.twoplayers.legend;
 
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.character.Item;
+import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Orientation;
@@ -11,8 +12,10 @@ import java.util.List;
 public interface IZoneManager extends IManager {
     /** Initiate the change of the screen */
     void changeRoom(Orientation orientation);
-    /** Check if a tile is a cave */
-    boolean isTileACave(float x, float y);
+    /** Check if a tile is a door */
+    boolean isTileADoor(float x, float y);
+    /** Check if a tile is stairs */
+    boolean isTileStairs(float x, float y);
     /** Return true if the mapScreen has been explored */
     boolean isExplored(int x, int y);
     /** Get the list of items on the screen */
@@ -45,4 +48,6 @@ public interface IZoneManager extends IManager {
     Coordinate findSpawnableCoordinate();
     /** Find spawnable corrdinate for an water enemy */
     Coordinate findSpawnableCoordinateInWater();
+    /** Burn the bushes under the fire if any */
+    void burnTheBushes(Fire fire);
 }

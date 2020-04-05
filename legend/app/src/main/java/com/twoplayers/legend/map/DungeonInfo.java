@@ -9,5 +9,6 @@ public class DungeonInfo extends EntranceInfo {
 
     public DungeonInfo() {
         super();
+        type = DUNGEON;
     }
 }

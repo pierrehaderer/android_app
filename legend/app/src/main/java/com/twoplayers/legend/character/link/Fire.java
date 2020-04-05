@@ -19,6 +19,7 @@ public class Fire {
     protected boolean isActive;
     protected float remainingMoves;
     protected float timeBeforeDespawn;
+    protected boolean hasJustFinished;
 
     protected Orientation orientation;
     protected float x;
@@ -32,6 +33,7 @@ public class Fire {
         isActive = false;
         remainingMoves = 0;
         timeBeforeDespawn = INITIAL_TIME_BEFORE_DESPAWN;
+        hasJustFinished = false;
         orientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 2, 3, 12, 12);
     }
@@ -88,8 +90,7 @@ public class Fire {
             } else {
                 timeBeforeDespawn -= deltaTime;
                 if (timeBeforeDespawn < 0) {
-                    isActive = false;
-                    hitbox.relocate(0, 0);
+                    hasJustFinished = true;
                 }
             }
         }

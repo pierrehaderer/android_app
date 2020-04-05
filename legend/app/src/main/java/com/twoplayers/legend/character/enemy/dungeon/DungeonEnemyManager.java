@@ -122,7 +122,7 @@ public class DungeonEnemyManager implements IEnemyManager {
 
             EnemyToSpawn[] enemiesToSpawn = new EnemyToSpawn[enemies.length];
             for (int i = 0; i < enemies.length; i++) {
-                enemiesToSpawn[i] = new EnemyToSpawn(enemies[i], enemyMap);
+                enemiesToSpawn[i] = new EnemyToSpawn(i, enemies[i], enemyMap);
             }
 
             // Format is "SPAWN_MODE[|ORIENTATION,x1,y1,x2,y2,...]* "

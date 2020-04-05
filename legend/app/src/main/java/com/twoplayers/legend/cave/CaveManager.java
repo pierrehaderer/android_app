@@ -5,6 +5,8 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.character.link.Fire;
+import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesCave;
@@ -27,14 +29,17 @@ import java.util.List;
 
 public class CaveManager implements IZoneManager {
 
+    private static final float INITIAL_IMMOBILISATION_COUNTER = 50f;
     private static final int PRICE_OFFSET_X_2DIGITS = -1;
     private static final int PRICE_OFFSET_X_3DIGITS = -11;
     private static final int PRICE_OFFSET_Y = 60;
     private static final float TEXT_SPEED = 0.12f;
 
     private boolean initNotDone = true;
+    private float immobilisationCounter;
 
     private LinkManager linkManager;
+    private GuiManager guiManager;
     private InventoryService inventoryService;
 
     private ImagesCave imagesCave;
@@ -59,6 +64,7 @@ public class CaveManager implements IZoneManager {
         initCave(game, caveInfo);
         textCounter = 0;
         textSoundCounter = 0;
+        immobilisationCounter = INITIAL_IMMOBILISATION_COUNTER;
     }
 
     /**
@@ -66,6 +72,7 @@ public class CaveManager implements IZoneManager {
      */
     public void init(Game game) {
         linkManager = ((MainActivity) game).getLinkManager();
+        guiManager = ((MainActivity) game).getGuiManager();
         inventoryService = new InventoryService();
 
         imagesCave = ((MainActivity) game).getAllImages().getImagesCave();
@@ -89,11 +96,6 @@ public class CaveManager implements IZoneManager {
     private void initCave(Game game, CaveInfo caveInfo) {
         cave = new Cave(imagesCave, imagesItem, game.getGraphics(), caveInfo);
         hasExitedZone = false;
-
-        cave.message1 = caveInfo.message1;
-        cave.message2 = caveInfo.message2;
-        cave.location = caveInfo.location;
-        cave.entrance = caveInfo.entrance;
 
         cave.npc = new Npc();
         cave.npc.name = caveInfo.npcName;
@@ -132,6 +134,12 @@ public class CaveManager implements IZoneManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        if (immobilisationCounter > 0) {
+            immobilisationCounter -= deltaTime;
+            if (immobilisationCounter <= 0) {
+                guiManager.activateButtons();
+            }
+        }
         textCounter += deltaTime * TEXT_SPEED;
         textCounter = Math.min(textCounter, cave.message1.length() + cave.message2.length());
         int end1 = (int) Math.min(textCounter, cave.message1.length());
@@ -183,7 +191,12 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public boolean isTileACave(float x, float y) {
+    public boolean isTileADoor(float x, float y) {
+        return false;
+    }
+
+    @Override
+    public boolean isTileStairs(float x, float y) {
         return false;
     }
 
@@ -406,6 +419,10 @@ public class CaveManager implements IZoneManager {
         return new Coordinate();
     }
 
+    @Override
+    public void burnTheBushes(Fire fire) {
+    }
+
     /**
      * Obtain the location of the cave
      */
@@ -416,8 +433,8 @@ public class CaveManager implements IZoneManager {
     /**
      * Obtain the entrance of the cave
      */
-    public Coordinate getCaveEntrance() {
-        return cave.entrance;
+    public Coordinate getCaveExit() {
+        return cave.exit;
     }
 
     /**

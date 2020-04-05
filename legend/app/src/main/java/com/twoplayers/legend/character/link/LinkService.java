@@ -43,7 +43,7 @@ public class LinkService {
      * Handle link movement based on the arrows pressed. Return true if link change the room
      */
     public void handleLinkMovement(Link link, float deltaTime) {
-        if (!link.isAttacking && !link.isUsingSecondItem && !link.isPushed && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
+        if (!link.isAttacking && !link.isUsingSecondItem && !link.isPushed && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
             // Movement of Link
             boolean linkHasNotMovedYet = true;
             if (guiManager.isUpPressed() && guiManager.areButtonsActivated() && zoneManager.upAndDownAuthorized(link)) {
@@ -61,8 +61,9 @@ public class LinkService {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.UP);
                 }
-                // Check if link is entering a cave
-                checkAndInitCaveEntering(link);
+                // Check if link is entering somewhere
+                checkAndInitDoorEntering(link);
+                checkStairsEntering(link);
             }
             if (guiManager.isDownPressed() && guiManager.areButtonsActivated() && zoneManager.upAndDownAuthorized(link)) {
                 link.orientation = Orientation.DOWN;
@@ -79,6 +80,8 @@ public class LinkService {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.DOWN);
                 }
+                // Check if link is entering somewhere
+                checkStairsEntering(link);
             }
             if (guiManager.isLeftPressed() && guiManager.areButtonsActivated() && zoneManager.leftAndRightAuthorized(link) && linkHasNotMovedYet) {
                 link.orientation = Orientation.LEFT;
@@ -94,6 +97,8 @@ public class LinkService {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.LEFT);
                 }
+                // Check if link is entering somewhere
+                checkStairsEntering(link);
             }
             if (guiManager.isRightPressed() && guiManager.areButtonsActivated() && zoneManager.leftAndRightAuthorized(link) && linkHasNotMovedYet) {
                 link.orientation = Orientation.RIGHT;
@@ -109,6 +114,8 @@ public class LinkService {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.RIGHT);
                 }
+                // Check if link is entering somewhere
+                checkStairsEntering(link);
             }
         }
     }
@@ -117,7 +124,7 @@ public class LinkService {
      * Handle link attack
      */
     public void handleLinkAttack(Link link, float deltaTime) {
-        if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringSomewhere && !link.isExitingSomewhere && !link.isShowingItem) {
+        if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
             // Start of link's attack
             if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
                 link.currentAnimation = link.attackAnimations.get(link.orientation);
@@ -224,7 +231,7 @@ public class LinkService {
                     }
                 }
                 // Check if link is entering a cave
-                checkAndInitCaveEntering(link);
+                checkAndInitDoorEntering(link);
             }
             if (link.orientation == Orientation.LEFT || link.orientation == Orientation.RIGHT) {
                 float deltaX = Link.PUSH_SPEED * link.pushX * deltaTime;
@@ -250,9 +257,9 @@ public class LinkService {
      * Handle when link is entering a case or a dungeon
      */
     public void handleLinkEnteringSomewhere(Link link, float deltaTime) {
-        if (link.isEnteringSomewhere) {
+        if (link.isEnteringADoor) {
             link.currentAnimation.update(deltaTime);
-            float distance = deltaTime * Link.ENTER_CAVE_SPEED;
+            float distance = deltaTime * Link.ENTER_DOOR_SPEED;
             link.enterSomewhereCounter -= distance;
             moveLinkY(link, distance);
         }
@@ -262,16 +269,18 @@ public class LinkService {
      * Handle when link is exiting a case or a dungeon
      */
     public void handleLinkExitingSomewhere(Link link, float deltaTime) {
-        if (link.isExitingSomewhere) {
-            if (link.exitSomewhereDistance == LocationUtil.TILE_SIZE) {
-                soundEffectManager.play("cave");
+        if (link.isExitingADoor) {
+            if (link.exitSomewhereDistance > 0) {
+                if (link.exitSomewhereDistance == LocationUtil.TILE_SIZE) {
+                    soundEffectManager.play("cave");
+                }
+                link.currentAnimation.update(deltaTime);
+                float distance = Math.min(deltaTime * Link.ENTER_DOOR_SPEED, link.exitSomewhereDistance);
+                link.exitSomewhereDistance -= distance;
+                moveLinkY(link, -1 * distance);
             }
-            link.currentAnimation.update(deltaTime);
-            float distance = Math.min(deltaTime * Link.ENTER_CAVE_SPEED, link.exitSomewhereDistance);
-            link.exitSomewhereDistance -= distance;
-            moveLinkY(link, -1 * distance);
             if (link.exitSomewhereDistance <= 0) {
-                link.isExitingSomewhere = false;
+                link.isExitingADoor = false;
                 enemyManager.spawnEnemies();
             }
         }
@@ -280,22 +289,43 @@ public class LinkService {
     /**
      * Check if entering a cave and set the variables to make link enter a cave
      */
-    private void checkAndInitCaveEntering(Link link) {
-        if (zoneManager.isTileACave(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.TILE_SIZE)) {
+    private void checkAndInitDoorEntering(Link link) {
+        if (zoneManager.isTileADoor(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.TILE_SIZE)) {
             Logger.info("Link is entering a cave.");
+            guiManager.deactivateButtons();
             musicManager.stop();
             soundEffectManager.play("cave");
             enemyManager.unloadEnemies();
             linkManager.hideItemsAndEffects();
-            link.isEnteringSomewhere = true;
+            link.isEnteringADoor = true;
             link.enterSomewhereCounter = LocationUtil.TILE_SIZE - 4; // Minus 4 to avoid link on the other side of the hiding tile
+            link.exitSomewhereDistance = LocationUtil.TILE_SIZE;
             link.isPushed = false;
             link.isAttacking = false;
             link.isInvincible = false;
             link.currentAnimation = link.moveAnimations.get(Orientation.UP);
             int tileX = LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE);
             int tileY = LocationUtil.getTileYFromPositionY(link.y + LocationUtil.TILE_SIZE);
-            link.cavePosition = new Coordinate(LocationUtil.getXFromGrid(tileX), LocationUtil.getYFromGrid(tileY));
+            link.underTheDoor = new Coordinate(LocationUtil.getXFromGrid(tileX), LocationUtil.getYFromGrid(tileY));
+        }
+    }
+
+    /**
+     * Check if entering a cave and set the variables to make link enter a cave
+     */
+    private void checkStairsEntering(Link link) {
+        if (zoneManager.isTileStairs(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
+            Logger.info("Link is entering stairs.");
+            guiManager.deactivateButtons();
+            musicManager.stop();
+            enemyManager.unloadEnemies();
+            linkManager.hideItemsAndEffects();
+            link.isEnteringADoor = true;
+            link.enterSomewhereCounter = 0;
+            link.exitSomewhereDistance = 0;
+            link.isPushed = false;
+            link.isAttacking = false;
+            link.isInvincible = false;
         }
     }
 

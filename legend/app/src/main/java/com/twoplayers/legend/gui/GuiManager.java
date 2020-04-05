@@ -9,6 +9,7 @@ import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.image.ImagesGui;
+import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.link.inventory.Arrow;
@@ -135,6 +136,9 @@ public class GuiManager implements IManager {
     private static final int LEFT_DUNGEONMAP = 712;
     private static final int TOP_DUNGEONMAP = 80;
 
+    private static final int DEBUGY = 112;
+    private static final int DEBUGX = 8;
+
     private boolean initNotDone = true;
 
     private Game game;
@@ -142,6 +146,7 @@ public class GuiManager implements IManager {
 
     private IZoneManager zoneManager;
     private LinkManager linkManager;
+    private SaveManager saveManager;
 
     private boolean buttonsActivated;
     private boolean upPressed;
@@ -167,8 +172,7 @@ public class GuiManager implements IManager {
 
         linkManager = ((MainActivity) game).getLinkManager();
         zoneManager = ((MainActivity) game).getZoneManager(zone);
-
-        buttonsActivated = true;
+        saveManager = ((MainActivity) game).getSaveManager();
     }
 
     /**
@@ -190,6 +194,8 @@ public class GuiManager implements IManager {
         aPressed = false;
         bPressed = false;
         cPressed = false;
+
+        buttonsActivated = true;
     }
 
     @Override
@@ -379,6 +385,9 @@ public class GuiManager implements IManager {
         g.drawString(coinsToDisplay, LEFT_COINS, TOP_COINS, TextUtil.getPaint());
         g.drawString("x" + link.getKeys(), LEFT_KEYS, TOP_KEYS, TextUtil.getPaint());
         g.drawString("x" + link.getBomb(), LEFT_BOMBS, TOP_BOMBS, TextUtil.getPaint());
+
+        // Draw debug info
+        g.drawString("Attempt: " + saveManager.getSave().getAttempt(), DEBUGX, DEBUGY, TextUtil.getDebugPaint());
     }
 
     /**

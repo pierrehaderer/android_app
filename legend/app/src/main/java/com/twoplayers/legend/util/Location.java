@@ -27,4 +27,8 @@ public class Location {
             this.y = Integer.valueOf(locationAsArray[1]);
         }
     }
+
+    public boolean is(int x, int y) {
+        return this.x == x && this.y == y;
+    }
 }

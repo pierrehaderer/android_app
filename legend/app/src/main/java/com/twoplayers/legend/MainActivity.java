@@ -4,6 +4,7 @@ import android.content.res.AssetManager;
 import android.view.View;
 
 import com.twoplayers.legend.assets.image.AllImages;
+import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.cave.CaveManager;
@@ -35,6 +36,7 @@ public class MainActivity extends AndroidGame {
     private DungeonEnemyManager dungeonEnemyManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
+    private SaveManager saveManager;
 
     @Override
     public Screen getInitScreen() {
@@ -51,6 +53,7 @@ public class MainActivity extends AndroidGame {
         dungeonEnemyManager = new DungeonEnemyManager();
         linkManager = new LinkManager();
         guiManager = new GuiManager();
+        saveManager = new SaveManager();
         TextUtil.initPaint(this);
         hideNavigationBar();
         allImages.getImageOther().loadSplashLoadingScreen(this.getGraphics());
@@ -162,5 +165,9 @@ public class MainActivity extends AndroidGame {
 
     public GuiManager getGuiManager() {
         return guiManager;
+    }
+
+    public SaveManager getSaveManager() {
+        return saveManager;
     }
 }

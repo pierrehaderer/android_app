@@ -3,11 +3,16 @@ package com.twoplayers.legend.util;
 import android.content.res.AssetManager;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class FileUtil {
 
@@ -61,5 +66,24 @@ public class FileUtil {
             }
         }
         return lines;
+    }
+
+    /**
+     * Get content of a file
+     */
+    public static String getContent(String filePath) throws FileNotFoundException {
+        Scanner scanner = new Scanner(new File(filePath));
+        StringBuilder content = new StringBuilder();
+        while (scanner.hasNextLine()) {
+            content.append(scanner.nextLine());
+        }
+        return content.toString();
+    }
+
+    public static void writeContent(String filePath, String content) throws IOException {
+        OutputStream outputStream = new FileOutputStream(filePath);
+        outputStream.write(content.getBytes());
+        outputStream.flush();
+        outputStream.close();
     }
 }

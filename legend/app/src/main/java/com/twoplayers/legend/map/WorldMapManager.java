@@ -5,6 +5,8 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.assets.save.SaveManager;
+import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
@@ -38,10 +40,11 @@ public class WorldMapManager implements IZoneManager {
     private LinkManager linkManager;
     private WorldMapEnemyManager worldMapEnemyManager;
     private MusicManager musicManager;
+    private SaveManager saveManager;
 
     /** 16x8 MapRooms that represent the whole worldMap in this game */
     private MapRoom[][] worldMap;
-    private Boolean[][] exploredWorldMap;
+    private Boolean[][] exploredRooms;
 
     private Map<String, EntranceInfo> worldMapEntrances;
 
@@ -100,48 +103,15 @@ public class WorldMapManager implements IZoneManager {
         linkManager = ((MainActivity) game).getLinkManager();
         worldMapEnemyManager = ((MainActivity) game).getWorldMapEnemyManager();
         musicManager = ((MainActivity) game).getMusicManager();
+        saveManager = ((MainActivity) game).getSaveManager();
 
         imagesWorldMap = ((MainActivity) game).getAllImages().getImagesWorldMap();
         imagesWorldMap.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         MapTile.initHashMap();
         initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map.txt"));
-        initWolrdMapCaves(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_entrance.properties"));
+        initWorldMapCaves(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_entrance.properties"));
         waterCoordinate = new ArrayList<>();
-    }
-
-    /**
-     * Initiate all the caves from the world_map_caves file
-     */
-    private void initWolrdMapCaves(Properties entranceProperties) {
-        worldMapEntrances = new HashMap<>();
-        for (String key : entranceProperties.stringPropertyNames()) {
-            Location location = new Location(Integer.parseInt(key.substring(0, key.length() - 1)), Integer.parseInt(key.substring(key.length() - 1)));
-            String[] entranceArray = entranceProperties.getProperty(key).split("\\|");
-            if ("DUNGEON".equals(entranceArray[0])) {
-                DungeonInfo dungeonInfo = new DungeonInfo();
-                dungeonInfo.location = location;
-                dungeonInfo.entrance = new Coordinate(entranceArray[1]);
-                dungeonInfo.type = EntranceInfo.DUNGEON;
-                dungeonInfo.id = entranceArray[2];
-                dungeonInfo.startLocation = new Location(entranceArray[3]);
-                worldMapEntrances.put(key, dungeonInfo);
-            } else if ("CAVE".equals(entranceArray[0])) {
-                CaveInfo caveInfo = new CaveInfo();
-                caveInfo.type = EntranceInfo.CAVE;
-                caveInfo.location = location;
-                caveInfo.entrance = new Coordinate(entranceArray[1]);
-                caveInfo.message1 = entranceArray[2];
-                caveInfo.message2 = entranceArray[3];
-                caveInfo.npcName = (entranceArray[4].length() > 0) ? entranceArray[4] : CaveInfo.DEFAULT_NPC;
-                for (int i = 5; i < entranceArray.length; i++) {
-                    caveInfo.itemsAndPrices.add(entranceArray[i]);
-                }
-                worldMapEntrances.put(key, caveInfo);
-            } else {
-                worldMapEntrances.put(key, new CaveInfo());
-            }
-        }
     }
 
     /**
@@ -149,16 +119,16 @@ public class WorldMapManager implements IZoneManager {
      */
     private void initWorldMap(List<String> worldMapFileContent) {
         worldMap = new MapRoom[16][8];
-        exploredWorldMap = new Boolean[16][8];
+        exploredRooms = new Boolean[16][8];
+        Boolean[][] savedExploredRooms = saveManager.getSave().getWorldMapSave().getExploredRooms();
 
         // Initialise the mapRooms
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 8; j++) {
                 worldMap[i][j] = (new MapRoom());
-                exploredWorldMap[i][j] = false;
+                exploredRooms[i][j] = savedExploredRooms[i][j];
             }
         }
-        exploredWorldMap[7][7] = true;
 
         // Fill the mapRooms, line by line
         int indexLine = 0;
@@ -173,6 +143,83 @@ public class WorldMapManager implements IZoneManager {
                 index1++;
             }
         }
+    }
+
+    /**
+     * Initiate all the caves from the world_map_caves file
+     */
+    private void initWorldMapCaves(Properties entranceProperties) {
+        worldMapEntrances = new HashMap<>();
+        for (String key : entranceProperties.stringPropertyNames()) {
+            int i = Integer.parseInt(key.substring(0, key.length() - 1));
+            int j = Integer.parseInt(key.substring(key.length() - 1));
+            String[] entranceArray = entranceProperties.getProperty(key).split("\\|");
+            if ("DUNGEON".equals(entranceArray[0])) {
+                DungeonInfo dungeonInfo = new DungeonInfo();
+                dungeonInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
+                dungeonInfo.style = EntranceInfo.getStyle(entranceArray[2]);
+                dungeonInfo.hidden = (dungeonInfo.hiddenStyle != dungeonInfo.style);
+                dungeonInfo.location = new Location(i, j);
+                dungeonInfo.entrance = new Coordinate(entranceArray[3]);
+                dungeonInfo.exit = findExit(i, j, dungeonInfo);
+                dungeonInfo.hitbox.relocate(dungeonInfo.entrance.x, dungeonInfo.entrance.y);
+                dungeonInfo.id = entranceArray[4];
+                dungeonInfo.startLocation = new Location(entranceArray[5]);
+                worldMapEntrances.put(key, dungeonInfo);
+            } else if ("CAVE".equals(entranceArray[0])) {
+                CaveInfo caveInfo = new CaveInfo();
+                caveInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
+                caveInfo.style = EntranceInfo.getStyle(entranceArray[2]);
+                caveInfo.hidden = (caveInfo.hiddenStyle != caveInfo.style);
+                caveInfo.location = new Location(i, j);
+                caveInfo.entrance = new Coordinate(entranceArray[3]);
+                caveInfo.exit = findExit(i, j, caveInfo);
+                caveInfo.hitbox.relocate(caveInfo.entrance.x, caveInfo.entrance.y);
+                caveInfo.message1 = entranceArray[4];
+                caveInfo.message2 = entranceArray[5];
+                caveInfo.npcName = (entranceArray[6].length() > 0) ? entranceArray[6] : CaveInfo.DEFAULT_NPC;
+                for (int index = 7; index < entranceArray.length; index++) {
+                    caveInfo.itemsAndPrices.add(entranceArray[index]);
+                }
+                worldMapEntrances.put(key, caveInfo);
+            } else {
+                worldMapEntrances.put(key, new CaveInfo());
+            }
+        }
+
+        Boolean[][] savedOpenedEntrances = saveManager.getSave().getWorldMapSave().getOpenedEntrances();
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 8; j++) {
+                // Update the info if the entrance has already been opened
+                if (savedOpenedEntrances[i][j]) {
+                    EntranceInfo entranceInfo = worldMapEntrances.get(String.valueOf(i) + j);
+                    entranceInfo.hidden = false;
+                    int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
+                    int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
+                    MapTile mapTile = (entranceInfo.style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
+                    worldMap[i][j].changeTile(tileX, tileY, mapTile);
+                }
+            }
+        }
+    }
+
+    /**
+     * Find the exit for the cave.
+     */
+    private Coordinate findExit(int i, int j, EntranceInfo entranceInfo) {
+        if (entranceInfo.style == EntranceInfo.DOOR) {
+            return new Coordinate(entranceInfo.entrance.x, entranceInfo.entrance.y + LocationUtil.TILE_SIZE);
+        }
+        int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
+        int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
+        MapRoom mapRoom = worldMap[i][j];
+        if (mapRoom.getTile(tileX - 1, tileY).walkable) {
+            return entranceInfo.exit = new Coordinate(entranceInfo.entrance.x - LocationUtil.TILE_SIZE, entranceInfo.entrance.y);
+        }
+        if (mapRoom.getTile(tileX - 1, tileY + 1).walkable) {
+            return entranceInfo.exit = new Coordinate(entranceInfo.entrance.x - LocationUtil.TILE_SIZE, entranceInfo.entrance.y + LocationUtil.TILE_SIZE);
+        }
+        return entranceInfo.exit = new Coordinate(entranceInfo.entrance.x - LocationUtil.TILE_SIZE, entranceInfo.entrance.y - LocationUtil.TILE_SIZE);
     }
 
     @Override
@@ -232,6 +279,17 @@ public class WorldMapManager implements IZoneManager {
             g.drawScaledImage(imageNextMapRoom, (int) leftNextMapRoom, (int) topNextMapRoom, AllImages.COEF);
         }
         g.drawScaledImage(imageCurrentMapRoom, (int) leftCurrentMapRoom, (int) topCurrentMapRoom, AllImages.COEF);
+        EntranceInfo entranceInfo = worldMapEntrances.get(getCoordinate());
+        if (!entranceInfo.hidden) {
+            float x = entranceInfo.entrance.x + leftCurrentMapRoom - LocationUtil.LEFT_MAP;
+            float y = entranceInfo.entrance.y + topCurrentMapRoom - LocationUtil.TOP_MAP;
+            if (entranceInfo.style == EntranceInfo.DOOR) {
+                g.drawScaledImage(imagesWorldMap.get("door"), (int) x, (int) y, AllImages.COEF);
+            } else if (entranceInfo.style == EntranceInfo.STAIRS) {
+                // +2 to hide the bush behind
+                g.drawScaledImage(imagesWorldMap.get("stairs"), (int) x, (int) y + 2, AllImages.COEF);
+            }
+        }
     }
 
     @Override
@@ -253,12 +311,21 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
-    public boolean isTileACave(float x, float y) {
+    public boolean isTileADoor(float x, float y) {
         MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
         MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile == MapTile.CAVE;
+        return tile == MapTile.DOOR;
+    }
+
+    @Override
+    public boolean isTileStairs(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile == MapTile.STAIRS;
     }
 
     @Override
@@ -297,7 +364,8 @@ public class WorldMapManager implements IZoneManager {
         }
         imageNextMapRoom = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
         Logger.info("Starting room transition to " + nextAbscissa + nextOrdinate);
-        exploredWorldMap[nextAbscissa][nextOrdinate] = true;
+        exploredRooms[nextAbscissa][nextOrdinate] = true;
+        saveManager.updateExploredRooms(nextAbscissa, nextOrdinate);
         transitionRunning = true;
         transitionOrientation = orientation;
     }
@@ -355,7 +423,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileUpLeft) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
@@ -375,7 +443,8 @@ public class WorldMapManager implements IZoneManager {
                 break;
             case BLOC_TOP_UPPER:
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -387,7 +456,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileUpRight) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
@@ -404,7 +473,8 @@ public class WorldMapManager implements IZoneManager {
                 break;
             case TREE_LEFT:
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -431,7 +501,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileDownLeft) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_BOT_UPPER:
             case TREE_LEFT:
@@ -460,7 +530,8 @@ public class WorldMapManager implements IZoneManager {
                 }
                 break;
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -472,7 +543,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileDownRight) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_BOT_LOWER:
             case TREE_RIGHT:
@@ -497,7 +568,8 @@ public class WorldMapManager implements IZoneManager {
                 break;
             case TREE_LEFT:
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -524,7 +596,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileUpLeft) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
@@ -545,7 +617,8 @@ public class WorldMapManager implements IZoneManager {
                 }
                 break;
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -557,7 +630,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileDownLeft) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_TOP_UPPER:
             case BLOC_TOP_LOWER:
@@ -578,7 +651,8 @@ public class WorldMapManager implements IZoneManager {
                 }
                 break;
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -605,7 +679,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileUpRight) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_BOT_UPPER:
             case BLOC_BOT_LOWER:
@@ -630,7 +704,8 @@ public class WorldMapManager implements IZoneManager {
                 }
                 break;
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -642,7 +717,7 @@ public class WorldMapManager implements IZoneManager {
         switch (tileDownRight) {
             case BLOC:
             case WATER:
-            case STATUE:
+            case ARMOS:
             case TOMB:
             case BLOC_TOP_UPPER:
             case BLOC_TOP_LOWER:
@@ -663,7 +738,8 @@ public class WorldMapManager implements IZoneManager {
                 break;
             case TREE_RIGHT:
             case PATH:
-            case CAVE:
+            case DOOR:
+            case STAIRS:
             case BRIDGE:
             case LADDER:
             case OUT_OF_BOUNDS:
@@ -682,7 +758,7 @@ public class WorldMapManager implements IZoneManager {
 
     @Override
     public boolean isExplored(int x, int y) {
-        return exploredWorldMap[x][y];
+        return exploredRooms[x][y];
     }
 
     @Override
@@ -713,6 +789,23 @@ public class WorldMapManager implements IZoneManager {
     @Override
     public boolean leftAndRightAuthorized(Link link) {
         return true;
+    }
+
+    @Override
+    public void burnTheBushes(Fire fire) {
+        EntranceInfo entranceInfo = worldMapEntrances.get(getCoordinate());
+        if (entranceInfo.hidden == true && entranceInfo.hiddenStyle == EntranceInfo.BUSH) {
+            if (LocationUtil.areColliding(entranceInfo.hitbox, fire.getHitbox())) {
+                // Add the entrance in the list of the entrances opened
+                entranceInfo.hidden = false;
+                saveManager.updateOpenedEntrances(currentAbscissa, currentOrdinate);
+                // Enable walking on the tile
+                MapTile mapTile = (entranceInfo.style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
+                int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
+                int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
+                worldMap[currentAbscissa][currentOrdinate].changeTile(tileX, tileY, mapTile);
+            }
+        }
     }
 
     /**

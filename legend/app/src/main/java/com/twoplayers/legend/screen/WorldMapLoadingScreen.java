@@ -16,22 +16,28 @@ public class WorldMapLoadingScreen extends Screen {
     public static final int WIDTH_PHONE_SCREEN = 800;
     public static final int HEIGHT_PHONE_SCREEN = 480;
 
+    private boolean notLoaded;
+
     private Location linkLocation;
     private Coordinate linkPosition;
 
     public WorldMapLoadingScreen(Game game, Location location, Coordinate position) {
         super(game);
         Logger.info("Entering WorldMapLoadingScreen.");
+        notLoaded = true;
         linkLocation = location;
         linkPosition = position;
     }
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getWorldMapManager().load(game, linkLocation);
-        ((MainActivity) game).getWorldMapEnemyManager().load(game);
-        ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_WORLD_MAP, linkPosition);
-        ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_WORLD_MAP);
+        if (notLoaded) {
+            notLoaded = false;
+            ((MainActivity) game).getWorldMapManager().load(game, linkLocation);
+            ((MainActivity) game).getWorldMapEnemyManager().load(game);
+            ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_WORLD_MAP, linkPosition);
+            ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_WORLD_MAP);
+        }
         game.setScreen(new WorldMapScreen(game));
     }
 

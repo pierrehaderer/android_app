@@ -14,6 +14,7 @@ public class CaveInfo extends EntranceInfo {
 
     public CaveInfo() {
         super();
+        type = CAVE;
         itemsAndPrices = new ArrayList<>();
     }
 }

@@ -20,12 +20,15 @@ public class DungeonLoadingScreen extends Screen {
     private static final int INITIAL_DUNGEON_POSITION_X = 7;
     private static final int INITIAL_DUNGEON_POSITION_Y = 9;
 
+    private boolean notLoaded;
+
     private DungeonInfo dungeonInfo;
     private Coordinate linkPosition;
 
     public DungeonLoadingScreen(Game game, DungeonInfo dungeonInfo) {
         super(game);
         Logger.info("Entering DungeonLoadingScreen.");
+        notLoaded = true;
         this.dungeonInfo = dungeonInfo;
         float positionX = LocationUtil.getXFromGrid(INITIAL_DUNGEON_POSITION_X) + LocationUtil.HALF_TILE_SIZE;
         float positionY = LocationUtil.getYFromGrid(INITIAL_DUNGEON_POSITION_Y);
@@ -35,10 +38,13 @@ public class DungeonLoadingScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
-        ((MainActivity) game).getDungeonManager().load(game, dungeonInfo);
-        ((MainActivity) game).getDungeonEnemyManager().load(game);
-        ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_DUNGEON, linkPosition);
-        ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_DUNGEON);
+        if (notLoaded) {
+            notLoaded = false;
+            ((MainActivity) game).getDungeonManager().load(game, dungeonInfo);
+            ((MainActivity) game).getDungeonEnemyManager().load(game);
+            ((MainActivity) game).getLinkManager().load(game, LocationUtil.ZONE_DUNGEON, linkPosition);
+            ((MainActivity) game).getGuiManager().load(game, LocationUtil.ZONE_DUNGEON);
+        }
         game.setScreen(new DungeonScreen(game));
     }
 

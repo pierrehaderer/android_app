@@ -22,7 +22,7 @@ public class Cave {
     protected String displayedMessage2;
     protected Npc npc;
     protected Location location;
-    protected Coordinate entrance;
+    protected Coordinate exit;
     protected List<Item> items;
 
     protected Animation fireAnimation;
@@ -32,7 +32,7 @@ public class Cave {
         message1 = caveInfo.message1;
         message2 = caveInfo.message2;
         location = caveInfo.location;
-        entrance = caveInfo.entrance;
+        exit = caveInfo.exit;
 
         items = new ArrayList<>();
         displayedMessage1 = "";

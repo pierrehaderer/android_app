@@ -8,12 +8,12 @@ public class Dungeon {
 
     protected String id;
     protected Location location;
-    protected Coordinate entrance;
+    protected Coordinate exit;
 
     public Dungeon(DungeonInfo dungeonInfo) {
         id = dungeonInfo.id;
         location = dungeonInfo.location;
-        entrance = dungeonInfo.entrance;
+        exit = dungeonInfo.exit;
 
     }
 }
