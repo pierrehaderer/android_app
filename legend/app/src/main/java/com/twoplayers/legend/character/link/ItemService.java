@@ -2,11 +2,12 @@ package com.twoplayers.legend.character.link;
 
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.enemy.Enemy;
-import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.ArrowType;
 import com.twoplayers.legend.character.link.inventory.BoomerangType;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
@@ -55,11 +56,12 @@ public class ItemService {
             if (guiManager.isbPressed()) {
                 switch (link.secondItem) {
                     case 1:
-                        initiateBoomerang(guiManager, link);
+                        initiateBoomerang(link);
                         break;
                     case 2:
                         break;
                     case 3:
+                        initiateArrow(link);
                         break;
                     case 4:
                         initiateFireFromLight(link);
@@ -77,6 +79,7 @@ public class ItemService {
         }
         handleBoomerang(link, deltaTime);
         handleFire(link, deltaTime);
+        handleArrow(link, deltaTime);
         if (link.isUsingSecondItem || link.isAttacking) {
             link.currentAnimation.update(deltaTime);
             if (link.currentAnimation.isAnimationOver()) {
@@ -136,25 +139,27 @@ public class ItemService {
         link.lightCount = 0;
         link.fire1.isActive = false;
         link.fire2.isActive = false;
+        link.arrow.isActive = false;
+        link.arrow.isAnImpact = false;
     }
 
     /**
      * Initiate boomerang when link is throwing it
      */
-    public void initiateBoomerang(GuiManager guiManager, Link link) {
+    public void initiateBoomerang(Link link) {
         Boomerang boomerang = link.boomerang;
         if (!boomerang.isMovingForward && !boomerang.isMovingBackward) {
             Logger.info("Link is using boomerang.");
             link.isUsingSecondItem = true;
-            link.currentAnimation.reset();
             link.currentAnimation = link.useAnimations.get(link.orientation);
+            link.currentAnimation.reset();
             boomerang.isMovingForward = true;
             boomerang.counter = Boomerang.INITIAL_WOOD_BOOMERANG_COUNTER;
             boomerang.soundCounter = 0;
             boomerang.hitbox = boomerang.hitboxes.get(link.orientation);
             boomerang.hitbox.relocate(link.x, link.y);
-            boomerang.x = link.x + boomerang.hitbox.x_offset;
-            boomerang.y = link.y + boomerang.hitbox.y_offset;
+            boomerang.x = boomerang.hitbox.x;
+            boomerang.y = boomerang.hitbox.y;
             Logger.info("Boomerang is starting at position (" + boomerang.x + "," + boomerang.y + ")");
             if (guiManager.isUpPressed()) {
                 if (guiManager.isLeftPressed()) {
@@ -341,12 +346,12 @@ public class ItemService {
         link.fire1.update(deltaTime);
         link.fire2.update(deltaTime);
         for (Enemy enemy : enemyManager.getEnemies()) {
-            if (enemy.isActive() && !enemy.isDead()) {
-                if (link.fire1.isActive && enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
+            if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible()) {
+                if (link.fire1.isActive && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
                     Logger.info("Link has hit enemy with fire 1.");
                     enemyManager.isHitByFire(enemy, link.fire1);
                 }
-                if (link.fire2.isActive && enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.fire2.hitbox, enemy.getHitbox())) {
+                if (link.fire2.isActive && LocationUtil.areColliding(link.fire2.hitbox, enemy.getHitbox())) {
                     Logger.info("Link has hit enemy with fire 2.");
                     enemyManager.isHitByFire(enemy, link.fire2);
                 }
@@ -366,15 +371,101 @@ public class ItemService {
         }
     }
 
-        /**
-         * Check if link already has the item
-         */
+
+    /**
+     * Initiate arrow when link is throwing it
+     */
+    public void initiateArrow(Link link) {
+        Arrow arrow = link.arrow;
+        if (!arrow.isActive && !arrow.isAnImpact && link.coins > 0) {
+            Logger.info("Link is using bow and arrow.");
+            link.isUsingSecondItem = true;
+            link.currentAnimation = link.useAnimations.get(link.orientation);
+            link.currentAnimation.reset();
+            link.coins--;
+            soundEffectManager.play("coin_remove");
+            arrow.isActive = true;
+            arrow.hitbox = arrow.hitboxes.get(link.orientation);
+            arrow.hitbox.relocate(link.x, link.y);
+            arrow.x = (link.orientation == Orientation.RIGHT) ? arrow.hitbox.x - 8 * AllImages.COEF : arrow.hitbox.x;
+            arrow.y = (link.orientation == Orientation.DOWN) ? arrow.hitbox.y - 8 * AllImages.COEF : arrow.hitbox.y;
+            Logger.info("Arrow is starting at position (" + arrow.x + "," + arrow.y + ")");
+            arrow.orientation = link.orientation;
+            arrow.selectCurrentAnimation();
+            arrow.currentAnimation.reset();
+        }
+    }
+
+    /**
+     * Handle arrow movements and interactions
+     */
+    protected void handleArrow(Link link, float deltaTime) {
+        Arrow arrow = link.arrow;
+        if (arrow.isActive) {
+            arrow.currentAnimation.update(deltaTime);
+            boolean removeArrow = false;
+            switch (arrow.orientation) {
+                case UP:
+                    arrow.y -= Arrow.SPEED * deltaTime;
+                    arrow.hitbox.y -= Arrow.SPEED * deltaTime;
+                    if (LocationUtil.isTileAtBorder(arrow.x, arrow.y)) {
+                        removeArrow = true;
+                    }
+                    break;
+                case DOWN:
+                    arrow.y += Arrow.SPEED * deltaTime;
+                    arrow.hitbox.y += Arrow.SPEED * deltaTime;
+                    if (LocationUtil.isTileAtBorder(arrow.x, arrow.y + arrow.hitbox.height)) {
+                        removeArrow = true;
+                    }
+                    break;
+                case LEFT:
+                    arrow.x -= Arrow.SPEED * deltaTime;
+                    arrow.hitbox.x -= Arrow.SPEED * deltaTime;
+                    if (LocationUtil.isTileAtBorder(arrow.x, arrow.y)) {
+                        removeArrow = true;
+                    }
+                    break;
+                case RIGHT:
+                    arrow.x += Arrow.SPEED * deltaTime;
+                    arrow.hitbox.x += Arrow.SPEED * deltaTime;
+                    if (LocationUtil.isTileAtBorder(arrow.x + arrow.hitbox.width, arrow.y)) {
+                        removeArrow = true;
+                    }
+                    break;
+            }
+            for (Enemy enemy : enemyManager.getEnemies()) {
+                if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.arrow.hitbox, enemy.getHitbox())) {
+                    Logger.info("Link has hit enemy with arrow.");
+                    enemyManager.isHitByArrow(enemy, link.arrow);
+                    removeArrow = true;
+                    break;
+                }
+            }
+            if (removeArrow) {
+                arrow.currentAnimation = arrow.deathAnimation;
+                arrow.currentAnimation.reset();
+                arrow.isActive = false;
+                arrow.isAnImpact = true;
+            }
+        }
+        if (arrow.isAnImpact) {
+            arrow.currentAnimation.update(deltaTime);
+            if (arrow.currentAnimation.isAnimationOver()) {
+                arrow.isAnImpact = false;
+            }
+        }
+    }
+
+    /**
+     * Check if link already has the item
+     */
     public boolean alreadyInInventory(Link link, Item item) {
         switch (item.name) {
             case "wood_arrow":
-                return link.arrow != Arrow.NONE;
+                return link.arrow.type != ArrowType.NONE;
             case "white_arrow":
-                return link.arrow == Arrow.WHITE;
+                return link.arrow.type == ArrowType.WHITE;
             case "wood_boomerang":
                 return link.boomerang.type != BoomerangType.NONE;
             case "white_boomerang":
@@ -438,10 +529,12 @@ public class ItemService {
         int possibleSecondItem = 0;
         switch (item.name) {
             case "wood_arrow":
-                link.arrow = Arrow.WOOD;
+                link.arrow.type = ArrowType.WOOD;
+                if (link.bow != Bow.NONE) possibleSecondItem = 3;
                 break;
             case "white_arrow":
-                link.arrow = Arrow.WHITE;
+                link.arrow.type = ArrowType.WHITE;
+                if (link.bow != Bow.NONE) possibleSecondItem = 3;
                 break;
             case "wood_boomerang":
                 link.boomerang.type = BoomerangType.WOOD;
@@ -457,7 +550,7 @@ public class ItemService {
                 break;
             case "bow":
                 link.bow = Bow.BOW;
-                possibleSecondItem = 3;
+                if (link.arrow.type != ArrowType.NONE) possibleSecondItem = 3;
                 break;
             case "bracelet":
                 link.bracelet = Bracelet.BRACELET;

@@ -4,6 +4,7 @@ import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.character.enemy.TurretEnemy;
+import com.twoplayers.legend.character.link.Arrow;
 import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Sword;
 
@@ -28,6 +29,8 @@ public interface IEnemyManager extends IManager {
     void isHitByBoomerang(Enemy enemy);
     /** Enemy has been hit by fire */
     void isHitByFire(Enemy enemy, Fire fire);
+    /** Enemy has has been hit by arrow */
+    void isHitByArrow(Enemy enemy, Arrow arrow);
     /** Enemy has hit link */
     void hasHitLink(Enemy enemy);
     /** Missile has hit link */

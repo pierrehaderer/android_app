@@ -4,6 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.character.link.Arrow;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
@@ -152,5 +153,9 @@ public abstract class Enemy {
      */
     public void hasHitLink() {
         Logger.info("This enemy has hit link.");
+    }
+
+    public void isHitByArrow(Arrow arrow) {
+        isWounded(arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
     }
 }

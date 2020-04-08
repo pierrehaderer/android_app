@@ -6,7 +6,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
-import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.ArrowType;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;

@@ -11,6 +11,7 @@ import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.enemy.missile.Plasma;
 import com.twoplayers.legend.character.enemy.missile.Rock;
+import com.twoplayers.legend.character.link.Arrow;
 import com.twoplayers.legend.character.link.Fire;
 import com.twoplayers.legend.character.link.Sword;
 import com.twoplayers.legend.util.Orientation;
@@ -286,6 +287,11 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public void isHitByFire(Enemy enemy, Fire fire) {
         enemy.isHitByFire(fire);
+    }
+
+    @Override
+    public void isHitByArrow(Enemy enemy, Arrow arrow) {
+        enemy.isHitByArrow(arrow);
     }
 
     @Override

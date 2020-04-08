@@ -12,7 +12,7 @@ import com.twoplayers.legend.assets.image.ImagesGui;
 import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.ArrowType;
 import com.twoplayers.legend.character.link.inventory.BoomerangType;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
@@ -329,8 +329,8 @@ public class GuiManager implements IManager {
         if (link.getBomb() > 0) {
             g.drawImage(imagesGui.get("bomb"), LEFT_BOMB, TOP_BOMB);
         }
-        if (link.getArrow() != Arrow.NONE) {
-            g.drawImage(imagesGui.get(link.getArrow().name),LEFT_ARROW, TOP_ARROW);
+        if (link.getArrow().getType() != ArrowType.NONE) {
+            g.drawImage(imagesGui.get(link.getArrow().getType().name),LEFT_ARROW, TOP_ARROW);
         }
         if (link.getBoomerang().getType() != BoomerangType.NONE) {
             g.drawImage(imagesGui.get(link.getBoomerang().getType().name),LEFT_BOOMERANG, TOP_BOOMERANG);

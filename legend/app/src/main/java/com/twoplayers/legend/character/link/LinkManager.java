@@ -12,7 +12,7 @@ import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.Arrow;
+import com.twoplayers.legend.character.link.inventory.ArrowType;
 import com.twoplayers.legend.character.link.inventory.BoomerangType;
 import com.twoplayers.legend.character.link.inventory.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
@@ -108,7 +108,8 @@ public class LinkManager implements IManager {
         link.bomb = 0;
         link.bombMax = 8;
         link.bow = Bow.NONE;
-        link.arrow = Arrow.NONE;
+        link.arrow = new Arrow(imagesLink, game.getGraphics());
+        link.arrow.type = ArrowType.NONE;
         link.light = Light.NONE;
         link.lightCount = 0;
         link.timeBeforeUseLight = 0;
@@ -196,6 +197,10 @@ public class LinkManager implements IManager {
         if (link.fire2.isActive) {
             g.drawAnimation(link.fire2.animation, (int) link.fire2.x, (int) link.fire2.y);
         }
+        // Draw the arrow
+        if (link.arrow.isActive || link.arrow.isAnImpact) {
+            g.drawAnimation(link.arrow.currentAnimation, (int) link.arrow.x, (int) link.arrow.y);
+        }
 
         // Draw the hitboxes
         g.drawRect((int) link.hitbox.x, (int) link.hitbox.y, (int) link.hitbox.width, (int) link.hitbox.height, Hitbox.COLOR);
@@ -203,6 +208,7 @@ public class LinkManager implements IManager {
         g.drawRect((int) link.boomerang.hitbox.x, (int) link.boomerang.hitbox.y, (int) link.boomerang.hitbox.width, (int) link.boomerang.hitbox.height, Hitbox.COLOR);
         g.drawRect((int) link.fire1.hitbox.x, (int) link.fire1.hitbox.y, (int) link.fire1.hitbox.width, (int) link.fire1.hitbox.height, Hitbox.COLOR);
         g.drawRect((int) link.fire2.hitbox.x, (int) link.fire2.hitbox.y, (int) link.fire2.hitbox.width, (int) link.fire2.hitbox.height, Hitbox.COLOR);
+        g.drawRect((int) link.arrow.hitbox.x, (int) link.arrow.hitbox.y, (int) link.arrow.hitbox.width, (int) link.arrow.hitbox.height, Hitbox.COLOR);
     }
 
     /**

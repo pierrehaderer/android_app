@@ -14,6 +14,7 @@ import com.twoplayers.legend.character.enemy.worldmap.BlueFastOctorok;
 import com.twoplayers.legend.character.enemy.worldmap.BlueSlowOctorok;
 import com.twoplayers.legend.character.enemy.worldmap.RedFastOctorok;
 import com.twoplayers.legend.character.enemy.worldmap.RedSlowOctorok;
+import com.twoplayers.legend.character.link.Arrow;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
@@ -269,6 +270,11 @@ public class DungeonEnemyManager implements IEnemyManager {
     @Override
     public void isHitByFire(Enemy enemy, Fire fire) {
         enemy.isHitByFire(fire);
+    }
+
+    @Override
+    public void isHitByArrow(Enemy enemy, Arrow arrow) {
+        enemy.isHitByArrow(arrow);
     }
 
     @Override
