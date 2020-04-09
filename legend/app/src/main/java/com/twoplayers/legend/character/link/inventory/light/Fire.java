@@ -14,7 +14,7 @@ public class Fire {
     public static final float DAMAGE_TO_LINK = -0.5f;
     public static final int DAMAGE_TO_ENEMY = 1;
 
-    private static final float SPEED = 0.4f;
+    protected static final float SPEED = 0.4f;
 
     public boolean isActive;
     protected float remainingMoves;
@@ -45,55 +45,6 @@ public class Fire {
         animation = g.newAnimation();
         animation.addFrame(imagesLink.get("fire_1"), AllImages.COEF, 10);
         animation.addFrame(imagesLink.get("fire_2"), AllImages.COEF, 10);
-    }
-
-    /**
-     * Init the fire when produced by link light
-     */
-    protected void initFromLight(Orientation orientation, float x, float y) {
-        isActive = true;
-        timeBeforeDespawn = Fire.INITIAL_TIME_BEFORE_DESPAWN;
-        this.remainingMoves = LocationUtil.TILE_SIZE;
-        this.orientation = orientation;
-        this.x = x;
-        this.y = y;
-        hitbox.relocate(x, y);
-    }
-
-    /**
-     * Update fire animation and position
-     */
-    protected void update(float deltaTime) {
-        if (isActive) {
-            animation.update(deltaTime);
-            if (remainingMoves > 0) {
-                float distance = Math.min(remainingMoves, deltaTime * SPEED);
-                remainingMoves -= distance;
-                switch (orientation) {
-                    case UP:
-                        y -= distance;
-                        hitbox.y -= distance;
-                        break;
-                    case DOWN:
-                        y += distance;
-                        hitbox.y += distance;
-                        break;
-                    case LEFT:
-                        x -= distance;
-                        hitbox.x -= distance;
-                        break;
-                    case RIGHT:
-                        x += distance;
-                        hitbox.x += distance;
-                        break;
-                }
-            } else {
-                timeBeforeDespawn -= deltaTime;
-                if (timeBeforeDespawn < 0) {
-                    hasJustFinished = true;
-                }
-            }
-        }
     }
 
     public Orientation getOrientation() {

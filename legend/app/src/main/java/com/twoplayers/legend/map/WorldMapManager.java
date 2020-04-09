@@ -6,6 +6,7 @@ import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.save.SaveManager;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -40,13 +41,14 @@ public class WorldMapManager implements IZoneManager {
     private LinkManager linkManager;
     private WorldMapEnemyManager worldMapEnemyManager;
     private MusicManager musicManager;
+    private SoundEffectManager soundEffectManager;
     private SaveManager saveManager;
 
     /** 16x8 MapRooms that represent the whole worldMap in this game */
     private MapRoom[][] worldMap;
     private Boolean[][] exploredRooms;
 
-    private Map<String, EntranceInfo> worldMapEntrances;
+    private EntranceInfo[][] worldMapEntrances;
 
     private int currentAbscissa;
     private int currentOrdinate;
@@ -103,6 +105,7 @@ public class WorldMapManager implements IZoneManager {
         linkManager = ((MainActivity) game).getLinkManager();
         worldMapEnemyManager = ((MainActivity) game).getWorldMapEnemyManager();
         musicManager = ((MainActivity) game).getMusicManager();
+        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         saveManager = ((MainActivity) game).getSaveManager();
 
         imagesWorldMap = ((MainActivity) game).getAllImages().getImagesWorldMap();
@@ -149,41 +152,46 @@ public class WorldMapManager implements IZoneManager {
      * Initiate all the caves from the world_map_caves file
      */
     private void initWorldMapCaves(Properties entranceProperties) {
-        worldMapEntrances = new HashMap<>();
-        for (String key : entranceProperties.stringPropertyNames()) {
-            int i = Integer.parseInt(key.substring(0, key.length() - 1));
-            int j = Integer.parseInt(key.substring(key.length() - 1));
-            String[] entranceArray = entranceProperties.getProperty(key).split("\\|");
-            if ("DUNGEON".equals(entranceArray[0])) {
-                DungeonInfo dungeonInfo = new DungeonInfo();
-                dungeonInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
-                dungeonInfo.style = EntranceInfo.getStyle(entranceArray[2]);
-                dungeonInfo.hidden = (dungeonInfo.hiddenStyle != dungeonInfo.style);
-                dungeonInfo.location = new Location(i, j);
-                dungeonInfo.entrance = new Coordinate(entranceArray[3]);
-                dungeonInfo.exit = findExit(i, j, dungeonInfo);
-                dungeonInfo.hitbox.relocate(dungeonInfo.entrance.x, dungeonInfo.entrance.y);
-                dungeonInfo.id = entranceArray[4];
-                dungeonInfo.startLocation = new Location(entranceArray[5]);
-                worldMapEntrances.put(key, dungeonInfo);
-            } else if ("CAVE".equals(entranceArray[0])) {
-                CaveInfo caveInfo = new CaveInfo();
-                caveInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
-                caveInfo.style = EntranceInfo.getStyle(entranceArray[2]);
-                caveInfo.hidden = (caveInfo.hiddenStyle != caveInfo.style);
-                caveInfo.location = new Location(i, j);
-                caveInfo.entrance = new Coordinate(entranceArray[3]);
-                caveInfo.exit = findExit(i, j, caveInfo);
-                caveInfo.hitbox.relocate(caveInfo.entrance.x, caveInfo.entrance.y);
-                caveInfo.message1 = entranceArray[4];
-                caveInfo.message2 = entranceArray[5];
-                caveInfo.npcName = (entranceArray[6].length() > 0) ? entranceArray[6] : CaveInfo.DEFAULT_NPC;
-                for (int index = 7; index < entranceArray.length; index++) {
-                    caveInfo.itemsAndPrices.add(entranceArray[index]);
+        worldMapEntrances = new EntranceInfo[16][8];
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 8; j++) {
+                String key = String.valueOf(i) + j;
+                if (entranceProperties.containsKey(key)) {
+                    String[] entranceArray = entranceProperties.getProperty(key).split("\\|");
+                    if ("DUNGEON".equals(entranceArray[0])) {
+                        DungeonInfo dungeonInfo = new DungeonInfo();
+                        dungeonInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
+                        dungeonInfo.style = EntranceInfo.getStyle(entranceArray[2]);
+                        dungeonInfo.hidden = (dungeonInfo.hiddenStyle != dungeonInfo.style);
+                        dungeonInfo.location = new Location(i, j);
+                        dungeonInfo.entrance = new Coordinate(entranceArray[3]);
+                        dungeonInfo.exit = findExit(i, j, dungeonInfo);
+                        dungeonInfo.hitbox.relocate(dungeonInfo.entrance.x, dungeonInfo.entrance.y);
+                        dungeonInfo.id = entranceArray[4];
+                        dungeonInfo.startLocation = new Location(entranceArray[5]);
+                        worldMapEntrances[i][j] = dungeonInfo;
+                    } else if ("CAVE".equals(entranceArray[0])) {
+                        CaveInfo caveInfo = new CaveInfo();
+                        caveInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
+                        caveInfo.style = EntranceInfo.getStyle(entranceArray[2]);
+                        caveInfo.hidden = (caveInfo.hiddenStyle != caveInfo.style);
+                        caveInfo.location = new Location(i, j);
+                        caveInfo.entrance = new Coordinate(entranceArray[3]);
+                        caveInfo.exit = findExit(i, j, caveInfo);
+                        caveInfo.hitbox.relocate(caveInfo.entrance.x, caveInfo.entrance.y);
+                        caveInfo.message1 = entranceArray[4];
+                        caveInfo.message2 = entranceArray[5];
+                        caveInfo.npcName = (entranceArray[6].length() > 0) ? entranceArray[6] : CaveInfo.DEFAULT_NPC;
+                        for (int index = 7; index < entranceArray.length; index++) {
+                            caveInfo.itemsAndPrices.add(entranceArray[index]);
+                        }
+                        worldMapEntrances[i][j] = caveInfo;
+                    } else {
+                        worldMapEntrances[i][j] = new CaveInfo();
+                    }
+                } else {
+                    worldMapEntrances[i][j] = new CaveInfo();
                 }
-                worldMapEntrances.put(key, caveInfo);
-            } else {
-                worldMapEntrances.put(key, new CaveInfo());
             }
         }
 
@@ -192,11 +200,10 @@ public class WorldMapManager implements IZoneManager {
             for (int j = 0; j < 8; j++) {
                 // Update the info if the entrance has already been opened
                 if (savedOpenedEntrances[i][j]) {
-                    EntranceInfo entranceInfo = worldMapEntrances.get(String.valueOf(i) + j);
-                    entranceInfo.hidden = false;
-                    int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
-                    int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
-                    MapTile mapTile = (entranceInfo.style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
+                    worldMapEntrances[i][j].hidden = false;
+                    int tileX = LocationUtil.getTileXFromPositionX(worldMapEntrances[i][j].entrance.x);
+                    int tileY = LocationUtil.getTileYFromPositionY(worldMapEntrances[i][j].entrance.y);
+                    MapTile mapTile = (worldMapEntrances[i][j].style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
                     worldMap[i][j].changeTile(tileX, tileY, mapTile);
                 }
             }
@@ -279,7 +286,7 @@ public class WorldMapManager implements IZoneManager {
             g.drawScaledImage(imageNextMapRoom, (int) leftNextMapRoom, (int) topNextMapRoom, AllImages.COEF);
         }
         g.drawScaledImage(imageCurrentMapRoom, (int) leftCurrentMapRoom, (int) topCurrentMapRoom, AllImages.COEF);
-        EntranceInfo entranceInfo = worldMapEntrances.get(getCoordinate());
+        EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (!entranceInfo.hidden) {
             float x = entranceInfo.entrance.x + leftCurrentMapRoom - LocationUtil.LEFT_MAP;
             float y = entranceInfo.entrance.y + topCurrentMapRoom - LocationUtil.TOP_MAP;
@@ -793,17 +800,18 @@ public class WorldMapManager implements IZoneManager {
 
     @Override
     public void burnTheBushes(Fire fire) {
-        EntranceInfo entranceInfo = worldMapEntrances.get(getCoordinate());
+        EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (entranceInfo.hidden == true && entranceInfo.hiddenStyle == EntranceInfo.BUSH) {
             if (LocationUtil.areColliding(entranceInfo.hitbox, fire.getHitbox())) {
-                // Add the entrance in the list of the entrances opened
-                entranceInfo.hidden = false;
-                saveManager.updateOpenedEntrances(currentAbscissa, currentOrdinate);
+                soundEffectManager.play("find_secret");
                 // Enable walking on the tile
                 MapTile mapTile = (entranceInfo.style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
                 int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
                 int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
                 worldMap[currentAbscissa][currentOrdinate].changeTile(tileX, tileY, mapTile);
+                // Add the entrance in the list of the entrances opened
+                entranceInfo.hidden = false;
+                saveManager.updateOpenedEntrances(currentAbscissa, currentOrdinate);
             }
         }
     }
@@ -819,11 +827,7 @@ public class WorldMapManager implements IZoneManager {
      * Obtain the cave information on the current mapRoom
      */
     public EntranceInfo getCave() {
-        String coordinate = getCoordinate();
-        if (worldMapEntrances.containsKey(coordinate)) {
-            return worldMapEntrances.get(coordinate);
-        }
-        return new CaveInfo();
+        return worldMapEntrances[currentAbscissa][currentOrdinate];
     }
 
 }

@@ -7,6 +7,7 @@ import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
+import com.twoplayers.legend.util.Orientation;
 
 public class LightService {
 
@@ -43,20 +44,29 @@ public class LightService {
             link.timeBeforeUseLight = Link.INITIAL_TIME_BEFORE_USE_LIGHT;
             soundEffectManager.play("fire");
             Fire fire = (link.fire1.isActive) ? link.fire2 : link.fire1;
+            fire.isActive = true;
+            fire.timeBeforeDespawn = Fire.INITIAL_TIME_BEFORE_DESPAWN;
+            fire.remainingMoves = LocationUtil.TILE_SIZE;
+            fire.orientation = link.orientation;
             switch (link.orientation) {
                 case UP:
-                    fire.initFromLight(link.orientation, link.x, link.y - LocationUtil.TILE_SIZE);
+                    fire.x = link.x;
+                    fire.y = link.y - LocationUtil.TILE_SIZE;
                     break;
                 case DOWN:
-                    fire.initFromLight(link.orientation, link.x, link.y + LocationUtil.TILE_SIZE);
+                    fire.x = link.x;
+                    fire.y = link.y + LocationUtil.TILE_SIZE;
                     break;
                 case LEFT:
-                    fire.initFromLight(link.orientation, link.x - LocationUtil.TILE_SIZE, link.y);
+                    fire.x = link.x - LocationUtil.TILE_SIZE;
+                    fire.y = link.y;
                     break;
                 case RIGHT:
-                    fire.initFromLight(link.orientation, link.x + LocationUtil.TILE_SIZE, link.y);
+                    fire.x = link.x + LocationUtil.TILE_SIZE;
+                    fire.y = link.y;
                     break;
             }
+            fire.hitbox.relocate(fire.x, fire.y);
         }
     }
 
@@ -67,8 +77,8 @@ public class LightService {
         if (link.timeBeforeUseLight > 0) {
             link.timeBeforeUseLight -= deltaTime;
         }
-        link.fire1.update(deltaTime);
-        link.fire2.update(deltaTime);
+        updateFire(link.fire1, deltaTime);
+        updateFire(link.fire2, deltaTime);
         for (Enemy enemy : enemyManager.getEnemies()) {
             if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible()) {
                 if (link.fire1.isActive && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
@@ -94,4 +104,42 @@ public class LightService {
             link.fire2.hitbox.relocate(0, 0);
         }
     }
+
+
+    /**
+     * Update fire animation and position
+     */
+    protected void updateFire(Fire fire, float deltaTime) {
+        if (fire.isActive) {
+            fire.animation.update(deltaTime);
+            if (fire.remainingMoves > 0) {
+                float distance = Math.min(fire.remainingMoves, deltaTime * Fire.SPEED);
+                fire.remainingMoves -= distance;
+                switch (fire.orientation) {
+                    case UP:
+                        fire.y -= distance;
+                        fire.hitbox.y -= distance;
+                        break;
+                    case DOWN:
+                        fire.y += distance;
+                        fire.hitbox.y += distance;
+                        break;
+                    case LEFT:
+                        fire.x -= distance;
+                        fire.hitbox.x -= distance;
+                        break;
+                    case RIGHT:
+                        fire.x += distance;
+                        fire.hitbox.x += distance;
+                        break;
+                }
+            } else {
+                fire.timeBeforeDespawn -= deltaTime;
+                if (fire.timeBeforeDespawn < 0) {
+                    fire.hasJustFinished = true;
+                }
+            }
+        }
+    }
+
 }
