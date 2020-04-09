@@ -12,16 +12,20 @@ import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.ArrowType;
-import com.twoplayers.legend.character.link.inventory.BoomerangType;
-import com.twoplayers.legend.character.link.inventory.Bow;
+import com.twoplayers.legend.character.link.inventory.ItemService;
+import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
+import com.twoplayers.legend.character.link.inventory.arrow.ArrowType;
+import com.twoplayers.legend.character.link.inventory.boomerang.Boomerang;
+import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangType;
+import com.twoplayers.legend.character.link.inventory.arrow.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;
 import com.twoplayers.legend.character.link.inventory.DungeonMap;
 import com.twoplayers.legend.character.link.inventory.Flute;
 import com.twoplayers.legend.character.link.inventory.InfiniteKey;
 import com.twoplayers.legend.character.link.inventory.Ladder;
-import com.twoplayers.legend.character.link.inventory.Light;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.light.Light;
 import com.twoplayers.legend.character.link.inventory.Meat;
 import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
@@ -29,7 +33,8 @@ import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.character.link.inventory.SwordType;
+import com.twoplayers.legend.character.link.inventory.sword.Sword;
+import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Coordinate;
@@ -40,13 +45,9 @@ public class LinkManager implements IManager {
 
     private boolean initNotDone = true;
 
-    private GuiManager guiManager;
-    private IZoneManager zoneManager;
-    private IEnemyManager enemyManager;
     private ItemService itemService;
     private LinkService linkService;
 
-    private MusicManager musicManager;
     private SoundEffectManager soundEffectManager;
     private ImagesLink imagesLink;
 
@@ -62,8 +63,10 @@ public class LinkManager implements IManager {
             init(game);
         }
 
-        zoneManager = ((MainActivity) game).getZoneManager(zone);
-        enemyManager = ((MainActivity) game).getEnemyManager(zone);
+        IZoneManager zoneManager = ((MainActivity) game).getZoneManager(zone);
+        IEnemyManager enemyManager = ((MainActivity) game).getEnemyManager(zone);
+        GuiManager guiManager = ((MainActivity) game).getGuiManager();
+        MusicManager musicManager = ((MainActivity) game).getMusicManager();
         linkService = new LinkService(guiManager, zoneManager, this, enemyManager, musicManager, soundEffectManager);
         itemService = new ItemService(guiManager, zoneManager, enemyManager, soundEffectManager);
 
@@ -84,9 +87,6 @@ public class LinkManager implements IManager {
      * Initialise this manager
      */
     public void init(Game game) {
-        guiManager = ((MainActivity) game).getGuiManager();
-        musicManager = ((MainActivity) game).getMusicManager();
-
         imagesLink = ((MainActivity) game).getAllImages().getImagesLink();
         imagesLink.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
@@ -102,9 +102,6 @@ public class LinkManager implements IManager {
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
         link.boomerang.type = BoomerangType.NONE;
-        link.boomerang.isMovingForward = false;
-        link.boomerang.isMovingBackward = false;
-        link.boomerang.counter = 0;
         link.bomb = 0;
         link.bombMax = 8;
         link.bow = Bow.NONE;
@@ -151,14 +148,11 @@ public class LinkManager implements IManager {
         // Movement of Link
         linkService.handleLinkMovement(link, deltaTime);
 
-        // Attack of link
-        linkService.handleLinkAttack(link, deltaTime);
-
         // Link is picking an item
         itemService.handleLinkPickingItem(link, deltaTime);
 
         // Link is using the second object
-        itemService.handleLinkUsingSecondItem(link, deltaTime);
+        itemService.handleLinkUsingItem(link, deltaTime);
 
         // Link is wounded
         linkService.handleLinkInvincible(link, deltaTime, colorMatrix);
@@ -176,7 +170,7 @@ public class LinkManager implements IManager {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, colorMatrix.getMatrix());
         } else if (link.isEnteringADoor || link.isExitingADoor) {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
-            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) (link.underTheDoor.y + 1), AllImages.COEF);
+            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) (link.underTheDoor.y + LocationUtil.TILE_SIZE), AllImages.COEF);
         } else {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
         }
@@ -185,7 +179,6 @@ public class LinkManager implements IManager {
         if (link.isAttacking) {
             g.drawAnimation(link.sword.getAnimation(), (int) link.sword.x, (int) link.sword.y);
         }
-
         // Draw the boomerang
         if (link.boomerang.isMovingForward || link.boomerang.isMovingBackward) {
             g.drawAnimation(link.boomerang.getAnimation(), (int) link.boomerang.x, (int) link.boomerang.y);

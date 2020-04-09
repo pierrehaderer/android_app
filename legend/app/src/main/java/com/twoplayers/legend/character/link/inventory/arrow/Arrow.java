@@ -1,12 +1,11 @@
-package com.twoplayers.legend.character.link;
+package com.twoplayers.legend.character.link.inventory.arrow;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.ArrowType;
-import com.twoplayers.legend.character.link.inventory.BoomerangType;
+import com.twoplayers.legend.character.link.inventory.arrow.ArrowType;
 import com.twoplayers.legend.util.Orientation;
 
 import java.util.HashMap;
@@ -16,20 +15,20 @@ public class Arrow {
 
     protected static final float SPEED = 4f;
 
-    protected ArrowType type;
+    public ArrowType type;
 
     public float x;
     public float y;
     protected Orientation orientation;
-    protected boolean isActive;
-    protected boolean isAnImpact;
+    public boolean isActive;
+    public boolean isAnImpact;
 
     protected Map<Orientation, Hitbox> hitboxes;
-    protected Hitbox hitbox;
+    public Hitbox hitbox;
 
     protected Map<ArrowType, Map<Orientation, Animation>> animations;
     protected Animation deathAnimation;
-    protected Animation currentAnimation;
+    public Animation currentAnimation;
 
     /**
      * Constructor

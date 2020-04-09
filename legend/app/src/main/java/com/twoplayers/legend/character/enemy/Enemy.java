@@ -4,15 +4,15 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.character.link.Arrow;
+import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.Fire;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.link.Sword;
+import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.util.Logger;
 
 public abstract class Enemy {

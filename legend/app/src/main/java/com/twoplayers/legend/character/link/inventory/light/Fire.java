@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.link;
+package com.twoplayers.legend.character.link.inventory.light;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
@@ -16,17 +16,17 @@ public class Fire {
 
     private static final float SPEED = 0.4f;
 
-    protected boolean isActive;
+    public boolean isActive;
     protected float remainingMoves;
     protected float timeBeforeDespawn;
     protected boolean hasJustFinished;
 
     protected Orientation orientation;
-    protected float x;
-    protected float y;
-    protected Hitbox hitbox;
+    public float x;
+    public float y;
+    public Hitbox hitbox;
 
-    protected Animation animation;
+    public Animation animation;
 
     public Fire(ImagesLink imagesLink, Graphics g) {
         initAnimations(imagesLink, g);

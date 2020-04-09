@@ -4,12 +4,12 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.MyColorMatrix;
 import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
-import com.twoplayers.legend.character.link.inventory.SwordType;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
@@ -17,7 +17,7 @@ import com.twoplayers.legend.util.Logger;
 
 public class LinkService {
 
-    public static final float A_TINY_BIT_MORE = 0.01f;
+    private static final float A_TINY_BIT_MORE = 0.01f;
 
     private GuiManager guiManager;
     private IZoneManager zoneManager;
@@ -116,40 +116,6 @@ public class LinkService {
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
-            }
-        }
-    }
-
-    /**
-     * Handle link attack
-     */
-    public void handleLinkAttack(Link link, float deltaTime) {
-        if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
-            // Start of link's attack
-            if (guiManager.isaPressed() && guiManager.areButtonsActivated() && link.sword.type != SwordType.NONE && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
-                link.currentAnimation = link.attackAnimations.get(link.orientation);
-                link.currentAnimation.reset();
-                link.sword.x = link.x;
-                link.sword.y = link.y;
-                link.sword.orientation = link.orientation;
-                link.sword.getAnimation().reset();
-                link.sword.getHitbox().relocate(link.x, link.y);
-                soundEffectManager.play("sword");
-                link.isAttacking = true;
-                link.attackProgression = 0;
-            }
-        }
-        if (link.isAttacking) {
-            link.sword.getAnimation().update(deltaTime);
-            link.attackProgression += deltaTime;
-            if (link.attackProgression > Link.STEP_1_DURATION && link.attackProgression < Link.STEP_1_DURATION + Link.STEP_2_ATTACK_DURATION) {
-                // Sword hitbox is active
-                for (Enemy enemy : enemyManager.getEnemies()) {
-                    if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.getHitbox(), enemy.getHitbox())) {
-                        Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit by link sword.");
-                        enemyManager.isHitBySword(enemy, link.sword);
-                    }
-                }
             }
         }
     }

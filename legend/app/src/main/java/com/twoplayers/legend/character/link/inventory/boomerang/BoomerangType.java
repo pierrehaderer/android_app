@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.link.inventory;
+package com.twoplayers.legend.character.link.inventory.boomerang;
 
 public enum BoomerangType {
 

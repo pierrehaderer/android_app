@@ -6,15 +6,17 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
-import com.twoplayers.legend.character.link.inventory.ArrowType;
-import com.twoplayers.legend.character.link.inventory.Bow;
+import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
+import com.twoplayers.legend.character.link.inventory.arrow.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;
 import com.twoplayers.legend.character.link.inventory.DungeonMap;
 import com.twoplayers.legend.character.link.inventory.Flute;
 import com.twoplayers.legend.character.link.inventory.InfiniteKey;
 import com.twoplayers.legend.character.link.inventory.Ladder;
-import com.twoplayers.legend.character.link.inventory.Light;
+import com.twoplayers.legend.character.link.inventory.boomerang.Boomerang;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.light.Light;
 import com.twoplayers.legend.character.link.inventory.Meat;
 import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
@@ -22,6 +24,7 @@ import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
+import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Coordinate;
 
@@ -33,11 +36,11 @@ public class Link {
     public static final float SPEED = 1.5f;
     protected static final float PUSH_SPEED = 9f;
     protected static final float ENTER_DOOR_SPEED = 0.40f;
-    protected static final float REMOVE_COINS_SPEED = 0.3f;
+    public static final float REMOVE_COINS_SPEED = 0.3f;
     protected static final float INITIAL_PUSH_COUNT = 9f;
     protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
-    protected static final float INITIAL_SHOW_COUNT = 150f;
-    protected static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
+    public static final float INITIAL_SHOW_COUNT = 150f;
+    public static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
 
     public static final float STEP_1_DURATION = 8;
     public static final float STEP_2_ATTACK_DURATION = 25;
@@ -48,74 +51,72 @@ public class Link {
     public static final int PICK_ANIMATION_BIG = 0;
     public static final int PICK_ANIMATION_SMALL = 1;
 
-    protected Animation currentAnimation;
+    public Animation currentAnimation;
     protected Map<Orientation, Animation> moveAnimations;
-    protected Map<Orientation, Animation> attackAnimations;
     protected Map<Orientation, Animation> useAnimations;
     protected Animation[] pickAnimations;
 
     public float x;
     public float y;
-    protected Hitbox hitbox;
+    public Hitbox hitbox;
     public Orientation orientation;
     protected Coordinate underTheDoor;
 
-    protected boolean isAttacking;
-    protected float attackProgression;
-    protected boolean isPushed;
+    public boolean isAttacking;
+    public float attackProgression;
+    public boolean isPushed;
     protected float pushX;
     protected float pushY;
     protected float pushCounter;
     protected boolean isInvincible;
     protected float invicibleCounter;
-    protected boolean isEnteringADoor;
+    public boolean isEnteringADoor;
     protected float enterSomewhereCounter;
-    protected boolean isExitingADoor;
+    public boolean isExitingADoor;
     protected float exitSomewhereDistance;
-    protected boolean isShowingItem;
-    protected float showItemCounter;
-    protected Item itemToShow;
+    public boolean isShowingItem;
+    public float showItemCounter;
+    public Item itemToShow;
 
     protected float life;
     protected float lifeMax;
-    protected int coins;
-    protected float coinCounter;
-    protected int coinsToRemove;
-    protected int keys;
+    public int coins;
+    public float coinCounter;
+    public int coinsToRemove;
+    public int keys;
 
-    protected Boomerang boomerang;
-    protected int bomb;
-    protected int bombMax;
-    protected Bow bow;
-    protected Arrow arrow;
-    protected Light light;
-    protected int lightCount;
-    protected float timeBeforeUseLight;
-    protected Fire fire1;
-    protected Fire fire2;
-    protected Flute flute;
-    protected Meat meat;
-    protected Potion potion;
-    protected Scepter scepter;
+    public Boomerang boomerang;
+    public int bomb;
+    public int bombMax;
+    public Bow bow;
+    public Arrow arrow;
+    public Light light;
+    public int lightCount;
+    public float timeBeforeUseLight;
+    public Fire fire1;
+    public Fire fire2;
+    public Flute flute;
+    public Meat meat;
+    public Potion potion;
+    public Scepter scepter;
 
-    protected Bracelet bracelet;
-    protected Raft raft;
-    protected Ladder ladder;
-    protected InfiniteKey infiniteKey;
-    protected Ring ring;
-    protected SpellBook spellBook;
+    public Bracelet bracelet;
+    public Raft raft;
+    public Ladder ladder;
+    public InfiniteKey infiniteKey;
+    public Ring ring;
+    public SpellBook spellBook;
 
-    protected DungeonMap dungeonMap;
-    protected Compass compass;
+    public DungeonMap dungeonMap;
+    public Compass compass;
 
-    protected Sword sword;
-    protected Shield shield;
-    protected int secondItem;
+    public Sword sword;
+    public Shield shield;
+    public int secondItem;
     public boolean isUsingSecondItem;
 
     public Link(ImagesLink imagesLink, Graphics g) {
         initMoveAnimations(imagesLink, g);
-        initAttackAnimations(imagesLink, g);
         initUseAnimations(imagesLink, g);
         initPickAnimations(imagesLink, g);
         hitbox = new Hitbox(0, 0, 3, 3, 11, 12);
@@ -142,41 +143,6 @@ public class Link {
         animationRight.addFrame(imagesLink.get("link_right_1"), AllImages.COEF, 10);
         animationRight.addFrame(imagesLink.get("link_right_2"), AllImages.COEF, 10);
         moveAnimations.put(Orientation.RIGHT, animationRight);
-    }
-
-    /**
-     * Initialise the attack animations
-     */
-    private void initAttackAnimations(ImagesLink imagesLink, Graphics g) {
-        attackAnimations = new HashMap<>();
-        Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesLink.get("link_sword_up_1"), AllImages.COEF, STEP_1_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_3"), AllImages.COEF, STEP_3_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_4"), AllImages.COEF, STEP_4_DURATION);
-        animationUp.setOccurrences(1);
-        attackAnimations.put(Orientation.UP, animationUp);
-        Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesLink.get("link_sword_down_1"), AllImages.COEF, STEP_1_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_3"), AllImages.COEF, STEP_3_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_4"), AllImages.COEF, STEP_4_DURATION);
-        animationDown.setOccurrences(1);
-        attackAnimations.put(Orientation.DOWN, animationDown);
-        Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesLink.get("link_sword_left_1"), AllImages.COEF, STEP_1_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_3"), AllImages.COEF, STEP_3_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_4"), AllImages.COEF, STEP_4_DURATION);
-        animationLeft.setOccurrences(1);
-        attackAnimations.put(Orientation.LEFT, animationLeft);
-        Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesLink.get("link_sword_right_1"), AllImages.COEF, STEP_1_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_2"), AllImages.COEF, STEP_2_ATTACK_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_3"), AllImages.COEF, STEP_3_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_4"), AllImages.COEF, STEP_4_DURATION);
-        animationRight.setOccurrences(1);
-        attackAnimations.put(Orientation.RIGHT, animationRight);
     }
 
     /**
@@ -225,6 +191,30 @@ public class Link {
         Animation animationBig = g.newAnimation();
         animationBig.addFrame(imagesLink.get("link_pick_item_small"), AllImages.COEF, 100);
         pickAnimations[PICK_ANIMATION_SMALL] = animationBig;
+    }
+
+    /**
+     * Switch Link animation to useAnimation
+     */
+    public void switchToUseAnimation() {
+        currentAnimation = useAnimations.get(orientation);
+        currentAnimation.reset();
+    }
+
+    /**
+     * Switch Link animation to pickAnimation
+     */
+    public void switchToPickAnimation(int pickAnimation) {
+        currentAnimation = pickAnimations[pickAnimation];
+        currentAnimation.reset();
+    }
+
+    /**
+     * Switch Link animation to moveAnimation
+     */
+    public void switchToMoveAnimation(Orientation orientation) {
+        currentAnimation = moveAnimations.get(orientation);
+        currentAnimation.reset();
     }
 
     public float getLife() {

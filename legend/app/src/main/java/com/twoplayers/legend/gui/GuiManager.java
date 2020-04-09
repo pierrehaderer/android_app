@@ -12,23 +12,23 @@ import com.twoplayers.legend.assets.image.ImagesGui;
 import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.link.inventory.ArrowType;
-import com.twoplayers.legend.character.link.inventory.BoomerangType;
-import com.twoplayers.legend.character.link.inventory.Bow;
+import com.twoplayers.legend.character.link.inventory.arrow.ArrowType;
+import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangType;
+import com.twoplayers.legend.character.link.inventory.arrow.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
 import com.twoplayers.legend.character.link.inventory.Compass;
 import com.twoplayers.legend.character.link.inventory.DungeonMap;
 import com.twoplayers.legend.character.link.inventory.Flute;
 import com.twoplayers.legend.character.link.inventory.InfiniteKey;
 import com.twoplayers.legend.character.link.inventory.Ladder;
-import com.twoplayers.legend.character.link.inventory.Light;
+import com.twoplayers.legend.character.link.inventory.light.Light;
 import com.twoplayers.legend.character.link.inventory.Meat;
 import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
 import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
-import com.twoplayers.legend.character.link.inventory.SwordType;
+import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.TextUtil;
@@ -306,7 +306,7 @@ public class GuiManager implements IManager {
                 g.drawScaledImage(imagesGui.get("bomb"),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 3:
-                g.drawScaledImage(imagesGui.get(link.getBow().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(link.getArrow().getType().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 4:
                 g.drawScaledImage(imagesGui.get(link.getLight().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);

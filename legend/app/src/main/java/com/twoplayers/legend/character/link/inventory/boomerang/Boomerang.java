@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.link;
+package com.twoplayers.legend.character.link.inventory.boomerang;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
@@ -6,7 +6,7 @@ import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.BoomerangType;
+import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,19 +17,19 @@ public class Boomerang {
     protected static final float INITIAL_WOOD_BOOMERANG_COUNTER = 85f;
     protected static final float INITIAL_SOUND_COUNTER = 18f;
 
-    protected BoomerangType type;
+    public BoomerangType type;
 
     public float x;
     public float y;
     protected Orientation orientation;
 
     protected Map<Orientation, Hitbox> hitboxes;
-    protected Hitbox hitbox;
+    public Hitbox hitbox;
 
     protected Map<BoomerangType, Animation> animations;
 
-    protected boolean isMovingForward;
-    protected boolean isMovingBackward;
+    public boolean isMovingForward;
+    public boolean isMovingBackward;
     protected float counter;
     protected float soundCounter;
 
@@ -44,6 +44,9 @@ public class Boomerang {
         hitboxes.put(Orientation.LEFT, new Hitbox(0, 0, -4, 4, 8, 8));
         hitboxes.put(Orientation.RIGHT, new Hitbox(0, 0, 12, 4, 8, 8));
         hitbox = hitboxes.get(Orientation.UP);
+        isMovingForward = false;
+        isMovingBackward = false;
+        counter = 0;
     }
 
     /**

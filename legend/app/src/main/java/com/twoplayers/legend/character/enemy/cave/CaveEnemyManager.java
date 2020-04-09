@@ -7,9 +7,9 @@ import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.character.enemy.TurretEnemy;
-import com.twoplayers.legend.character.link.Arrow;
-import com.twoplayers.legend.character.link.Fire;
-import com.twoplayers.legend.character.link.Sword;
+import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.sword.Sword;
 
 import java.util.ArrayList;
 import java.util.List;

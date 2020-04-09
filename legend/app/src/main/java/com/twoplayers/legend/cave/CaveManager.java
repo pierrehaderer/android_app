@@ -5,7 +5,9 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.character.link.Fire;
+import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
+import com.twoplayers.legend.character.link.inventory.ItemService;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -15,7 +17,6 @@ import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.link.inventory.InventoryService;
 import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.util.Coordinate;
@@ -40,7 +41,8 @@ public class CaveManager implements IZoneManager {
 
     private LinkManager linkManager;
     private GuiManager guiManager;
-    private InventoryService inventoryService;
+    private CaveEnemyManager caveEnemyManager;
+    private ItemService itemService;
 
     private ImagesCave imagesCave;
     private ImagesItem imagesItem;
@@ -73,7 +75,8 @@ public class CaveManager implements IZoneManager {
     public void init(Game game) {
         linkManager = ((MainActivity) game).getLinkManager();
         guiManager = ((MainActivity) game).getGuiManager();
-        inventoryService = new InventoryService();
+        caveEnemyManager = ((MainActivity) game).getCaveEnemyManager();
+        itemService = new ItemService(guiManager, this, caveEnemyManager, soundEffectManager);
 
         imagesCave = ((MainActivity) game).getAllImages().getImagesCave();
         imagesCave.load(((MainActivity) game).getAssetManager(), game.getGraphics());
@@ -123,7 +126,7 @@ public class CaveManager implements IZoneManager {
             Item item = new Item();
             item.name = elements[0];
             item.image = imagesItem.get(item.name);
-            item.pickAnimation = inventoryService.findPickAnimation(item.name);
+            item.pickAnimation = itemService.findPickAnimation(item.name);
             item.x = itemPositionsX[index];
             item.y = LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
             item.hitbox.relocate(item.x, item.y);

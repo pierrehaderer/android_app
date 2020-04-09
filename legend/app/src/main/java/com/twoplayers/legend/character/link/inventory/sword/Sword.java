@@ -1,11 +1,12 @@
-package com.twoplayers.legend.character.link;
+package com.twoplayers.legend.character.link.inventory.sword;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.SwordType;
+import com.twoplayers.legend.character.link.Link;
+import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.util.Orientation;
 
 import java.util.HashMap;
@@ -15,11 +16,11 @@ public class Sword {
 
     public float x;
     public float y;
-    protected Orientation orientation;
+    public Orientation orientation;
 
     protected Map<Orientation, Hitbox> hitboxes;
 
-    protected SwordType type;
+    public SwordType type;
 
     protected Map<SwordType, Map<Orientation, Animation>> animations;
 
