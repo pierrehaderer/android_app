@@ -10,11 +10,13 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
-import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.ItemService;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.arrow.ArrowType;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.bomb.BombCloud;
 import com.twoplayers.legend.character.link.inventory.boomerang.Boomerang;
 import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangType;
 import com.twoplayers.legend.character.link.inventory.arrow.Bow;
@@ -52,7 +54,7 @@ public class LinkManager implements IManager {
     private ImagesLink imagesLink;
 
     private Link link;
-    private MyColorMatrix colorMatrix;
+    private ColorMatrixCharacter colorMatrix;
 
     /**
      * Load this manager
@@ -102,7 +104,9 @@ public class LinkManager implements IManager {
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
         link.boomerang.type = BoomerangType.NONE;
-        link.bomb = 0;
+        link.bomb = new Bomb(imagesLink, game.getGraphics());
+        link.bombCloud = new BombCloud(imagesLink, game.getGraphics());
+        link.bombQuantity = 0;
         link.bombMax = 8;
         link.bow = Bow.NONE;
         link.arrow = new Arrow(imagesLink, game.getGraphics());
@@ -133,7 +137,7 @@ public class LinkManager implements IManager {
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
         link.isUsingSecondItem = false;
 
-        colorMatrix = new MyColorMatrix();
+        colorMatrix = new ColorMatrixCharacter();
     }
 
     @Override
@@ -193,6 +197,17 @@ public class LinkManager implements IManager {
         // Draw the arrow
         if (link.arrow.isActive || link.arrow.isAnImpact) {
             g.drawAnimation(link.arrow.currentAnimation, (int) link.arrow.x, (int) link.arrow.y);
+        }
+        // Draw the bomb
+        if (link.bomb.isActive) {
+            g.drawAnimation(link.bomb.currentAnimation, (int) link.bomb.x, (int) link.bomb.y);
+        }
+        if (link.bombCloud.isActive) {
+            for (int i = 0; i < 7; i++) {
+                float x = link.bomb.x + link.bombCloud.animationPositions[i].x;
+                float y = link.bomb.y + link.bombCloud.animationPositions[i].y;
+                g.drawAnimation(link.bombCloud.animations[i], (int) x, (int) y);
+            }
         }
 
         // Draw the hitboxes

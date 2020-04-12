@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
@@ -127,21 +128,21 @@ public abstract class Enemy {
     public abstract void isHitByBoomerang();
 
     /**
-     * This method is overridden if something special happens to the enemy which is hitting link
+     * This method is overridden if something special happens to the enemy
      */
     public void isHitBySword(Sword sword) {
         isWounded(sword.getType().damage, sword.getHitbox(), sword.getOrientation());
     }
 
     /**
-     * This method is overridden if something special happens to the enemy which is hitting link
+     * This method is overridden if something special happens to the enemy
      */
     public void isHitByFire(Fire fire) {
         isWounded(Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
     }
 
     /**
-     * This method is overridden if something special happens to the enemy which is hitting link
+     * This method is overridden if something special happens to the enemy
      */
     protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
         this.life -= damage;
@@ -149,13 +150,23 @@ public abstract class Enemy {
     }
 
     /**
+     * This method is overridden if something special happens to the enemy
+     */
+    public void isHitByArrow(Arrow arrow) {
+        isWounded(arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy
+     */
+    public void isHitByBomb(Bomb bomb) {
+        isWounded(Bomb.DAMAGE, bomb.getHitbox(), Orientation.ANY);
+    }
+
+    /**
      * This method is overridden if something special happens to the enemy which is hitting link
      */
     public void hasHitLink() {
         Logger.info("This enemy has hit link.");
-    }
-
-    public void isHitByArrow(Arrow arrow) {
-        isWounded(arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
     }
 }

@@ -21,6 +21,7 @@ import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
+import com.twoplayers.legend.util.ColorMatrixZone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class DungeonManager implements IZoneManager {
 
     private static final float INITIAL_IMMOBILISATION_COUNTER = 50f;
     private static final float TRANSITION_SPEED = 4.0f;
+    public static final float INITIAL_BLINK_COUNTER = 20f;
 
     private ImagesDungeon imagesDungeon;
 
@@ -57,14 +59,17 @@ public class DungeonManager implements IZoneManager {
     private float transitionCount;
     private float transitionSteps;
     private Orientation transitionOrientation;
-    private float leftCurrentDungeonRoom;
-    private float topCurrentDungeonRoom;
-    private Image imageCurrentDungeonRoom;
-    private float leftNextDungeonRoom;
-    private float topNextDungeonRoom;
-    private Image imageNextDungeonRoom;
+    private float leftCurrentRoom;
+    private float topCurrentRoom;
+    private Image imageCurrentRoom;
+    private float leftNextRoom;
+    private float topNextRoom;
+    private Image imageNextRoom;
     private DoorCache currentDoorCache;
     private DoorCache nextDoorCache;
+
+    private float blinkCounter;
+    private ColorMatrixZone colorMatrix;
 
     /**
      * Load this manager
@@ -93,14 +98,14 @@ public class DungeonManager implements IZoneManager {
         currentMiniOrdinate = 11 * currentOrdinate;
 
         transitionRunning = false;
-        leftCurrentDungeonRoom = LocationUtil.LEFT_MAP;
-        topCurrentDungeonRoom = LocationUtil.TOP_MAP;
-        imageCurrentDungeonRoom = imagesDungeon.get(getCoordinate());
+        leftCurrentRoom = LocationUtil.LEFT_MAP;
+        topCurrentRoom = LocationUtil.TOP_MAP;
+        imageCurrentRoom = imagesDungeon.get(getCoordinate());
         currentDoorCache = new DoorCache(imagesDungeon);
         updateDoorCache(currentDoorCache, currentAbscissa, currentOrdinate);
-        leftNextDungeonRoom = LocationUtil.LEFT_MAP;
-        topNextDungeonRoom = LocationUtil.TOP_MAP;
-        imageNextDungeonRoom = imagesDungeon.get("empty");
+        leftNextRoom = LocationUtil.LEFT_MAP;
+        topNextRoom = LocationUtil.TOP_MAP;
+        imageNextRoom = imagesDungeon.get("empty");
         nextDoorCache = new DoorCache(imagesDungeon);
     }
 
@@ -117,6 +122,9 @@ public class DungeonManager implements IZoneManager {
         imagesDungeon.load(((MainActivity) game).getAssetManager(), game.getGraphics());
 
         DungeonTile.initHashMap();
+
+        blinkCounter = 0;
+        colorMatrix = new ColorMatrixZone();
     }
 
     /**
@@ -164,26 +172,26 @@ public class DungeonManager implements IZoneManager {
                 transitionCount -= transitionDelta;
                 switch (transitionOrientation) {
                     case UP:
-                        topCurrentDungeonRoom += transitionDelta;
-                        topNextDungeonRoom += transitionDelta;
+                        topCurrentRoom += transitionDelta;
+                        topNextRoom += transitionDelta;
                         currentMiniOrdinate -= transitionDelta * 16 / LocationUtil.WIDTH_MAP;
                         linkManager.moveLinkY(transitionDelta);
                         break;
                     case DOWN:
-                        topCurrentDungeonRoom -= transitionDelta;
-                        topNextDungeonRoom -= transitionDelta;
+                        topCurrentRoom -= transitionDelta;
+                        topNextRoom -= transitionDelta;
                         currentMiniOrdinate += transitionDelta * 16 / LocationUtil.WIDTH_MAP;
                         linkManager.moveLinkY(-1 * transitionDelta);
                     break;
                     case LEFT:
-                        leftCurrentDungeonRoom += transitionDelta;
-                        leftNextDungeonRoom += transitionDelta;
+                        leftCurrentRoom += transitionDelta;
+                        leftNextRoom += transitionDelta;
                         currentMiniAbscissa -= transitionDelta * 16 / LocationUtil.WIDTH_MAP;
                         linkManager.moveLinkX(transitionDelta);
                     break;
                     case RIGHT:
-                        leftCurrentDungeonRoom -= transitionDelta;
-                        leftNextDungeonRoom -= transitionDelta;
+                        leftCurrentRoom -= transitionDelta;
+                        leftNextRoom -= transitionDelta;
                         currentMiniAbscissa += transitionDelta * 16 / LocationUtil.WIDTH_MAP;
                         linkManager.moveLinkX(-1 * transitionDelta);
                     break;
@@ -207,41 +215,48 @@ public class DungeonManager implements IZoneManager {
                 }
             } else {
                 // End of the transition
-                imageCurrentDungeonRoom = imageNextDungeonRoom;
-                leftCurrentDungeonRoom = LocationUtil.LEFT_MAP;
-                topCurrentDungeonRoom = LocationUtil.TOP_MAP;
+                imageCurrentRoom = imageNextRoom;
+                leftCurrentRoom = LocationUtil.LEFT_MAP;
+                topCurrentRoom = LocationUtil.TOP_MAP;
                 currentAbscissa = nextAbscissa;
                 currentOrdinate = nextOrdinate;
                 updateDoorCache(currentDoorCache, currentAbscissa, currentOrdinate);
                 currentMiniAbscissa = 16 * currentAbscissa;
                 currentMiniOrdinate = 11 * currentOrdinate;
-                imageNextDungeonRoom = imagesDungeon.get("empty");
+                imageNextRoom = imagesDungeon.get("empty");
                 transitionRunning = false;
                 dungeonEnemyManager.spawnEnemies();
                 guiManager.activateButtons();
             }
+        }
+        if (blinkCounter > 0) {
+            blinkCounter -= deltaTime;
         }
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         if (transitionRunning) {
-            g.drawScaledImage(imageNextDungeonRoom, (int) leftNextDungeonRoom, (int) topNextDungeonRoom, AllImages.COEF);
+            g.drawScaledImage(imageNextRoom, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
         }
-        g.drawScaledImage(imageCurrentDungeonRoom, (int) leftCurrentDungeonRoom, (int) topCurrentDungeonRoom, AllImages.COEF);
+        if (blinkCounter > 0) {
+            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
+        } else {
+            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
+        }
     }
 
     public void paintDoorCache(float deltaTime, Graphics g) {
         if (transitionRunning) {
-            g.drawScaledImage(nextDoorCache.up, (int) leftNextDungeonRoom, (int) topNextDungeonRoom, AllImages.COEF);
-            g.drawScaledImage(nextDoorCache.down, (int) leftNextDungeonRoom, (int) (topNextDungeonRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
-            g.drawScaledImage(nextDoorCache.left, (int) leftNextDungeonRoom, (int) topNextDungeonRoom, AllImages.COEF);
-            g.drawScaledImage(nextDoorCache.right, (int) (leftNextDungeonRoom + LocationUtil.WIDTH_MAP - 17 * AllImages.COEF), (int) topNextDungeonRoom, AllImages.COEF);
+            g.drawScaledImage(nextDoorCache.up, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
+            g.drawScaledImage(nextDoorCache.down, (int) leftNextRoom, (int) (topNextRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
+            g.drawScaledImage(nextDoorCache.left, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
+            g.drawScaledImage(nextDoorCache.right, (int) (leftNextRoom + LocationUtil.WIDTH_MAP - 17 * AllImages.COEF), (int) topNextRoom, AllImages.COEF);
         }
-        g.drawScaledImage(currentDoorCache.up, (int) leftCurrentDungeonRoom, (int) topCurrentDungeonRoom, AllImages.COEF);
-        g.drawScaledImage(currentDoorCache.down, (int) leftCurrentDungeonRoom, (int) (topCurrentDungeonRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
-        g.drawScaledImage(currentDoorCache.left, (int) leftCurrentDungeonRoom, (int) topCurrentDungeonRoom, AllImages.COEF);
-        g.drawScaledImage(currentDoorCache.right, (int) (leftCurrentDungeonRoom + LocationUtil.WIDTH_MAP - 17 * AllImages.COEF), (int) topCurrentDungeonRoom, AllImages.COEF);
+        g.drawScaledImage(currentDoorCache.up, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
+        g.drawScaledImage(currentDoorCache.down, (int) leftCurrentRoom, (int) (topCurrentRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
+        g.drawScaledImage(currentDoorCache.left, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
+        g.drawScaledImage(currentDoorCache.right, (int) (leftCurrentRoom + LocationUtil.WIDTH_MAP - 17 * AllImages.COEF), (int) topCurrentRoom, AllImages.COEF);
     }
 
     @Override
@@ -281,37 +296,37 @@ public class DungeonManager implements IZoneManager {
                 case UP:
                     transitionCount = 176 * AllImages.COEF;
                     transitionSteps = LocationUtil.TILE_SIZE;
-                    leftNextDungeonRoom = LocationUtil.LEFT_MAP;
-                    topNextDungeonRoom = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
+                    leftNextRoom = LocationUtil.LEFT_MAP;
+                    topNextRoom = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
                     nextAbscissa = currentAbscissa;
                     nextOrdinate = currentOrdinate - 1;
                     break;
                 case DOWN:
                     transitionCount = 176 * AllImages.COEF;
                     transitionSteps = LocationUtil.TILE_SIZE;
-                    leftNextDungeonRoom = LocationUtil.LEFT_MAP;
-                    topNextDungeonRoom = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
+                    leftNextRoom = LocationUtil.LEFT_MAP;
+                    topNextRoom = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
                     nextAbscissa = currentAbscissa;
                     nextOrdinate = currentOrdinate + 1;
                     break;
                 case LEFT:
                     transitionCount = 256 * AllImages.COEF;
                     transitionSteps = LocationUtil.TILE_SIZE;
-                    leftNextDungeonRoom = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
-                    topNextDungeonRoom = LocationUtil.TOP_MAP;
+                    leftNextRoom = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
+                    topNextRoom = LocationUtil.TOP_MAP;
                     nextAbscissa = currentAbscissa - 1;
                     nextOrdinate = currentOrdinate;
                     break;
                 case RIGHT:
                     transitionCount = 256 * AllImages.COEF;
                     transitionSteps = LocationUtil.TILE_SIZE;
-                    leftNextDungeonRoom = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
-                    topNextDungeonRoom = LocationUtil.TOP_MAP;
+                    leftNextRoom = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
+                    topNextRoom = LocationUtil.TOP_MAP;
                     nextAbscissa = currentAbscissa + 1;
                     nextOrdinate = currentOrdinate;
                     break;
             }
-            imageNextDungeonRoom = imagesDungeon.get(dungeon.id + String.valueOf(nextAbscissa) + nextOrdinate);
+            imageNextRoom = imagesDungeon.get(dungeon.id + String.valueOf(nextAbscissa) + nextOrdinate);
             updateDoorCache(nextDoorCache, nextAbscissa, nextOrdinate);
             Logger.info("Starting room transition to " + nextAbscissa + nextOrdinate);
             exploredDungeon[nextAbscissa][nextOrdinate] = true;
@@ -629,6 +644,11 @@ public class DungeonManager implements IZoneManager {
 
     @Override
     public void burnTheBushes(Fire fire) {
+    }
+
+    @Override
+    public void bombBlink() {
+        blinkCounter = INITIAL_BLINK_COUNTER;
     }
 
     /**

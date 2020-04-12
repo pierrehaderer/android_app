@@ -19,6 +19,7 @@ public interface Graphics {
     public void drawAnimation(Animation animation, int x, int y, ColorMatrix colorMatrix);
     public void drawScaledImage(Image Image, int x, int y, int width, int height);
     public void drawScaledImage(Image image, int x, int y, float coef);
+    public void drawScaledImage(Image image, int x, int y, float coef, ColorMatrix colorMatrix);
     public void drawString(String text, int x, int y, Paint paint);
     public int getWidth();
     public int getHeight();

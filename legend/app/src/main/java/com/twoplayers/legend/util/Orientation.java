@@ -2,6 +2,7 @@ package com.twoplayers.legend.util;
 
 public enum Orientation {
     INIT(0),
+    ANY(0),
     DEGREES_20(Math.PI / 8),
     DEGREES_45(2 * Math.PI / 8),
     DEGREES_70(3 * Math.PI / 8),
@@ -47,6 +48,8 @@ public enum Orientation {
             case LEFT:
             case RIGHT:
                 return (orientation == LEFT || orientation == RIGHT);
+            case ANY:
+                return true;
         }
         return false;
     }

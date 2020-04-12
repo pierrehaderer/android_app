@@ -4,6 +4,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.inventory.arrow.ArrowService;
+import com.twoplayers.legend.character.link.inventory.bomb.BombService;
 import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangService;
 import com.twoplayers.legend.character.link.inventory.light.LightService;
 import com.twoplayers.legend.character.link.inventory.sword.SwordService;
@@ -26,6 +27,7 @@ public class ItemService {
 
     private SwordService swordService;
     private BoomerangService boomerangService;
+    private BombService bombService;
     private ArrowService arrowService;
     private LightService lightService;
 
@@ -41,6 +43,7 @@ public class ItemService {
         boomerangService = new BoomerangService(guiManager, enemyManager, soundEffectManager);
         arrowService = new ArrowService(enemyManager, soundEffectManager);
         lightService = new LightService(zoneManager, enemyManager, soundEffectManager);
+        bombService = new BombService(zoneManager, enemyManager, soundEffectManager, this);
     }
 
     /**
@@ -60,6 +63,7 @@ public class ItemService {
                         boomerangService.initiateBoomerang(link);
                         break;
                     case 2:
+                        bombService.initiateBomb(link);
                         break;
                     case 3:
                         arrowService.initiateArrow(link);
@@ -78,13 +82,14 @@ public class ItemService {
                 }
             }
         }
+        swordService.handleLinkAttack(link, deltaTime);
         boomerangService.handleBoomerang(link, deltaTime);
+        bombService.handleBomb(link, deltaTime);
         lightService.handleFire(link, deltaTime);
         arrowService.handleArrow(link, deltaTime);
-        swordService.handleLinkAttack(link, deltaTime);
         if (link.isUsingSecondItem || link.isAttacking) {
             link.currentAnimation.update(deltaTime);
-            if (link.currentAnimation.isAnimationOver()) {
+            if (link.currentAnimation.isOver()) {
                 link.isUsingSecondItem = false;
                 link.isAttacking = false;
                 link.switchToMoveAnimation(link.orientation);
@@ -97,17 +102,19 @@ public class ItemService {
      */
     public void handleLinkPickingItem(Link link, float deltaTime) {
         for (Item item : zoneManager.getItems()) {
-            if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.coins - link.coinsToRemove >= item.price && !alreadyInInventory(link, item)) {
-                link.isPushed = false;
-                item.hideItemForTheZone();
-                link.coinCounter = 0;
-                link.coinsToRemove += item.price;
-                link.itemToShow = item;
-                link.isShowingItem = true;
-                link.showItemCounter = Link.INITIAL_SHOW_COUNT;
-                link.switchToPickAnimation(item.pickAnimation);
-                soundEffectManager.play("collect_item");
-                putItemInInventory(link, item);
+            if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
+                if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.coins - link.coinsToRemove >= item.price && linkCanPickItem(link, item)) {
+                    link.isPushed = false;
+                    item.hideItemForTheZone();
+                    link.coinCounter = 0;
+                    link.coinsToRemove += item.price;
+                    link.itemToShow = item;
+                    link.isShowingItem = true;
+                    link.showItemCounter = Link.INITIAL_SHOW_COUNT;
+                    link.switchToPickAnimation(item.pickAnimation);
+                    soundEffectManager.play("collect_item");
+                    putItemInInventory(link, item);
+                }
             }
         }
         if (link.isShowingItem) {
@@ -137,6 +144,7 @@ public class ItemService {
      */
     public void hideItemsAndEffects(Link link) {
         boomerangService.reset(link);
+        bombService.reset(link);
         arrowService.reset(link);
         lightService.reset(link);
     }
@@ -160,64 +168,66 @@ public class ItemService {
     /**
      * Check if link already has the item
      */
-    public boolean alreadyInInventory(Link link, Item item) {
+    public boolean linkCanPickItem(Link link, Item item) {
         switch (item.name) {
             case "wood_arrow":
-                return link.arrow.type != ArrowType.NONE;
+                return link.arrow.type == ArrowType.NONE;
             case "white_arrow":
-                return link.arrow.type == ArrowType.WHITE;
+                return link.arrow.type != ArrowType.WHITE;
             case "wood_boomerang":
-                return link.boomerang.type != BoomerangType.NONE;
+                return link.boomerang.type == BoomerangType.NONE;
             case "white_boomerang":
-                return link.boomerang.type == BoomerangType.WHITE;
-            case "bombs":
-                return link.bomb < link.bombMax;
+                return link.boomerang.type != BoomerangType.WHITE;
+            case "bomb":
+                return link.bombQuantity < link.bombMax;
             case "bow":
-                return link.bow == Bow.BOW;
+                return link.bow == Bow.NONE;
             case "bracelet":
-                return link.bracelet == Bracelet.BRACELET;
+                return link.bracelet == Bracelet.NONE;
             case "compass":
-                return link.compass == Compass.COMPASS;
+                return link.compass == Compass.NONE;
             case "dungeon_map":
-                return link.dungeonMap == DungeonMap.MAP;
+                return link.dungeonMap == DungeonMap.NONE;
             case "flute":
-                return link.flute == Flute.FLUTE;
+                return link.flute == Flute.NONE;
             case "key":
-                return link.keys >= 99;
+                return link.keys < 99;
             case "infinite_key":
-                return link.infiniteKey == InfiniteKey.KEY;
+                return link.infiniteKey == InfiniteKey.NONE;
             case "ladder":
-                return link.ladder == Ladder.LADDER;
+                return link.ladder == Ladder.NONE;
             case "blue_light":
-                return link.light != Light.NONE;
+                return link.light == Light.NONE;
             case "red_light":
-                return link.light == Light.RED;
+                return link.light != Light.RED;
             case "meat":
-                return link.meat == Meat.MEAT;
+                return link.meat == Meat.NONE;
             case "note":
-                return link.potion != Potion.NONE;
+                return link.potion == Potion.NONE;
             case "blue_potion":
-                return link.potion == Potion.BLUE || link.potion == Potion.RED;
+                return link.potion != Potion.BLUE && link.potion != Potion.RED;
             case "red_potion":
-                return link.potion == Potion.RED;
+                return link.potion != Potion.RED;
             case "raft":
-                return link.raft == Raft.RAFT;
+                return link.raft == Raft.NONE;
             case "blue_ring":
-                return link.ring != Ring.NONE;
+                return link.ring == Ring.NONE;
             case "red_ring":
-                return link.ring == Ring.RED;
+                return link.ring != Ring.RED;
             case "scepter":
-                return link.scepter == Scepter.SCEPTER;
+                return link.scepter == Scepter.NONE;
             case "shield":
-                return link.shield == Shield.BIG;
+                return link.shield == Shield.SMALL;
             case "spell_book":
-                return link.spellBook == SpellBook.BOOK;
+                return link.spellBook == SpellBook.NONE;
             case "wood_sword":
-                return link.sword.type != SwordType.NONE;
+                return link.sword.type == SwordType.NONE;
             case "white_sword":
-                return link.sword.type == SwordType.WHITE || link.sword.type == SwordType.MAGICAL;
+                return link.sword.type != SwordType.WHITE && link.sword.type != SwordType.MAGICAL;
             case "magical_sword":
-                return link.sword.type == SwordType.MAGICAL;
+                return link.sword.type != SwordType.MAGICAL;
+            case "big_heart":
+                return link.lifeMax < 16;
         }
         return false;
     }
@@ -226,31 +236,24 @@ public class ItemService {
      * Give the corresponding item to link
      */
     public void putItemInInventory(Link link, Item item) {
-        int possibleSecondItem = 0;
         switch (item.name) {
             case "wood_arrow":
                 link.arrow.type = ArrowType.WOOD;
-                if (link.bow != Bow.NONE) possibleSecondItem = 3;
                 break;
             case "white_arrow":
                 link.arrow.type = ArrowType.WHITE;
-                if (link.bow != Bow.NONE) possibleSecondItem = 3;
                 break;
             case "wood_boomerang":
                 link.boomerang.type = BoomerangType.WOOD;
-                possibleSecondItem = 1;
                 break;
             case "white_boomerang":
                 link.boomerang.type = BoomerangType.WHITE;
-                possibleSecondItem = 1;
                 break;
-            case "bombs":
-                link.bomb = Math.min(link.bomb + 4, link.bombMax);
-                possibleSecondItem = 2;
+            case "bomb":
+                link.bombQuantity = Math.min(link.bombQuantity + 4, link.bombMax);
                 break;
             case "bow":
                 link.bow = Bow.BOW;
-                if (link.arrow.type != ArrowType.NONE) possibleSecondItem = 3;
                 break;
             case "bracelet":
                 link.bracelet = Bracelet.BRACELET;
@@ -263,7 +266,6 @@ public class ItemService {
                 break;
             case "flute":
                 link.flute = Flute.FLUTE;
-                possibleSecondItem = 5;
                 break;
             case "infinite_key":
                 link.infiniteKey = InfiniteKey.KEY;
@@ -276,26 +278,21 @@ public class ItemService {
                 break;
             case "blue_light":
                 link.light = Light.BLUE;
-                possibleSecondItem = 4;
                 break;
             case "red_light":
                 link.light = Light.RED;
-                possibleSecondItem = 4;
                 break;
             case "meat":
                 link.meat = Meat.MEAT;
-                possibleSecondItem = 6;
                 break;
             case "note":
                 link.potion = Potion.NOTE;
                 break;
             case "blue_potion":
                 link.potion = Potion.BLUE;
-                possibleSecondItem = 7;
                 break;
             case "red_potion":
                 link.potion = Potion.RED;
-                possibleSecondItem = 7;
                 break;
             case "raft":
                 link.raft = Raft.RAFT;
@@ -308,7 +305,6 @@ public class ItemService {
                 break;
             case "scepter":
                 link.scepter = Scepter.SCEPTER;
-                possibleSecondItem = 8;
                 break;
             case "spell_book":
                 link.spellBook = SpellBook.BOOK;
@@ -324,9 +320,54 @@ public class ItemService {
                 break;
         }
         if (link.secondItem == 0) {
-            link.secondItem = possibleSecondItem;
-            guiManager.updateCursor(link.secondItem);
+            switchToNextItem(link);
         }
+    }
+
+    /**
+     * Switch to the next item in the inventory
+     */
+    public void switchToNextItem(Link link) {
+        int initialSecondItem = link.secondItem;
+        if (link.secondItem < 2 && link.bombQuantity > 0) {
+            link.secondItem = 2;
+        } else if (link.secondItem < 3 && link.bow != Bow.NONE && link.arrow.type != ArrowType.NONE) {
+            link.secondItem = 3;
+        } else if (link.secondItem < 4 && link.light != Light.NONE) {
+            link.secondItem = 4;
+        } else if (link.secondItem < 5 && link.flute != Flute.NONE) {
+            link.secondItem = 5;
+        } else if (link.secondItem < 6 && link.meat != Meat.NONE) {
+            link.secondItem = 6;
+        } else if (link.secondItem < 7 && link.potion != Potion.NONE) {
+            link.secondItem = 7;
+        } else if (link.secondItem < 8 && link.scepter != Scepter.NONE) {
+            link.secondItem = 8;
+        }
+
+        // Item has not changed yet, try again from the beginning
+        if (initialSecondItem == link.secondItem) {
+            link.secondItem = 0;
+            if (link.boomerang.type != BoomerangType.NONE) {
+                link.secondItem = 1;
+            } else if (link.bombQuantity > 0) {
+                link.secondItem = 2;
+            } else if (link.bow != Bow.NONE && link.arrow.type != ArrowType.NONE) {
+                link.secondItem = 3;
+            } else if (link.light != Light.NONE) {
+                link.secondItem = 4;
+            } else if (link.flute != Flute.NONE) {
+                link.secondItem = 5;
+            } else if (link.meat != Meat.NONE) {
+                link.secondItem = 6;
+            } else if (link.potion != Potion.NONE) {
+                link.secondItem = 7;
+            } else if (link.scepter != Scepter.NONE) {
+                link.secondItem = 8;
+            }
+        }
+
+        guiManager.updateCursor(link.secondItem);
     }
 
 }

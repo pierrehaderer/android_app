@@ -14,6 +14,8 @@ import com.twoplayers.legend.character.link.inventory.DungeonMap;
 import com.twoplayers.legend.character.link.inventory.Flute;
 import com.twoplayers.legend.character.link.inventory.InfiniteKey;
 import com.twoplayers.legend.character.link.inventory.Ladder;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.bomb.BombCloud;
 import com.twoplayers.legend.character.link.inventory.boomerang.Boomerang;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.inventory.light.Light;
@@ -79,14 +81,16 @@ public class Link {
     public Item itemToShow;
 
     protected float life;
-    protected float lifeMax;
+    public float lifeMax;
     public int coins;
     public float coinCounter;
     public int coinsToRemove;
     public int keys;
 
     public Boomerang boomerang;
-    public int bomb;
+    public Bomb bomb;
+    public BombCloud bombCloud;
+    public int bombQuantity;
     public int bombMax;
     public Bow bow;
     public Arrow arrow;
@@ -241,8 +245,8 @@ public class Link {
         return arrow;
     }
 
-    public int getBomb() {
-        return bomb;
+    public int getBombQuantity() {
+        return bombQuantity;
     }
 
     public Boomerang getBoomerang() {

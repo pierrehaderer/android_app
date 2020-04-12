@@ -1,15 +1,15 @@
-package com.twoplayers.legend.character;
+package com.twoplayers.legend.util;
 
 import android.graphics.ColorMatrix;
 
-public class MyColorMatrix {
+public class ColorMatrixCharacter {
 
     private static final float ROTATION_SPEED = 0.15f;
     private ColorMatrix[] matrixList;
 
     private float count;
 
-    public MyColorMatrix() {
+    public ColorMatrixCharacter() {
         count = 0;
         matrixList = new ColorMatrix[8];
         matrixList[0] = createColorMatrix(2); // Rouge sombre

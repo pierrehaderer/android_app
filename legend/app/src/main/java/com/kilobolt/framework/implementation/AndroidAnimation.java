@@ -107,7 +107,7 @@ public class AndroidAnimation implements Animation {
     }
 
     @Override
-    public boolean isAnimationOver() {
+    public boolean isOver() {
         return isAnimationOver;
     }
 

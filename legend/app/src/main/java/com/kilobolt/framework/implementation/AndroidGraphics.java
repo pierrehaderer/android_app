@@ -190,9 +190,18 @@ public class AndroidGraphics implements Graphics {
     public void drawScaledImage(Image image, int x, int y, float coef) {
         int width = Math.round(image.getWidth() * coef);
         int height = Math.round(image.getHeight() * coef);
-        //Logger.debug("Drawing image (" + coef + ", " + image.getWidth() + "->" + width + ", " + image.getHeight() + "->" + height + ") ");
         Bitmap bitmap = Bitmap.createScaledBitmap(((AndroidImage) image).bitmap, width, height, true);
         canvas.drawBitmap(bitmap, x, y, null);
+    }
+
+    @Override
+    public void drawScaledImage(Image image, int x, int y, float coef, ColorMatrix colorMatrix) {
+        int width = Math.round(image.getWidth() * coef);
+        int height = Math.round(image.getHeight() * coef);
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        Bitmap bitmap = Bitmap.createScaledBitmap(((AndroidImage) image).bitmap, width, height, true);
+        canvas.drawBitmap(bitmap, x, y, paint);
     }
 
     public void drawScaledImage(Image image, int x, int y, int width, int height, int srcX, int srcY, int srcWidth, int srcHeight) {

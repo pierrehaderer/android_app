@@ -5,11 +5,12 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.character.MyColorMatrix;
+import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
@@ -54,7 +55,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     private List<Missile> missiles;
     private int spawnCounter;
 
-    private MyColorMatrix colorMatrix;
+    private ColorMatrixCharacter colorMatrix;
 
     /**
      * Load this manager
@@ -87,7 +88,7 @@ public class DungeonEnemyManager implements IEnemyManager {
         initEnemyMap();
         initMissileMap();
         initDungeonEnemies(game);
-        colorMatrix = new MyColorMatrix();
+        colorMatrix = new ColorMatrixCharacter();
     }
 
     /**
@@ -148,7 +149,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     public void update(float deltaTime, Graphics g) {
         colorMatrix.update(deltaTime);
         for (Enemy enemy : enemies) {
-            if (enemy.isDead && !enemy.currentAnimation.isAnimationOver()) {
+            if (enemy.isDead && !enemy.currentAnimation.isOver()) {
                 enemy.currentAnimation.update(deltaTime);
             } else {
                 enemy.update(deltaTime, g);
@@ -175,7 +176,7 @@ public class DungeonEnemyManager implements IEnemyManager {
                     g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
                 }
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
-            } else if (!enemy.currentAnimation.isAnimationOver()) {
+            } else if (!enemy.currentAnimation.isOver()) {
                 g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
             }
         }
@@ -270,6 +271,11 @@ public class DungeonEnemyManager implements IEnemyManager {
     @Override
     public void isHitByArrow(Enemy enemy, Arrow arrow) {
         enemy.isHitByArrow(arrow);
+    }
+
+    @Override
+    public void isHitByBomb(Enemy enemy, Bomb bomb) {
+        enemy.isHitByBomb(bomb);
     }
 
     @Override

@@ -326,7 +326,7 @@ public class GuiManager implements IManager {
         }
 
         // Draw inventory items
-        if (link.getBomb() > 0) {
+        if (link.getBombQuantity() > 0) {
             g.drawImage(imagesGui.get("bomb"), LEFT_BOMB, TOP_BOMB);
         }
         if (link.getArrow().getType() != ArrowType.NONE) {
@@ -384,7 +384,7 @@ public class GuiManager implements IManager {
         String coinsToDisplay = (linkCoins < 100) ? "x" + linkCoins : String.valueOf(linkCoins);
         g.drawString(coinsToDisplay, LEFT_COINS, TOP_COINS, TextUtil.getPaint());
         g.drawString("x" + link.getKeys(), LEFT_KEYS, TOP_KEYS, TextUtil.getPaint());
-        g.drawString("x" + link.getBomb(), LEFT_BOMBS, TOP_BOMBS, TextUtil.getPaint());
+        g.drawString("x" + link.getBombQuantity(), LEFT_BOMBS, TOP_BOMBS, TextUtil.getPaint());
 
         // Draw debug info
         g.drawString("Attempt: " + saveManager.getSave().getAttempt(), DEBUGX, DEBUGY, TextUtil.getDebugPaint());

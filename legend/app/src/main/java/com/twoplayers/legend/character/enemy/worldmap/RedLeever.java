@@ -111,7 +111,7 @@ public class RedLeever extends MoveOnTileEnemy {
             currentAnimation.update(deltaTime);
             if (!isActive) {
                 // The enemy is appearing or disappearing
-                if (currentAnimation.isAnimationOver()) {
+                if (currentAnimation.isOver()) {
                     if (isSpawning) {
                         moveAnimation.reset();
                         currentAnimation = moveAnimation;

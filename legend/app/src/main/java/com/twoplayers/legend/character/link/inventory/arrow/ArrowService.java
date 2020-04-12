@@ -108,7 +108,7 @@ public class ArrowService {
         }
         if (arrow.isAnImpact) {
             arrow.currentAnimation.update(deltaTime);
-            if (arrow.currentAnimation.isAnimationOver()) {
+            if (arrow.currentAnimation.isOver()) {
                 arrow.isAnImpact = false;
             }
         }

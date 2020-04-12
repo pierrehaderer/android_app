@@ -8,6 +8,7 @@ import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.Missile;
 import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
 
@@ -83,10 +84,15 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
+    public void isHitByBomb(Enemy enemy, Bomb bomb) {
+    }
+
+    @Override
     public void hasHitLink(Enemy enemy) {
     }
 
     @Override
     public void hasHitLink(Missile missile) {
     }
+
 }

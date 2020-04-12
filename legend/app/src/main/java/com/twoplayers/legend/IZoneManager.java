@@ -50,4 +50,6 @@ public interface IZoneManager extends IManager {
     Coordinate findSpawnableCoordinateInWater();
     /** Burn the bushes under the fire if any */
     void burnTheBushes(Fire fire);
+    /** Make the screen blink when a bomb explode */
+    void bombBlink();
 }

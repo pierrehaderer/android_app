@@ -22,16 +22,16 @@ import com.twoplayers.legend.util.FileUtil;
 import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
+import com.twoplayers.legend.util.ColorMatrixZone;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 public class WorldMapManager implements IZoneManager {
 
     private static final float TRANSITION_SPEED = 4.0f;
+    public static final float INITIAL_BLINK_COUNTER = 20f;
 
     private boolean initNotDone = true;
 
@@ -60,13 +60,16 @@ public class WorldMapManager implements IZoneManager {
     private boolean transitionRunning;
     private float transitionCount;
     private Orientation transitionOrientation;
-    private float leftCurrentMapRoom;
-    private float topCurrentMapRoom;
-    private Image imageCurrentMapRoom;
-    private float leftNextMapRoom;
-    private float topNextMapRoom;
-    private Image imageNextMapRoom;
+    private float leftCurrentRoom;
+    private float topCurrentRoom;
+    private Image imageCurrentRoom;
+    private float leftNextRoom;
+    private float topNextRoom;
+    private Image imageNextRoom;
     private List<Coordinate> waterCoordinate;
+
+    private float blinkCounter;
+    private ColorMatrixZone colorMatrix;
 
     /**
      * Load this manager
@@ -89,12 +92,12 @@ public class WorldMapManager implements IZoneManager {
         currentMiniOrdinate = 11 * currentOrdinate;
 
         transitionRunning = false;
-        leftCurrentMapRoom = LocationUtil.LEFT_MAP;
-        topCurrentMapRoom = LocationUtil.TOP_MAP;
-        imageCurrentMapRoom = imagesWorldMap.get(getCoordinate());
-        leftNextMapRoom = LocationUtil.LEFT_MAP;
-        topNextMapRoom = LocationUtil.TOP_MAP;
-        imageNextMapRoom = imagesWorldMap.get("empty");
+        leftCurrentRoom = LocationUtil.LEFT_MAP;
+        topCurrentRoom = LocationUtil.TOP_MAP;
+        imageCurrentRoom = imagesWorldMap.get(getCoordinate());
+        leftNextRoom = LocationUtil.LEFT_MAP;
+        topNextRoom = LocationUtil.TOP_MAP;
+        imageNextRoom = imagesWorldMap.get("empty");
     }
 
     /**
@@ -115,6 +118,9 @@ public class WorldMapManager implements IZoneManager {
         initWorldMap(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map.txt"));
         initWorldMapCaves(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_entrance.properties"));
         waterCoordinate = new ArrayList<>();
+
+        blinkCounter = 0;
+        colorMatrix = new ColorMatrixZone();
     }
 
     /**
@@ -234,29 +240,29 @@ public class WorldMapManager implements IZoneManager {
         if (transitionRunning) {
             if (transitionOrientation == Orientation.UP) {
                 float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                topCurrentMapRoom += transitionDeltaY;
-                topNextMapRoom += transitionDeltaY;
+                topCurrentRoom += transitionDeltaY;
+                topNextRoom += transitionDeltaY;
                 currentMiniOrdinate -= transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkY(transitionDeltaY);
             }
             if (transitionOrientation == Orientation.DOWN) {
                 float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                topCurrentMapRoom -= transitionDeltaY;
-                topNextMapRoom -= transitionDeltaY;
+                topCurrentRoom -= transitionDeltaY;
+                topNextRoom -= transitionDeltaY;
                 currentMiniOrdinate += transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkY(-1 * transitionDeltaY);
             }
             if (transitionOrientation == Orientation.LEFT) {
                 float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                leftCurrentMapRoom += transitionDeltaX;
-                leftNextMapRoom += transitionDeltaX;
+                leftCurrentRoom += transitionDeltaX;
+                leftNextRoom += transitionDeltaX;
                 currentMiniAbscissa -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkX(transitionDeltaX);
             }
             if (transitionOrientation == Orientation.RIGHT) {
                 float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
-                leftCurrentMapRoom -= transitionDeltaX;
-                leftNextMapRoom -= transitionDeltaX;
+                leftCurrentRoom -= transitionDeltaX;
+                leftNextRoom -= transitionDeltaX;
                 currentMiniAbscissa += transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
                 linkManager.moveLinkX(-1 * transitionDeltaX);
             }
@@ -264,32 +270,39 @@ public class WorldMapManager implements IZoneManager {
 
             if (transitionCount < 0) {
                 // End of the transition
-                imageCurrentMapRoom = imageNextMapRoom;
-                leftCurrentMapRoom = LocationUtil.LEFT_MAP;
-                topCurrentMapRoom = LocationUtil.TOP_MAP;
+                imageCurrentRoom = imageNextRoom;
+                leftCurrentRoom = LocationUtil.LEFT_MAP;
+                topCurrentRoom = LocationUtil.TOP_MAP;
                 currentAbscissa = nextAbscissa;
                 currentOrdinate = nextOrdinate;
                 currentMiniAbscissa = 16 * currentAbscissa;
                 currentMiniOrdinate = 11 * currentOrdinate;
-                imageNextMapRoom = imagesWorldMap.get("empty");
+                imageNextRoom = imagesWorldMap.get("empty");
                 transitionRunning = false;
                 listWaterCoordinates();
                 worldMapEnemyManager.spawnEnemies();
                 guiManager.activateButtons();
             }
         }
+        if (blinkCounter > 0) {
+            blinkCounter -= deltaTime;
+        }
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
         if (transitionRunning) {
-            g.drawScaledImage(imageNextMapRoom, (int) leftNextMapRoom, (int) topNextMapRoom, AllImages.COEF);
+            g.drawScaledImage(imageNextRoom, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
         }
-        g.drawScaledImage(imageCurrentMapRoom, (int) leftCurrentMapRoom, (int) topCurrentMapRoom, AllImages.COEF);
+        if (blinkCounter > 0) {
+            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
+        } else {
+            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
+        }
         EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (!entranceInfo.hidden) {
-            float x = entranceInfo.entrance.x + leftCurrentMapRoom - LocationUtil.LEFT_MAP;
-            float y = entranceInfo.entrance.y + topCurrentMapRoom - LocationUtil.TOP_MAP;
+            float x = entranceInfo.entrance.x + leftCurrentRoom - LocationUtil.LEFT_MAP;
+            float y = entranceInfo.entrance.y + topCurrentRoom - LocationUtil.TOP_MAP;
             if (entranceInfo.style == EntranceInfo.DOOR) {
                 g.drawScaledImage(imagesWorldMap.get("door"), (int) x, (int) y, AllImages.COEF);
             } else if (entranceInfo.style == EntranceInfo.STAIRS) {
@@ -342,34 +355,34 @@ public class WorldMapManager implements IZoneManager {
         switch (orientation) {
             case UP :
                 transitionCount = 176 * AllImages.COEF;
-                leftNextMapRoom = LocationUtil.LEFT_MAP;
-                topNextMapRoom = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
+                leftNextRoom = LocationUtil.LEFT_MAP;
+                topNextRoom = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
                 nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate - 1;
                 break;
             case DOWN :
                 transitionCount = 176 * AllImages.COEF;
-                leftNextMapRoom = LocationUtil.LEFT_MAP;
-                topNextMapRoom = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
+                leftNextRoom = LocationUtil.LEFT_MAP;
+                topNextRoom = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
                 nextAbscissa = currentAbscissa;
                 nextOrdinate = currentOrdinate + 1;
                 break;
             case LEFT :
                 transitionCount = 256 * AllImages.COEF;
-                leftNextMapRoom = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
-                topNextMapRoom = LocationUtil.TOP_MAP;
+                leftNextRoom = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
+                topNextRoom = LocationUtil.TOP_MAP;
                 nextAbscissa = currentAbscissa - 1;
                 nextOrdinate = currentOrdinate;
                 break;
             case RIGHT :
                 transitionCount = 256 * AllImages.COEF;
-                leftNextMapRoom = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
-                topNextMapRoom = LocationUtil.TOP_MAP;
+                leftNextRoom = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
+                topNextRoom = LocationUtil.TOP_MAP;
                 nextAbscissa = currentAbscissa + 1;
                 nextOrdinate = currentOrdinate;
                 break;
         }
-        imageNextMapRoom = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
+        imageNextRoom = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
         Logger.info("Starting room transition to " + nextAbscissa + nextOrdinate);
         exploredRooms[nextAbscissa][nextOrdinate] = true;
         saveManager.updateExploredRooms(nextAbscissa, nextOrdinate);
@@ -814,6 +827,11 @@ public class WorldMapManager implements IZoneManager {
                 saveManager.updateOpenedEntrances(currentAbscissa, currentOrdinate);
             }
         }
+    }
+
+    @Override
+    public void bombBlink() {
+        blinkCounter = INITIAL_BLINK_COUNTER;
     }
 
     /**

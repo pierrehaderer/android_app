@@ -114,7 +114,7 @@ public class BlueLeever extends MoveOnTileEnemy {
             if (!isActive) {
                 moveEnemy(deltaTime * SPAWNING_SPEED);
                 // The enemy is appearing or disappearing
-                if (currentAnimation.isAnimationOver()) {
+                if (currentAnimation.isOver()) {
                     if (isSpawning) {
                         moveAnimation.reset();
                         currentAnimation = moveAnimation;
