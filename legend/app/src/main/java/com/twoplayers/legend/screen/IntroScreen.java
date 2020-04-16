@@ -17,13 +17,25 @@ import java.util.List;
 
 public class IntroScreen extends Screen {
 
-    public static final int LEFT_SCREEN = 150;
+    public static final int LEFT_SCREEN = 0;
     public static final int TOP_SCREEN = 0;
     public static final int WIDTH_SCREEN = 548;
     public static final int HEIGHT_SCREEN = 480;
 
     private ImageOther imageOther;
     private int offset = 0;
+    private int coef1 = 0;
+    private int coef2 = 0;
+    private int coef3 = 0;
+    private int coef4= 0;
+    private int coef5 = 0;
+    private int coef6 = 0;
+    private int coef7 = 0;
+    private int coef8 = 0;
+    private int coef9 = 0;
+    private int coef10 = 0;
+    private int coef11 = 0;
+    private int coef12 = 0;
 
     public IntroScreen(Game game) {
         super(game);
@@ -39,11 +51,54 @@ public class IntroScreen extends Screen {
         int len = touchEvents.size();
         for (TouchEvent event : touchEvents) {
             if (event.type == TouchEvent.TOUCH_UP) {
-                if (LocationUtil.inBounds(event, LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN)) {
-                    offset = offset + 4096;
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 100, TOP_SCREEN + 100, 100, 100)) {
+                    coef1 = (coef1 + 1) % 11;
                     break;
                 }
-
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 200, TOP_SCREEN + 100, 100, 100)) {
+                    coef2 = (coef2 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 300, TOP_SCREEN + 100, 100, 100)) {
+                    coef3 = (coef3 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 400, TOP_SCREEN + 100, 100, 100)) {
+                    coef4 = (coef4 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 100, TOP_SCREEN + 200, 100, 100)) {
+                    coef5 = (coef5 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 200, TOP_SCREEN + 200, 100, 100)) {
+                    coef6 = (coef6 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 300, TOP_SCREEN + 200, 100, 100)) {
+                    coef7 = (coef7 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 400, TOP_SCREEN + 200, 100, 100)) {
+                    coef8 = (coef8 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 100, TOP_SCREEN + 300, 100, 100)) {
+                    coef9 = (coef9 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 200, TOP_SCREEN + 300, 100, 100)) {
+                    coef10 = (coef10 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 300, TOP_SCREEN + 300, 100, 100)) {
+                    coef11 = (coef11 + 1) % 11;
+                    break;
+                }
+                if (LocationUtil.inBounds(event, LEFT_SCREEN + 400, TOP_SCREEN + 300, 100, 100)) {
+                    coef12 = (coef12 + 1) % 11;
+                    break;
+                }
             }
         }
     }
@@ -52,38 +107,43 @@ public class IntroScreen extends Screen {
     public void paint(float deltaTime) {
         Graphics g = game.getGraphics();
         g.drawRect(LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN, Color.BLACK);
-        //g.drawScaledImage(imageOther.get("intro_screen"), LEFT_SCREEN, TOP_SCREEN, WIDTH_SCREEN, HEIGHT_SCREEN);
-        float coef = 0.1f  + (offset % 40960) / 40960f;
-        for (int i = 0; i < 512; i++) {
-            char[] chars = Integer.toBinaryString(4096 + i).toCharArray();
-            float[] colorTransform = {
-                    0, 0f, 0, 0, 0,
-                    0, 0, 0f, 0, 0,
-                    0, 0, 0, 0f, 0,
-                    0, 0, 0, 1f, 0};
-            colorTransform[0] = Float.parseFloat(Character.toString(chars[12]))*coef;
-            colorTransform[1] = Float.parseFloat(Character.toString(chars[11]))*coef;
-            colorTransform[2] = Float.parseFloat(Character.toString(chars[10]))*coef;
-            colorTransform[3] = Float.parseFloat(Character.toString(chars[9]))*coef;
+        g.drawRect(LEFT_SCREEN + 110, TOP_SCREEN + 110, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 210, TOP_SCREEN + 110, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 310, TOP_SCREEN + 110, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 410, TOP_SCREEN + 110, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 110, TOP_SCREEN + 210, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 210, TOP_SCREEN + 210, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 310, TOP_SCREEN + 210, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 410, TOP_SCREEN + 210, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 110, TOP_SCREEN + 310, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 210, TOP_SCREEN + 310, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 310, TOP_SCREEN + 310, 80, 80, Color.WHITE);
+        g.drawRect(LEFT_SCREEN + 410, TOP_SCREEN + 310, 80, 80, Color.WHITE);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        g.drawString(String.valueOf(coef1), LEFT_SCREEN + 130, TOP_SCREEN + 130, paint);
+        g.drawString(String.valueOf(coef2), LEFT_SCREEN + 230, TOP_SCREEN + 130, paint);
+        g.drawString(String.valueOf(coef3), LEFT_SCREEN + 330, TOP_SCREEN + 130, paint);
+        g.drawString(String.valueOf(coef4), LEFT_SCREEN + 430, TOP_SCREEN + 130, paint);
+        g.drawString(String.valueOf(coef5), LEFT_SCREEN + 130, TOP_SCREEN + 230, paint);
+        g.drawString(String.valueOf(coef6), LEFT_SCREEN + 230, TOP_SCREEN + 230, paint);
+        g.drawString(String.valueOf(coef7), LEFT_SCREEN + 330, TOP_SCREEN + 230, paint);
+        g.drawString(String.valueOf(coef8), LEFT_SCREEN + 430, TOP_SCREEN + 230, paint);
+        g.drawString(String.valueOf(coef9), LEFT_SCREEN + 130, TOP_SCREEN + 330, paint);
+        g.drawString(String.valueOf(coef10), LEFT_SCREEN + 230, TOP_SCREEN + 330, paint);
+        g.drawString(String.valueOf(coef11), LEFT_SCREEN + 330, TOP_SCREEN + 330, paint);
+        g.drawString(String.valueOf(coef12), LEFT_SCREEN + 430, TOP_SCREEN + 330, paint);
 
-            colorTransform[5] = Float.parseFloat(Character.toString(chars[8]))*coef;
-            colorTransform[6] = Float.parseFloat(Character.toString(chars[7]))*coef;
-            colorTransform[7] = Float.parseFloat(Character.toString(chars[6]))*coef;
-            colorTransform[8] = Float.parseFloat(Character.toString(chars[5]))*coef;
-
-            colorTransform[10] = Float.parseFloat(Character.toString(chars[4]))*coef;
-            colorTransform[11] = Float.parseFloat(Character.toString(chars[3]))*coef;
-            colorTransform[12] = Float.parseFloat(Character.toString(chars[2]))*coef;
-            colorTransform[13] = Float.parseFloat(Character.toString(chars[1]))*coef;
-            ColorMatrix colorMatrix = new ColorMatrix();
-            colorMatrix.setSaturation(0f);
-            colorMatrix.set(colorTransform);
-            g.drawImage(imageOther.get("link_down_1"), 5 + (i % 32) * 16, 5 + (i / 32) * 16, colorMatrix);
-            Paint paint = new Paint();
-            paint.setColor(Color.BLUE);
-            g.drawRect(100, 380, 100, 100, Color.DKGRAY);
-            g.drawString(Integer.toString(offset), 100, 400, paint);
-        }
+        float[] colorTransform = {
+                coef1 / 10f, coef2 / 10f, coef3 / 10f, coef4 / 10f, 0,
+                coef5 / 10f, coef6 / 10f, coef7 / 10f, coef8 / 10f, 0,
+                coef9 / 10f, coef10 / 10f, coef11 / 10f, coef12 / 10f, 0,
+                0, 0, 0, 1f, 0};
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0f);
+        colorMatrix.set(colorTransform);
+        g.drawImage(imageOther.get("map_g"), 500, 150, colorMatrix);
+        g.drawImage(imageOther.get("map_d"), 628, 150);
     }
 
     @Override
