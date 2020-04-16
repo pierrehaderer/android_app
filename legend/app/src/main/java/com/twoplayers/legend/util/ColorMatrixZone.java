@@ -12,38 +12,23 @@ public class ColorMatrixZone {
     public ColorMatrixZone() {
         count = 0;
         matrixList = new ColorMatrix[2];
-        matrixList[0] = createColorMatrix(65); // Rouge appuye
-        matrixList[1] = createColorMatrix(99); // Jaune fort
-    }
-
-    /**
-     * Only 12 values are important in this matrix. Use numbers from 0 to 4095 written in binary to define these 12 values.
-     */
-    private ColorMatrix createColorMatrix(int value) {
-        char[] chars = Integer.toBinaryString(4096 + value).toCharArray();
-        float[] colorTransform = {
-                0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0,
+        float[] colorTransform0 = {
+                1, 0, 0, 0, 0,
+                0, 1, 0, 0, 0,
+                0, 0, 1, 0, 0,
                 0, 0, 0, 1, 0};
-        colorTransform[0] = Float.parseFloat(Character.toString(chars[12]));
-        colorTransform[1] = Float.parseFloat(Character.toString(chars[11]));
-        colorTransform[2] = Float.parseFloat(Character.toString(chars[10]));
-        colorTransform[3] = Float.parseFloat(Character.toString(chars[9]));
+        matrixList[0] = new ColorMatrix();
+        matrixList[0].setSaturation(0f);
+        matrixList[0].set(colorTransform0);
+        float[] colorTransform1 = {
+                0.6f, 0, 0, 0, 0,
+                0, 0.6f, 0, 0, 0,
+                0, 0, 0.6f, 0, 0,
+                0, 0, 0, 1, 0};
+        matrixList[1] = new ColorMatrix();
+        matrixList[1].setSaturation(0f);
+        matrixList[1].set(colorTransform1);
 
-        colorTransform[5] = Float.parseFloat(Character.toString(chars[8]));
-        colorTransform[6] = Float.parseFloat(Character.toString(chars[7]));
-        colorTransform[7] = Float.parseFloat(Character.toString(chars[6]));
-        colorTransform[8] = Float.parseFloat(Character.toString(chars[5]));
-
-        colorTransform[10] = Float.parseFloat(Character.toString(chars[4]));
-        colorTransform[11] = Float.parseFloat(Character.toString(chars[3]));
-        colorTransform[12] = Float.parseFloat(Character.toString(chars[2]));
-        colorTransform[13] = Float.parseFloat(Character.toString(chars[1]));
-        ColorMatrix colorMatrix = new ColorMatrix();
-        colorMatrix.setSaturation(0f);
-        colorMatrix.set(colorTransform);
-        return colorMatrix;
     }
 
     public void update(float deltaTime) {
