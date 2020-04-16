@@ -36,7 +36,7 @@ public class CaveManager implements IZoneManager {
     private static final int PRICE_OFFSET_X_3DIGITS = -11;
     private static final int PRICE_OFFSET_Y = 60;
     private static final float TEXT_SPEED = 0.12f;
-    public static final float INITIAL_BLINK_COUNTER = 20f;
+    private static final float INITIAL_BLINK_COUNTER = 20f;
 
     private boolean initNotDone = true;
     private float immobilisationCounter;
@@ -167,6 +167,7 @@ public class CaveManager implements IZoneManager {
 
         if (blinkCounter > 0) {
             blinkCounter -= deltaTime;
+            colorMatrix.update(deltaTime);
         }
     }
 

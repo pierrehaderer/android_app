@@ -4,7 +4,7 @@ import android.graphics.ColorMatrix;
 
 public class ColorMatrixZone {
 
-    private static final float ROTATION_SPEED = 0.5f;
+    private static final float ROTATION_SPEED = 0.2f;
     private ColorMatrix[] matrixList;
 
     private float count;

@@ -31,7 +31,7 @@ import java.util.Properties;
 public class WorldMapManager implements IZoneManager {
 
     private static final float TRANSITION_SPEED = 4.0f;
-    public static final float INITIAL_BLINK_COUNTER = 20f;
+    private static final float INITIAL_BLINK_COUNTER = 20f;
 
     private boolean initNotDone = true;
 
@@ -286,6 +286,7 @@ public class WorldMapManager implements IZoneManager {
         }
         if (blinkCounter > 0) {
             blinkCounter -= deltaTime;
+            colorMatrix.update(deltaTime);
         }
     }
 

@@ -30,7 +30,7 @@ public class DungeonManager implements IZoneManager {
 
     private static final float INITIAL_IMMOBILISATION_COUNTER = 50f;
     private static final float TRANSITION_SPEED = 4.0f;
-    public static final float INITIAL_BLINK_COUNTER = 20f;
+    private static final float INITIAL_BLINK_COUNTER = 20f;
 
     private ImagesDungeon imagesDungeon;
 
@@ -231,6 +231,7 @@ public class DungeonManager implements IZoneManager {
         }
         if (blinkCounter > 0) {
             blinkCounter -= deltaTime;
+            colorMatrix.update(deltaTime);
         }
     }
 
