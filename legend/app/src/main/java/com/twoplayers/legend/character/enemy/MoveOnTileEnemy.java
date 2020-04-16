@@ -54,4 +54,8 @@ public abstract class MoveOnTileEnemy extends Enemy {
             Logger.info("Enemy push direction : " + pushX + ", " + pushY);
         }
     }
+
+    protected Animation getMoveAnimation() {
+        return moveAnimations.get(orientation);
+    }
 }

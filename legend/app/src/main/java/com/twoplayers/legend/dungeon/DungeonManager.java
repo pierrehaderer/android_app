@@ -289,7 +289,7 @@ public class DungeonManager implements IZoneManager {
         guiManager.deactivateButtons();
         dungeonEnemyManager.unloadEnemies();
         if (currentOrdinate == 7 && orientation == Orientation.DOWN) {
-            Logger.info("Link has exited the cave.");
+            Logger.info("Link has exited the dungeon.");
             linkManager.exitZone();
             hasExitedZone = true;
         } else {

@@ -159,7 +159,7 @@ public class EnemyService {
         }
         if (nextTileIsReachable) {
             enemy.orientation = enemy.nextOrientation;
-            enemy.currentAnimation = enemy.moveAnimations.get(enemy.orientation);
+            enemy.currentAnimation = enemy.getMoveAnimation();
         }
 
         return remainingMoves;

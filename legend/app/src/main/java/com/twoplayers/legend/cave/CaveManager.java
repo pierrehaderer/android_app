@@ -72,6 +72,8 @@ public class CaveManager implements IZoneManager {
         textCounter = 0;
         textSoundCounter = 0;
         immobilisationCounter = INITIAL_IMMOBILISATION_COUNTER;
+        hasExitedZone = false;
+        blinkCounter = 0;
     }
 
     /**
@@ -97,7 +99,6 @@ public class CaveManager implements IZoneManager {
             caveRoom.addALine(line);
         }
 
-        blinkCounter = 0;
         colorMatrix = new ColorMatrixZone();
     }
 
@@ -106,7 +107,6 @@ public class CaveManager implements IZoneManager {
      */
     private void initCave(Game game, CaveInfo caveInfo) {
         cave = new Cave(imagesCave, imagesItem, game.getGraphics(), caveInfo);
-        hasExitedZone = false;
 
         cave.npc = new Npc();
         cave.npc.name = caveInfo.npcName;
@@ -206,6 +206,7 @@ public class CaveManager implements IZoneManager {
     @Override
     public void changeRoom(Orientation orientation) {
         Logger.info("Link has exited the cave.");
+        guiManager.deactivateButtons();
         linkManager.exitZone();
         hasExitedZone = true;
     }

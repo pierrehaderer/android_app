@@ -203,4 +203,9 @@ public class BlueLeever extends MoveOnTileEnemy {
         }
     }
 
+    @Override
+    protected Animation getMoveAnimation() {
+        return moveAnimation;
+    }
+
 }

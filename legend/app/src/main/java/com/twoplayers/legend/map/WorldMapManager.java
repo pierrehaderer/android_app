@@ -68,6 +68,7 @@ public class WorldMapManager implements IZoneManager {
     private Image imageNextRoom;
     private List<Coordinate> waterCoordinate;
 
+    private boolean mustReactivateButtons;
     private float blinkCounter;
     private ColorMatrixZone colorMatrix;
 
@@ -98,6 +99,8 @@ public class WorldMapManager implements IZoneManager {
         leftNextRoom = LocationUtil.LEFT_MAP;
         topNextRoom = LocationUtil.TOP_MAP;
         imageNextRoom = imagesWorldMap.get("empty");
+
+        mustReactivateButtons = true;
     }
 
     /**
@@ -237,6 +240,10 @@ public class WorldMapManager implements IZoneManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        if (mustReactivateButtons) {
+            mustReactivateButtons = false;
+            guiManager.activateButtons();
+        }
         if (transitionRunning) {
             if (transitionOrientation == Orientation.UP) {
                 float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
