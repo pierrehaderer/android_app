@@ -226,7 +226,7 @@ public class LinkService {
         if (link.isEnteringADoor) {
             link.currentAnimation.update(deltaTime);
             float distance = deltaTime * Link.ENTER_DOOR_SPEED;
-            link.enterSomewhereCounter -= distance;
+            link.enterSomewhereDistance -= distance;
             moveLinkY(link, distance);
         }
     }
@@ -237,7 +237,8 @@ public class LinkService {
     public void handleLinkExitingSomewhere(Link link, float deltaTime) {
         if (link.isExitingADoor) {
             if (link.exitSomewhereDistance > 0) {
-                if (link.exitSomewhereDistance == LocationUtil.TILE_SIZE) {
+                if (link.mustPlayExitSomewhereSound) {
+                    link.mustPlayExitSomewhereSound = false;
                     soundEffectManager.play("cave");
                 }
                 link.currentAnimation.update(deltaTime);
@@ -264,15 +265,16 @@ public class LinkService {
             enemyManager.unloadEnemies();
             linkManager.hideItemsAndEffects();
             link.isEnteringADoor = true;
-            link.enterSomewhereCounter = LocationUtil.TILE_SIZE - 4; // Minus 4 to avoid link on the other side of the hiding tile
+            link.enterSomewhereDistance = LocationUtil.TILE_SIZE - 4; // Minus 4 to avoid link on the other side of the hiding tile
+            link.mustPlayExitSomewhereSound = true;
             link.exitSomewhereDistance = LocationUtil.TILE_SIZE;
             link.isPushed = false;
             link.isAttacking = false;
             link.isInvincible = false;
             link.currentAnimation = link.moveAnimations.get(Orientation.UP);
             int tileX = LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE);
-            int tileY = LocationUtil.getTileYFromPositionY(link.y + LocationUtil.TILE_SIZE);
-            link.underTheDoor = new Coordinate(LocationUtil.getXFromGrid(tileX), LocationUtil.getYFromGrid(tileY));
+            int tileY = LocationUtil.getTileYFromPositionY(link.y + 3 * + LocationUtil.HALF_TILE_SIZE);
+            link.underTheDoor = new Coordinate(LocationUtil.getXFromGrid(tileX) + Coordinate.ONE_MORE_PIXEL, LocationUtil.getYFromGrid(tileY) + Coordinate.ONE_MORE_PIXEL);
         }
     }
 
@@ -287,7 +289,7 @@ public class LinkService {
             enemyManager.unloadEnemies();
             linkManager.hideItemsAndEffects();
             link.isEnteringADoor = true;
-            link.enterSomewhereCounter = 0;
+            link.enterSomewhereDistance = 0;
             link.exitSomewhereDistance = 0;
             link.isPushed = false;
             link.isAttacking = false;

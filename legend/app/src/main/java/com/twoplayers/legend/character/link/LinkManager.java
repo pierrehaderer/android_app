@@ -82,7 +82,7 @@ public class LinkManager implements IManager {
         link.isAttacking = false;
         link.isInvincible = false;
         link.isEnteringADoor = false;
-        link.enterSomewhereCounter = 0;
+        link.enterSomewhereDistance = 0;
     }
 
     /**
@@ -167,16 +167,20 @@ public class LinkManager implements IManager {
     @Override
     public void paint(float deltaTime, Graphics g) {
         // Draw link
-        if (link.isShowingItem) {
-            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
-            g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
-        } else if (link.isInvincible) {
+        if (link.isInvincible) {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, colorMatrix.getMatrix());
-        } else if (link.isEnteringADoor || link.isExitingADoor) {
-            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
-            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) (link.underTheDoor.y + LocationUtil.TILE_SIZE), AllImages.COEF);
         } else {
             g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
+        }
+
+        // Draw item picked
+        if (link.isShowingItem) {
+            g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
+        }
+
+        // Draw empty tile
+        if (link.isEnteringADoor || link.isExitingADoor) {
+            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) link.underTheDoor.y, AllImages.COEF);
         }
 
         // Draw the sword
@@ -267,6 +271,6 @@ public class LinkManager implements IManager {
      * Check if link has finished entering somewhere
      */
     public boolean hasFinishedEnteringSomewhere() {
-        return link.enterSomewhereCounter < 0;
+        return link.enterSomewhereDistance < 0;
     }
 }

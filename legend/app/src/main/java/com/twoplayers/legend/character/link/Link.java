@@ -73,8 +73,9 @@ public class Link {
     protected boolean isInvincible;
     protected float invicibleCounter;
     public boolean isEnteringADoor;
-    protected float enterSomewhereCounter;
+    protected float enterSomewhereDistance;
     public boolean isExitingADoor;
+    protected boolean mustPlayExitSomewhereSound;
     protected float exitSomewhereDistance;
     public boolean isShowingItem;
     public float showItemCounter;

@@ -224,7 +224,7 @@ public class WorldMapManager implements IZoneManager {
      */
     private Coordinate findExit(int i, int j, EntranceInfo entranceInfo) {
         if (entranceInfo.style == EntranceInfo.DOOR) {
-            return new Coordinate(entranceInfo.entrance.x, entranceInfo.entrance.y + LocationUtil.TILE_SIZE);
+            return new Coordinate(entranceInfo.entrance.x, entranceInfo.entrance.y + LocationUtil.TILE_SIZE + 1);
         }
         int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
         int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
