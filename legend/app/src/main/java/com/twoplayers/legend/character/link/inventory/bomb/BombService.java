@@ -7,6 +7,7 @@ import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.inventory.ItemService;
+import com.twoplayers.legend.map.EntranceInfo;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -87,6 +88,7 @@ public class BombService {
             if (bomb.timeBeforeExplosion < 0) {
                 soundEffectManager.play("bomb");
                 zoneManager.bombBlink();
+                zoneManager.openHiddenEntrance(bomb.hitbox, EntranceInfo.WALL);
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.bomb.hitbox, enemy.getHitbox())) {
                         Logger.info("Link has hit enemy with bomb.");
@@ -99,6 +101,8 @@ public class BombService {
                     animation.reset();
                 }
                 bombCloud.isActive = true;
+                bombCloud.x = bomb.x;
+                bombCloud.y = bomb.y;
             }
         }
 

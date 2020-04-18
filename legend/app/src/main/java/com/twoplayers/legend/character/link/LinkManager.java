@@ -208,8 +208,8 @@ public class LinkManager implements IManager {
         }
         if (link.bombCloud.isActive) {
             for (int i = 0; i < 7; i++) {
-                float x = link.bomb.x + link.bombCloud.animationPositions[i].x;
-                float y = link.bomb.y + link.bombCloud.animationPositions[i].y;
+                float x = link.bombCloud.x + link.bombCloud.animationPositions[i].x;
+                float y = link.bombCloud.y + link.bombCloud.animationPositions[i].y;
                 g.drawAnimation(link.bombCloud.animations[i], (int) x, (int) y);
             }
         }

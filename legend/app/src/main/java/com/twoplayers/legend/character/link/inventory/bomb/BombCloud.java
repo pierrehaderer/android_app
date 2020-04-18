@@ -48,7 +48,7 @@ public class BombCloud {
     private Animation defineCloudAnimation(ImagesLink imagesLink, Graphics g, float cloudTime, float emptyTime) {
         Animation animation = g.newAnimation();
         float sum = 0;
-        while (sum < 100f) {
+        while (sum < 70f) {
             animation.addFrame(imagesLink.get("cloud_1"), AllImages.COEF, cloudTime);
             animation.addFrame(imagesLink.get("empty"), AllImages.COEF, emptyTime);
             sum += cloudTime + emptyTime;

@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesDungeon;
@@ -644,7 +644,7 @@ public class DungeonManager implements IZoneManager {
     }
 
     @Override
-    public void burnTheBushes(Fire fire) {
+    public void openHiddenEntrance(Hitbox hitbox, int entranceType) {
     }
 
     @Override

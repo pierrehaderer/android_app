@@ -1,8 +1,8 @@
 package com.twoplayers.legend;
 
 import com.kilobolt.framework.Image;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
-import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Orientation;
@@ -49,7 +49,7 @@ public interface IZoneManager extends IManager {
     /** Find spawnable corrdinate for an water enemy */
     Coordinate findSpawnableCoordinateInWater();
     /** Burn the bushes under the fire if any */
-    void burnTheBushes(Fire fire);
+    void openHiddenEntrance(Hitbox hitbox, int entranceType);
     /** Make the screen blink when a bomb explode */
     void bombBlink();
 }

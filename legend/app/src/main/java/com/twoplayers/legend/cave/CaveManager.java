@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.link.inventory.ItemService;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
@@ -441,7 +442,7 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public void burnTheBushes(Fire fire) {
+    public void openHiddenEntrance(Hitbox hitbox, int entranceType) {
     }
 
     @Override

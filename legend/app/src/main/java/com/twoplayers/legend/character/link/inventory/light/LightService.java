@@ -5,9 +5,9 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.Link;
+import com.twoplayers.legend.map.EntranceInfo;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
-import com.twoplayers.legend.util.Orientation;
 
 public class LightService {
 
@@ -92,13 +92,13 @@ public class LightService {
             }
         }
         if (link.fire1.hasJustFinished) {
-            zoneManager.burnTheBushes(link.fire1);
+            zoneManager.openHiddenEntrance(link.fire1.hitbox, EntranceInfo.BUSH);
             link.fire1.hasJustFinished = false;
             link.fire1.isActive = false;
             link.fire1.hitbox.relocate(0, 0);
         }
         if (link.fire2.hasJustFinished) {
-            zoneManager.burnTheBushes(link.fire2);
+            zoneManager.openHiddenEntrance(link.fire2.hitbox, EntranceInfo.BUSH);
             link.fire2.hasJustFinished = false;
             link.fire2.isActive = false;
             link.fire2.hitbox.relocate(0, 0);

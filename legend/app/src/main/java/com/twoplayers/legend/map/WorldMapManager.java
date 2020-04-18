@@ -7,6 +7,7 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -820,10 +821,10 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
-    public void burnTheBushes(Fire fire) {
+    public void openHiddenEntrance(Hitbox hitox, int entranceType) {
         EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
-        if (entranceInfo.hidden == true && entranceInfo.hiddenStyle == EntranceInfo.BUSH) {
-            if (LocationUtil.areColliding(entranceInfo.hitbox, fire.getHitbox())) {
+        if (entranceInfo.hidden && entranceInfo.hiddenStyle == entranceType) {
+            if (LocationUtil.areColliding(entranceInfo.hitbox, hitox)) {
                 soundEffectManager.play("find_secret");
                 // Enable walking on the tile
                 MapTile mapTile = (entranceInfo.style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
@@ -836,6 +837,7 @@ public class WorldMapManager implements IZoneManager {
             }
         }
     }
+
 
     @Override
     public void bombBlink() {
