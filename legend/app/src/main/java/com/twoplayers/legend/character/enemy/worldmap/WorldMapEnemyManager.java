@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.character.enemy.missile.EnemyArrow;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Missile;
@@ -106,6 +107,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyMap.put("BlueTektite", BlueTektite.class);
         enemyMap.put("RedLeever", RedLeever.class);
         enemyMap.put("BlueLeever", BlueLeever.class);
+        enemyMap.put("RedMoblin", RedMoblin.class);
+        enemyMap.put("BlueMoblin", BlueMoblin.class);
         enemyMap.put("Zora", Zora.class);
     }
 
@@ -119,6 +122,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         missileMap.put(BlueSlowOctorok.class, Rock.class);
         missileMap.put(BlueFastOctorok.class, Rock.class);
         missileMap.put(Zora.class, Plasma.class);
+        missileMap.put(RedMoblin.class, EnemyArrow.class);
+        missileMap.put(BlueMoblin.class, EnemyArrow.class);
     }
 
     /**
@@ -197,7 +202,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         }
         for (Missile missile: missiles) {
             if (missile.isActive) {
-                g.drawAnimation(missile.animation, (int) missile.x, (int) missile.y);
+                g.drawAnimation(missile.currentAnimation, (int) missile.x, (int) missile.y);
                 g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
             }
         }
@@ -237,7 +242,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
             missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
             missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
             missile.hitbox.relocate(missile.x, missile.y);
-            missile.orientation = enemy.orientation;
+            missile.defineOrientation(enemy.orientation);
             missiles.add(missile);
         } catch (Exception e) {
             Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
@@ -253,7 +258,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
             missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
             missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
             missile.hitbox.relocate(missile.x, missile.y);
-            missile.orientation = enemy.orientation;
+            missile.defineOrientation(enemy.orientation);
             missiles.add(missile);
         } catch (Exception e) {
             Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
@@ -263,6 +268,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public void unloadEnemies() {
         enemies.clear();
+        missiles.clear();
     }
 
     @Override

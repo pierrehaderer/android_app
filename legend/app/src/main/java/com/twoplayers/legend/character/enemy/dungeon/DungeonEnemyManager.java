@@ -241,6 +241,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     @Override
     public void unloadEnemies() {
         enemies.clear();
+        missiles.clear();
     }
 
     @Override

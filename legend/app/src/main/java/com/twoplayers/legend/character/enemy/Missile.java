@@ -8,13 +8,16 @@ import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Orientation;
 
+import java.util.Map;
+
 public abstract class Missile {
 
     private final IZoneManager zoneManager;
 
     protected float damage;
     protected float speed;
-    public Animation animation;
+    public Map<Orientation, Animation> animations;
+    public Animation currentAnimation;
 
     public Orientation orientation;
     public float x;
@@ -41,9 +44,12 @@ public abstract class Missile {
      */
     public abstract void initAnimations(IImagesEnemy imagesEnemyWorldMap, Graphics g);
 
+    /**
+     * Update the missile position and animation check despawn condition
+     */
     public void update(float deltaTime, Graphics g) {
         if (isActive) {
-            animation.update(deltaTime);
+            currentAnimation.update(deltaTime);
             switch (orientation) {
                 case UP:
                     y -= deltaTime * speed;
@@ -73,6 +79,14 @@ public abstract class Missile {
                 isActive = false;
             }
         }
+    }
+
+    /**
+     * Define the orientation and choose the animation associated with it
+     */
+    public void defineOrientation(Orientation orientation) {
+        this.orientation = orientation;
+        currentAnimation = animations.get(orientation);
     }
 
     public void hasHitLink() {
