@@ -8,7 +8,6 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
@@ -308,6 +307,7 @@ public class WorldMapManager implements IZoneManager {
         } else {
             g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
         }
+
         EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (!entranceInfo.hidden) {
             float x = entranceInfo.entrance.x + leftCurrentRoom - LocationUtil.LEFT_MAP;
@@ -394,7 +394,7 @@ public class WorldMapManager implements IZoneManager {
         imageNextRoom = imagesWorldMap.get(String.valueOf(nextAbscissa) + nextOrdinate);
         Logger.info("Starting room transition to " + nextAbscissa + nextOrdinate);
         exploredRooms[nextAbscissa][nextOrdinate] = true;
-        saveManager.updateExploredRooms(nextAbscissa, nextOrdinate);
+        saveManager.updateWorldMapExploredRooms(nextAbscissa, nextOrdinate);
         transitionRunning = true;
         transitionOrientation = orientation;
     }

@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -24,7 +25,10 @@ import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.ColorMatrixZone;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class DungeonManager implements IZoneManager {
 
@@ -38,10 +42,12 @@ public class DungeonManager implements IZoneManager {
     private LinkManager linkManager;
     private DungeonEnemyManager dungeonEnemyManager;
     private MusicManager musicManager;
+    private SaveManager saveManager;
 
     /** dungeonRooms that represent the whole dungeon in this game */
     private DungeonRoom[][] dungeonRooms;
-    private Boolean[][] exploredDungeon;
+    private Boolean[][] exploredRooms;
+    private Map<DungeonDoorPlacement, DungeonDoor>[][] dungeonDoors;
 
     private boolean initNotDone = true;
     private float immobilisationCounter;
@@ -85,7 +91,9 @@ public class DungeonManager implements IZoneManager {
         Location start = dungeonInfo.startLocation;
         hasExitedZone = false;
 
-        initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"), start);
+        saveManager.updateDungeonExploredRooms(dungeon.id, start.x, start.y);
+        initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"));
+        initDungeonDoors(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + "_doors.properties"));
 
         musicManager.clear();
         musicManager.plan(100, "dungeon_loop", true);
@@ -117,6 +125,7 @@ public class DungeonManager implements IZoneManager {
         linkManager = ((MainActivity) game).getLinkManager();
         dungeonEnemyManager = ((MainActivity) game).getDungeonEnemyManager();
         musicManager = ((MainActivity) game).getMusicManager();
+        saveManager = ((MainActivity) game).getSaveManager();
 
         imagesDungeon = ((MainActivity) game).getAllImages().getImagesDungeon();
         imagesDungeon.load(((MainActivity) game).getAssetManager(), game.getGraphics());
@@ -130,18 +139,18 @@ public class DungeonManager implements IZoneManager {
     /**
      * Create all the DungeonRoom objects from the world_map file
      */
-    private void initDungeon(List<String> dungeonFileContent, Location start) {
+    private void initDungeon(List<String> dungeonFileContent) {
         dungeonRooms = new DungeonRoom[8][8];
-        exploredDungeon = new Boolean[8][8];
+        exploredRooms = new Boolean[8][8];
+        Boolean[][] savedExploredRooms = saveManager.getSave().getDungeonSave().getExploredRooms(dungeon.id);
 
         // Initialise the mapRooms
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                dungeonRooms[i][j] = (new DungeonRoom());
-                exploredDungeon[i][j] = false;
+                dungeonRooms[i][j] = new DungeonRoom();
+                exploredRooms[i][j] = savedExploredRooms[i][j];
             }
         }
-        exploredDungeon[start.x][start.y] = true;
 
         // Fill the mapRooms, line by line
         int indexLine = 0;
@@ -154,6 +163,42 @@ public class DungeonManager implements IZoneManager {
             if (indexLine % 12 == 11) {
                 indexLine++;
                 index1++;
+            }
+        }
+    }
+
+    /**
+     * Init the doors of the dungeon
+     */
+    private void initDungeonDoors(Properties doorsProperties) {
+        dungeonDoors = new Map[8][8];
+
+        // Init dungeonDoors
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                dungeonDoors[i][j] = new HashMap<>();
+            }
+        }
+
+        // Parse the properties to add all the doors of this dungeon
+        for (String key : doorsProperties.stringPropertyNames()) {
+            String doorProperty = ((String) doorsProperties.get(key)).trim();
+            if (doorProperty.length() > 0) {
+                int abscissa = Integer.valueOf(key.substring(1,2));
+                int ordinate = Integer.valueOf(key.substring(2,3));
+                String[] dungeonDoorsAsString = doorProperty.split("\\|");
+                for (String dungeonDoorAsString : dungeonDoorsAsString) {
+                    String[] dungeonDoorInfo = dungeonDoorAsString.split(";");
+                    DungeonDoorPlacement placement = DungeonDoorPlacement.valueOf(dungeonDoorInfo[0]);
+                    DungeonDoorType type = DungeonDoorType.valueOf(dungeonDoorInfo[1]);
+                    Logger.info("Adding door (" + abscissa + "," + ordinate + ") : " + dungeonDoorAsString);
+                    if (type == DungeonDoorType.PUSH) {
+                        Location location = new Location(dungeonDoorInfo[2]);
+                        dungeonDoors[abscissa][ordinate].put(placement, new DungeonDoor(placement, type, location));
+                    } else {
+                        dungeonDoors[abscissa][ordinate].put(placement, new DungeonDoor(placement, type));
+                    }
+                }
             }
         }
     }
@@ -245,9 +290,47 @@ public class DungeonManager implements IZoneManager {
         } else {
             g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
         }
+        paintDoors(g);
     }
 
-    public void paintDoorCache(float deltaTime, Graphics g) {
+    /**
+     * Paint the doors of the dungeon
+     */
+    private void paintDoors( Graphics g) {
+        if (transitionRunning) {
+            for (DungeonDoor dungeonDoor : dungeonDoors[nextAbscissa][nextOrdinate].values()) {
+                if (dungeonDoor.type == DungeonDoorType.BOMB) {
+                    if (dungeonDoor.isOpen) {
+                        Image doorImage = imagesDungeon.get("bomb_hole_" + dungeonDoor.placement.imagePrefix);
+                        g.drawImage(doorImage, (int) (leftNextRoom + dungeonDoor.placement.x), (int) (topNextRoom + dungeonDoor.placement.y));
+                    }
+                } else {
+                    if (!dungeonDoor.isOpen) {
+                        Image doorImage = imagesDungeon.get(dungeonDoor.type.imagePrefix + "_" + dungeonDoor.placement.imagePrefix + "_" + dungeon.id);
+                        g.drawImage(doorImage, (int) (leftNextRoom + dungeonDoor.placement.x), (int) (topNextRoom + dungeonDoor.placement.y));
+                    }
+                }
+            }
+        }
+        for (DungeonDoor dungeonDoor : dungeonDoors[currentAbscissa][currentOrdinate].values()) {
+            if (dungeonDoor.type == DungeonDoorType.BOMB) {
+                if (dungeonDoor.isOpen) {
+                    Image doorImage = imagesDungeon.get("bomb_hole_" + dungeonDoor.placement.imagePrefix);
+                    g.drawImage(doorImage, (int) (leftCurrentRoom + dungeonDoor.placement.x), (int) (topCurrentRoom + dungeonDoor.placement.y));
+                }
+            } else {
+                if (!dungeonDoor.isOpen) {
+                    Image doorImage = imagesDungeon.get(dungeonDoor.type.imagePrefix + "_" + dungeonDoor.placement.imagePrefix + "_" + dungeon.id);
+                    g.drawImage(doorImage, (int) (leftCurrentRoom + dungeonDoor.placement.x), (int) (topCurrentRoom + dungeonDoor.placement.y));
+                }
+            }
+        }
+    }
+
+    /**
+     * Paint the doors cache after link to hide ihim when he goes through the doors
+     */
+    public void paintDoorCache(Graphics g) {
         if (transitionRunning) {
             g.drawScaledImage(nextDoorCache.up, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
             g.drawScaledImage(nextDoorCache.down, (int) leftNextRoom, (int) (topNextRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
@@ -330,7 +413,8 @@ public class DungeonManager implements IZoneManager {
             imageNextRoom = imagesDungeon.get(dungeon.id + String.valueOf(nextAbscissa) + nextOrdinate);
             updateDoorCache(nextDoorCache, nextAbscissa, nextOrdinate);
             Logger.info("Starting room transition to " + nextAbscissa + nextOrdinate);
-            exploredDungeon[nextAbscissa][nextOrdinate] = true;
+            exploredRooms[nextAbscissa][nextOrdinate] = true;
+            saveManager.updateDungeonExploredRooms(dungeon.id, nextAbscissa, nextOrdinate);
             transitionRunning = true;
             transitionOrientation = orientation;
         }
@@ -605,7 +689,7 @@ public class DungeonManager implements IZoneManager {
     @Override
     public boolean isExplored(int x, int y) {
         if (3 < x && x < 12) {
-            return exploredDungeon[x - 4][y];
+            return exploredRooms[x - 4][y];
         }
         return true;
     }

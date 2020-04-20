@@ -17,12 +17,13 @@ import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.Logger;
 
+import java.util.HashMap;
+
 public class Stalfos extends MoveOnTileEnemy {
 
     private static final int TIME_BEFORE_FIRST_MOVE = 36;
     private static final float SPEED = 0.6f;
 
-    private Animation moveAnimation;
     private Animation initialAnimation;
 
     private boolean initNotDone;
@@ -52,9 +53,14 @@ public class Stalfos extends MoveOnTileEnemy {
         EnemyUtil enemyUtil = new EnemyUtil();
         initialAnimation = enemyUtil.getFastCloudAnimation(imagesEnemy, g);
 
-        moveAnimation = g.newAnimation();
-        moveAnimation.addFrame(imagesEnemy.get("skeleton_1"), AllImages.COEF, 15);
-        moveAnimation.addFrame(imagesEnemy.get("skeleton_2"), AllImages.COEF, 15);
+        Animation animation = g.newAnimation();
+        animation.addFrame(imagesEnemy.get("skeleton_1"), AllImages.COEF, 15);
+        animation.addFrame(imagesEnemy.get("skeleton_2"), AllImages.COEF, 15);
+        moveAnimations = new HashMap<>();
+        moveAnimations.put(Orientation.UP, animation);
+        moveAnimations.put(Orientation.DOWN, animation);
+        moveAnimations.put(Orientation.LEFT, animation);
+        moveAnimations.put(Orientation.RIGHT, animation);
     }
 
     @Override
@@ -85,7 +91,7 @@ public class Stalfos extends MoveOnTileEnemy {
             if (timeBeforeFirstMove <= 0) {
                 isLethal = true;
                 isActive = true;
-                currentAnimation = moveAnimation;
+                currentAnimation = moveAnimations.get(Orientation.UP);
             }
         } else {
             if (immobilisationCounter > 0) {
@@ -98,7 +104,7 @@ public class Stalfos extends MoveOnTileEnemy {
                 float remainingMoves = deltaTime * SPEED;
                 remainingMoves = enemyService.goToNextTile(orientation, this, remainingMoves, nextTileX, nextTileY);
                 while (remainingMoves > 0) {
-                    Logger.debug("Stalfos is on a new Tile (" + x + "," + y + ")");
+                    //Logger.debug("Stalfos is on a new Tile (" + x + "," + y + ")");
                     nextTileX = nextNextTileX;
                     nextTileY = nextNextTileY;
                     orientation = nextOrientation;

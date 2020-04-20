@@ -3,6 +3,9 @@ package com.twoplayers.legend.dungeon;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.assets.image.ImagesDungeon;
 
+/**
+ * These cache are used to hide Link when he goes through the door
+ */
 public class DoorCache {
     protected Image up;
     protected Image down;

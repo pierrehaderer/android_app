@@ -52,7 +52,7 @@ public class DungeonScreen extends Screen {
         dungeonManager.paint(deltaTime, game.getGraphics());
         dungeonEnemyManager.paint(deltaTime, game.getGraphics());
         linkManager.paint(deltaTime, game.getGraphics());
-        dungeonManager.paintDoorCache(deltaTime, game.getGraphics());
+        dungeonManager.paintDoorCache(game.getGraphics());
         guiManager.paint(deltaTime, game.getGraphics());
     }
 

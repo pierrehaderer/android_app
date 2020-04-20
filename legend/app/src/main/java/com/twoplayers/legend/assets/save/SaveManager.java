@@ -60,13 +60,25 @@ public class SaveManager implements IManager {
         return save;
     }
 
-    public void updateExploredRooms(int nextAbscissa, int nextOrdinate) {
-        save.worldMapSave.exploredRooms[nextAbscissa][nextOrdinate] = true;
-        saveState();
+    public void updateWorldMapExploredRooms(int abscissa, int ordinate) {
+        if (!save.worldMapSave.exploredRooms[abscissa][ordinate]) {
+            save.worldMapSave.exploredRooms[abscissa][ordinate] = true;
+            saveState();
+        }
     }
 
-    public void updateOpenedEntrances(int currentAbscissa, int currentOrdinate) {
-        save.worldMapSave.openedEntrances[currentAbscissa][currentOrdinate] = true;
-        saveState();
+    public void updateOpenedEntrances(int abscissa, int ordinate) {
+        if (!save.worldMapSave.openedEntrances[abscissa][ordinate]) {
+            save.worldMapSave.openedEntrances[abscissa][ordinate] = true;
+            saveState();
+        }
+    }
+
+    public void updateDungeonExploredRooms(String dungeonId, int abscissa, int ordinate) {
+        int dungeonIdAsInt = Integer.valueOf(dungeonId);
+        if (!save.dungeonSave.exploredRooms[dungeonIdAsInt][abscissa][ordinate]) {
+            save.dungeonSave.exploredRooms[dungeonIdAsInt][abscissa][ordinate] = true;
+            saveState();
+        }
     }
 }

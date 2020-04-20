@@ -9,6 +9,7 @@ public class Save {
     protected Date date;
     protected int attempt;
     protected WorldMapSave worldMapSave;
+    protected DungeonSave dungeonSave;
 
     /**
      * Constructor
@@ -17,6 +18,7 @@ public class Save {
         attempt = 0;
         date = new Date();
         worldMapSave = new WorldMapSave();
+        dungeonSave = new DungeonSave();
     }
 
     /**
@@ -41,5 +43,9 @@ public class Save {
 
     public WorldMapSave getWorldMapSave() {
         return worldMapSave;
+    }
+
+    public DungeonSave getDungeonSave() {
+        return dungeonSave;
     }
 }

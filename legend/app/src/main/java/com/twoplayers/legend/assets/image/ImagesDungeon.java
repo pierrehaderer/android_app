@@ -22,6 +22,11 @@ public class ImagesDungeon {
         Logger.info("Loading dungeon images.");
         try {
             images.put("empty", g.newImage("other/empty.png", ImageFormat.RGB565));
+            for (String fileName : assetManager.list("dungeon")) {
+                if (fileName.endsWith(".png")) {
+                    images.put(fileName.substring(0, fileName.length() - 4), g.newImage("dungeon/" + fileName, ImageFormat.RGB565));
+                }
+            }
             String[] subfolders = new String[] {"", "/dungeon1", "/dungeon2", "/dungeon3", "/dungeon4", "/dungeon5", "/dungeon6", "/dungeon7", "/dungeon8", "/dungeon9"};
             for (String subfolder : subfolders) {
                 for (String fileName : assetManager.list("dungeon" + subfolder)) {

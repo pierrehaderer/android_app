@@ -117,7 +117,7 @@ public abstract class Moblin extends AttackingEnemy {
         if (!isDead && isAttacking && !isImmobilised) {
             timeBeforeAttack -= deltaTime;
             if (timeBeforeAttack < 0) {
-                Logger.info("Octorok is attacking (" + x + "," + y + ")");
+                Logger.info("Moblin is attacking (" + x + "," + y + ")");
                 isAttacking = false;
                 enemyManager.spawnMissile(this);
                 chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
@@ -141,7 +141,7 @@ public abstract class Moblin extends AttackingEnemy {
                 }
             }
             while (remainingMoves > 0) {
-                Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
+                //Logger.debug("Moblin is on a new Tile (" + x + "," + y + ")");
                 nextTileX = nextNextTileX;
                 nextTileY = nextNextTileY;
                 orientation = nextOrientation;

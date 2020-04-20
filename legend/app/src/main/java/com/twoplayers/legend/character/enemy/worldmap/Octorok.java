@@ -141,7 +141,7 @@ public abstract class Octorok extends AttackingEnemy {
                 }
             }
             while (remainingMoves > 0) {
-                Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
+                //Logger.debug("Octorok is on a new Tile (" + x + "," + y + ")");
                 nextTileX = nextNextTileX;
                 nextTileY = nextNextTileY;
                 orientation = nextOrientation;
