@@ -1,0 +1,45 @@
+donjon 1
+- a la sortie des escaliers, x-2 et y+2
+- les mains blessent 1/2 coeur puis emmenent link dans le mur puis au debut du donjon (comme s'il y entrait)
+- le boss fait des allers/retours depuis la porte jusqu'a la moitie de la salle moins une demi tile
+- le boss n'est pas repousse par l'epee
+- les bombes font 2 degats sur le boss
+- le gros coeur n'est pas brandi
+- les coeurs sont recharges progressivement quand on prend la triforce
+- l'écran disparait progressivememnt a la fin de la musique de la triforce
+
+
+
+
+125=FIX|A,2,5;B,3,3;C,3,7;D,5,4;E,10,2;F,10,8;G,5,8;H,6,6;I,9,6;J,10,4;K,10,8;L,12,7|RIGHT,A,B,C,D,E,F|\
+  UP,C,D,G,H,I,J|UP,D,G,H,I,J,K|UP,G,H,I,J,K,L|UP,H,I,J,K,L,C|UP,I,J,K,L,C,D|UP,J,K,L,C,D,G|UP,K,L,C,D,G,H|UP,L,C,D,G,H,I
+135=FIX|UP,H5,I4,J2,J6,L3|UP,J2,J6,L3,C3,E2|UP,J6,L3,C3,E2,E6|UP,L3,C3,E2,E6,F4|UP,C3,E2,E6,F4,H5|UP,E2,E6,F4,H5,I4|UP,E6,F4,H5,I4,J2|UP,F4,H5,I4,J2,J6|\
+  DOWN,A1,A1,A1,A1,A1|\
+  RIGHT,C3,C7,E4,E6,G4|\
+  LEFT,E2,E8,H4,H6,M5
+145=FIX|LEFT,E5,E8,H4,H6,J4,J6,L3,M5|LEFT,E5,E8,H6,J4,J6,L3,L7,M5
+155=NONE
+165=NONE
+175=NONE
+106=NONE
+116=NONE
+126=NONE
+136=RANDOM
+136=FIX|UP,F4,I4,J2|UP,I4,J2,J6|UP,J2,J6,L3|UP,J6,L3,C3|UP,L3,C3,E2|UP,C3,E2,E6|UP,E2,E6,F4|UP,E6,F4,I4|\
+  DOWN,E8,F6,I6|DOWN,F6,I6,J4|DOWN,I6,J4,J8|DOWN,J4,J8,L7|DOWN,J8,L7,C7|DOWN,L7,C7,E4|DOWN,C7,E4,E8
+146=NONE
+156=NONE
+166=NONE
+176=NONE
+107=NONE
+117=NONE
+127=RANDOM
+127=FIX|RIGHT,C3,C7,E4
+137=NONE
+147=RANDOM
+147=FIX|LEFT,E8,H4,H6,L3,L7|LEFT,H6,E2,E6,L3,L7|LEFT,L7,E2,E8,H4,L3|LEFT,E2,E8,H4,H6,L3|LEFT,H4,H6,L3,L7,E6|LEFT,L3,E2,E8,L7,E6|LEFT,E6,E2,E8,H4,H6
+157=NONE
+167=NONE
+177=NONE
+\ No newline at end of file
+177=NONE
