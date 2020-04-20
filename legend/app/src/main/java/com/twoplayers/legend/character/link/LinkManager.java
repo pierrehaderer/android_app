@@ -98,7 +98,7 @@ public class LinkManager implements IManager {
         link.life = 3;
         link.lifeMax = 3;
         link.coins = 255;
-        link.keys = 1;
+        link.keys = 5;
         link.isExitingADoor = false;
 
         //TODO Change it when it can be collected

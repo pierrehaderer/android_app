@@ -16,6 +16,10 @@ public interface IZoneManager extends IManager {
     boolean isTileADoor(float x, float y);
     /** Check if a tile is stairs */
     boolean isTileStairs(float x, float y);
+    /** Check if a door is in front of link */
+    boolean checkKeyDoor(Orientation orientation, float x, float y);
+    /** Open the door in front of link */
+    void openKeyDoor(Orientation orientation);
     /** Return true if the mapScreen has been explored */
     boolean isExplored(int x, int y);
     /** Get the list of items on the screen */

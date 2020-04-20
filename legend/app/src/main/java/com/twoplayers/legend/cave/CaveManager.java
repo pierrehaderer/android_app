@@ -223,6 +223,15 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
+    public boolean checkKeyDoor(Orientation orientation, float x, float y) {
+        return false;
+    }
+
+    @Override
+    public void openKeyDoor(Orientation orientation) {
+    }
+
+    @Override
     public boolean isTileWalkable(float x, float y) {
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);

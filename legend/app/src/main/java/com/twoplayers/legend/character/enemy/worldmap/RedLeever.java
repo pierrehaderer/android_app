@@ -279,7 +279,7 @@ public class RedLeever extends MoveOnTileEnemy {
     @Override
     public void hasHitLink() {
         Logger.info("RedLeever has hit link, change its direction.");
-        orientation = Orientation.reverseOrientation(orientation);
+        orientation = orientation.reverseOrientation();
     }
 
     @Override

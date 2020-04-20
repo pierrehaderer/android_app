@@ -9,7 +9,7 @@ public class Save {
     protected Date date;
     protected int attempt;
     protected WorldMapSave worldMapSave;
-    protected DungeonSave dungeonSave;
+    protected DungeonSave[] dungeonSaves;
 
     /**
      * Constructor
@@ -18,7 +18,10 @@ public class Save {
         attempt = 0;
         date = new Date();
         worldMapSave = new WorldMapSave();
-        dungeonSave = new DungeonSave();
+        dungeonSaves = new DungeonSave[10];
+        for (int i = 1; i < 10; i++) {
+            dungeonSaves[i] = new DungeonSave();
+        }
     }
 
     /**
@@ -45,7 +48,7 @@ public class Save {
         return worldMapSave;
     }
 
-    public DungeonSave getDungeonSave() {
-        return dungeonSave;
+    public DungeonSave getDungeonSave(String dungeonId) {
+        return dungeonSaves[Integer.valueOf(dungeonId)];
     }
 }

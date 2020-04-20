@@ -57,6 +57,10 @@ public class LinkService {
                     shiftLinkX(link, nextX);
                     moveLinkY(link, deltaY);
                 }
+                if (checkAndOpenKeyDoor(link, nextX, link.y + deltaY)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkX(link, nextX);
+                }
                 if (LocationUtil.isUpOutOfMap(link.y)) {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.UP);
@@ -76,6 +80,10 @@ public class LinkService {
                     shiftLinkX(link, nextX);
                     moveLinkY(link, deltaY);
                 }
+                if (checkAndOpenKeyDoor(link, nextX, link.y + deltaY)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkX(link, nextX);
+                }
                 if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE)) {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.DOWN);
@@ -93,6 +101,10 @@ public class LinkService {
                     shiftLinkY(link, nextY);
                     moveLinkX(link, deltaX);
                 }
+                if (checkAndOpenKeyDoor(link, link.x + deltaX, nextY)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkY(link, nextY);
+                }
                 if (LocationUtil.isLeftOutOfMap(link.x)) {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.LEFT);
@@ -109,6 +121,9 @@ public class LinkService {
                 if (zoneManager.isRightValid(link.x + deltaX, nextY)) {
                     shiftLinkY(link, nextY);
                     moveLinkX(link, deltaX);
+                }
+                if (checkAndOpenKeyDoor(link, link.x + deltaX, nextY)) {
+                    shiftLinkY(link, nextY);
                 }
                 if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE)) {
                     linkManager.hideItemsAndEffects();
@@ -295,6 +310,19 @@ public class LinkService {
             link.isAttacking = false;
             link.isInvincible = false;
         }
+    }
+
+    /**
+     * Check if opening a key door
+     */
+    private boolean checkAndOpenKeyDoor(Link link, float x, float y) {
+        if (link.keys > 0 && zoneManager.checkKeyDoor(link.orientation, x, y)) {
+            soundEffectManager.play("open_door");
+            link.keys--;
+            zoneManager.openKeyDoor(link.orientation);
+            return true;
+        }
+        return false;
     }
 
     /**

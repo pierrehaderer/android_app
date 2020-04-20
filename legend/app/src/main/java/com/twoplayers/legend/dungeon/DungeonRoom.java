@@ -8,24 +8,29 @@ import java.util.List;
  */
 public class DungeonRoom {
 
-    private List<List<DungeonTile>> content;
+    private int j;
+    private DungeonTile[][] content;
 
     public DungeonRoom() {
-        content = new ArrayList<>();
+        j = 0;
+        content = new DungeonTile[16][11];
     }
 
     public DungeonTile getTile(int x, int y) {
         if (x < 1 || x > 14 || y < 1 || y > 9) {
             return DungeonTile.OUT_OF_BOUNDS;
         }
-        return content.get(y).get(x);
+        return content[x][y];
     }
 
     public void addALine(String row) {
-        List<DungeonTile> mapRow = new ArrayList<>();
-        for (int index = 0; index < 16; index++) {
-            mapRow.add(DungeonTile.getEnum(row.charAt(index)));
+        for (int i = 0; i < 16; i++) {
+            content[i][j] = DungeonTile.getEnum(row.charAt(i));
         }
-        content.add(mapRow);
+        j++;
+    }
+
+    public void changeTile(int i, int j, DungeonTile dungeonTile) {
+        content[i][j] = dungeonTile;
     }
 }

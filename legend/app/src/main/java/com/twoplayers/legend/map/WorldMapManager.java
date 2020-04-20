@@ -322,42 +322,6 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
-    public boolean isTileWalkable(float x, float y) {
-        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile.walkable;
-    }
-
-    @Override
-    public boolean isTileBlockingMissile(float x, float y) {
-        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile.isblockingMissile;
-    }
-
-    @Override
-    public boolean isTileADoor(float x, float y) {
-        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile == MapTile.DOOR;
-    }
-
-    @Override
-    public boolean isTileStairs(float x, float y) {
-        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile == MapTile.STAIRS;
-    }
-
-    @Override
     public void changeRoom(Orientation orientation) {
         guiManager.deactivateButtons();
         worldMapEnemyManager.unloadEnemies();
@@ -397,6 +361,51 @@ public class WorldMapManager implements IZoneManager {
         saveManager.updateWorldMapExploredRooms(nextAbscissa, nextOrdinate);
         transitionRunning = true;
         transitionOrientation = orientation;
+    }
+
+    @Override
+    public boolean isTileWalkable(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile.walkable;
+    }
+
+    @Override
+    public boolean isTileBlockingMissile(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile.isblockingMissile;
+    }
+
+    @Override
+    public boolean isTileADoor(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile == MapTile.DOOR;
+    }
+
+    @Override
+    public boolean isTileStairs(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile == MapTile.STAIRS;
+    }
+
+    @Override
+    public boolean checkKeyDoor(Orientation orientation, float x, float y) {
+        return false;
+    }
+
+    @Override
+    public void openKeyDoor(Orientation orientation) {
     }
 
     /**

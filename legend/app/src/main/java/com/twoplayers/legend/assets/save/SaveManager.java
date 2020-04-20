@@ -75,10 +75,16 @@ public class SaveManager implements IManager {
     }
 
     public void updateDungeonExploredRooms(String dungeonId, int abscissa, int ordinate) {
-        int dungeonIdAsInt = Integer.valueOf(dungeonId);
-        if (!save.dungeonSave.exploredRooms[dungeonIdAsInt][abscissa][ordinate]) {
-            save.dungeonSave.exploredRooms[dungeonIdAsInt][abscissa][ordinate] = true;
+        if (!save.getDungeonSave(dungeonId).exploredRooms[abscissa][ordinate]) {
+            save.getDungeonSave(dungeonId).exploredRooms[abscissa][ordinate] = true;
             saveState();
         }
     }
+
+    public void updateOpenedDoors(String dungeonId, String openedDoorKey1, String openedDoorKey2) {
+        save.getDungeonSave(dungeonId).openedDoors.add(openedDoorKey1);
+        save.getDungeonSave(dungeonId).openedDoors.add(openedDoorKey2);
+        saveState();
+    }
+
 }

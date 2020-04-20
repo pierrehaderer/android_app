@@ -1,24 +1,31 @@
 package com.twoplayers.legend.assets.save;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DungeonSave {
 
-    protected Boolean[][][] exploredRooms;
+    protected Boolean[][] exploredRooms;
+    protected List<String> openedDoors;
 
     /**
      * Constructor
      */
     protected DungeonSave() {
-        exploredRooms = new Boolean[10][8][8];
-        for (int dungeonId = 1; dungeonId <= 9; dungeonId++) {
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    exploredRooms[dungeonId][i][j] = false;
-                }
+        exploredRooms = new Boolean[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                exploredRooms[i][j] = false;
             }
         }
+        openedDoors = new ArrayList<>();
     }
 
-    public Boolean[][] getExploredRooms(String dungeonId) {
-        return exploredRooms[Integer.valueOf(dungeonId)];
+    public Boolean[][] getExploredRooms() {
+        return exploredRooms;
+    }
+
+    public List<String> getOpenedDoors() {
+        return openedDoors;
     }
 }

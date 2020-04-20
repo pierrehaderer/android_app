@@ -26,8 +26,8 @@ public enum Orientation {
         this.angle = (float) angle;
     }
 
-    public static Orientation reverseOrientation(Orientation orientation) {
-        switch (orientation) {
+    public Orientation reverseOrientation() {
+        switch (this) {
             case UP:
                 return DOWN;
             case DOWN:
