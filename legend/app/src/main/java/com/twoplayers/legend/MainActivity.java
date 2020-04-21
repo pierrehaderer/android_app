@@ -1,6 +1,7 @@
 package com.twoplayers.legend;
 
 import android.content.res.AssetManager;
+import android.util.Pair;
 import android.view.View;
 
 import com.twoplayers.legend.assets.image.AllImages;
@@ -13,6 +14,8 @@ import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.worldmap.WorldMapEnemyManager;
 import com.twoplayers.legend.dungeon.DungeonManager;
+import com.twoplayers.legend.communication.WebsocketClient;
+import com.twoplayers.legend.communication.WebsocketClientImpl;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.map.WorldMapManager;
 import com.twoplayers.legend.screen.SplashLoadingScreen;
@@ -21,6 +24,8 @@ import com.kilobolt.framework.implementation.AndroidGame;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.TextUtil;
+
+import io.reactivex.functions.Consumer;
 
 public class MainActivity extends AndroidGame {
 
@@ -37,6 +42,7 @@ public class MainActivity extends AndroidGame {
     private LinkManager linkManager;
     private GuiManager guiManager;
     private SaveManager saveManager;
+    private WebsocketClient websocketClient;
 
     @Override
     public Screen getInitScreen() {
@@ -57,6 +63,10 @@ public class MainActivity extends AndroidGame {
         TextUtil.initPaint(this);
         hideNavigationBar();
         allImages.getImageOther().loadSplashLoadingScreen(this.getGraphics());
+        websocketClient = new WebsocketClientImpl("wss://jean-backend.k8s.keyconsulting.fr/socket");
+        websocketClient.listen("zelda", Pair.class, (Pair pair) -> {
+                System.out.println(1);
+        });
         return new SplashLoadingScreen(this);
     }
 

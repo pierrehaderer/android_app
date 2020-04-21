@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: java
+    service: backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: java
+    service: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java
+      service: backend
+  template:
+    metadata:
+      labels:
+        app: java
+        service: backend
+    spec:
+      containers:
+        - name: backend
+          image: "docker.k8s.keyconsulting.fr/socket/server:1.0"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: backend
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: https
+spec:
+  rules:
+    - host: jean-backend.k8s.keyconsulting.fr
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: backend-service
+              servicePort: 8080
