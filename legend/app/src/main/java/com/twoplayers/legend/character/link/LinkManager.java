@@ -70,7 +70,7 @@ public class LinkManager implements IManager {
         GuiManager guiManager = ((MainActivity) game).getGuiManager();
         MusicManager musicManager = ((MainActivity) game).getMusicManager();
         linkService = new LinkService(guiManager, zoneManager, this, enemyManager, musicManager, soundEffectManager);
-        itemService = new ItemService(guiManager, zoneManager, enemyManager, soundEffectManager);
+        itemService = new ItemService(guiManager, zoneManager, this, enemyManager, soundEffectManager);
 
         link.x = position.x;
         link.y = position.y;
@@ -97,7 +97,7 @@ public class LinkManager implements IManager {
 
         link.life = 3;
         link.lifeMax = 3;
-        link.coins = 255;
+        link.rupees = 255;
         link.keys = 5;
         link.isExitingADoor = false;
 
@@ -154,6 +154,9 @@ public class LinkManager implements IManager {
 
         // Link is picking an item
         itemService.handleLinkPickingItem(link, deltaTime);
+
+        // Link is paying something
+        itemService.handleLinkPayment(link, deltaTime);
 
         // Link is using the second object
         itemService.handleLinkUsingItem(link, deltaTime);
@@ -260,6 +263,10 @@ public class LinkManager implements IManager {
         }
     }
 
+    public void removeRupees(int rupees) {
+        link.coinCounter = 0;
+        link.rupeesToRemove += rupees;
+    }
     /**
      * Prepare link to re-enter the world map
      */

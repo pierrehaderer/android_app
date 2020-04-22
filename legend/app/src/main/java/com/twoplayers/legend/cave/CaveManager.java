@@ -8,7 +8,6 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.link.inventory.ItemService;
-import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -84,7 +83,7 @@ public class CaveManager implements IZoneManager {
         linkManager = ((MainActivity) game).getLinkManager();
         guiManager = ((MainActivity) game).getGuiManager();
         caveEnemyManager = ((MainActivity) game).getCaveEnemyManager();
-        itemService = new ItemService(guiManager, this, caveEnemyManager, soundEffectManager);
+        itemService = new ItemService(guiManager, this, linkManager, caveEnemyManager, soundEffectManager);
 
         imagesCave = ((MainActivity) game).getAllImages().getImagesCave();
         imagesCave.load(((MainActivity) game).getAssetManager(), game.getGraphics());
@@ -134,12 +133,18 @@ public class CaveManager implements IZoneManager {
             String[] elements = itemAndPrice.split(";");
             Item item = new Item();
             item.name = elements[0];
-            item.image = imagesItem.get(item.name);
+            if (isARupee(item)) {
+                item.animation = game.getGraphics().newAnimation();
+                item.animation.addFrame(imagesItem.get("rupee_blue"), AllImages.COEF, 15f);
+                item.animation.addFrame(imagesItem.get("rupee_orange"), AllImages.COEF, 15f);
+            } else {
+                item.image = imagesItem.get(item.name);
+            }
             item.pickAnimation = itemService.findPickAnimation(item.name);
             item.x = itemPositionsX[index];
             item.y = LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE;
             item.hitbox.relocate(item.x, item.y);
-            item.price = Integer.valueOf(elements[1]);
+            item.price = Integer.parseInt(elements[1]);
             cave.addItem(item);
         }
     }
@@ -149,6 +154,9 @@ public class CaveManager implements IZoneManager {
         if (immobilisationCounter > 0) {
             immobilisationCounter -= deltaTime;
             if (immobilisationCounter <= 0) {
+                if (cave.type == CaveType.PAYME) {
+                    linkManager.removeRupees(20);
+                }
                 guiManager.activateButtons();
             }
         }
@@ -163,8 +171,7 @@ public class CaveManager implements IZoneManager {
             soundEffectManager.play("text");
         }
 
-        cave.fireAnimation.update(deltaTime);
-        cave.coinAnimation.update(deltaTime);
+        cave.updateAnimations(deltaTime);
 
         if (blinkCounter > 0) {
             blinkCounter -= deltaTime;
@@ -186,19 +193,23 @@ public class CaveManager implements IZoneManager {
         g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(5), (int) cave.npc.y);
         g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(10), (int) cave.npc.y);
         g.drawScaledImage(cave.npc.image, (int) cave.npc.x, (int) cave.npc.y, AllImages.COEF);
-        boolean priceDisplayed = false;
+        boolean displayRupeeIndicator = false;
         for(Item item : cave.items) {
             if (!item.hidden) {
-                g.drawScaledImage(item.image, (int) item.x, (int) item.y, AllImages.COEF);
-                if (item.price > 0) {
+                if (isARupee(item)) {
+                    g.drawAnimation(item.animation, (int) item.x, (int) item.y);
+                } else {
+                    g.drawScaledImage(item.image, (int) item.x, (int) item.y, AllImages.COEF);
+                }
+                if (item.price != 0) {
                     String text = String.valueOf(item.price);
                     int offsetX = (text.length() == 2) ? PRICE_OFFSET_X_2DIGITS : PRICE_OFFSET_X_3DIGITS;
                     g.drawString(text, (int) item.x + offsetX, (int) item.y + PRICE_OFFSET_Y, TextUtil.getPaint());
-                    priceDisplayed = true;
+                    displayRupeeIndicator |= (item.price > 0);
                 }
             }
         }
-        if (priceDisplayed) {
+        if (displayRupeeIndicator) {
             g.drawAnimation(cave.coinAnimation, (int) LocationUtil.getXFromGrid(3), (int) (LocationUtil.getYFromGrid(6) + LocationUtil.HALF_TILE_SIZE));
             g.drawString("x", (int) LocationUtil.getXFromGrid(4), (int) (LocationUtil.getYFromGrid(5) + LocationUtil.HALF_TILE_SIZE) + PRICE_OFFSET_Y, TextUtil.getPaint());
         }
@@ -480,4 +491,10 @@ public class CaveManager implements IZoneManager {
         return hasExitedZone;
     }
 
+    /**
+     * Check if the item is a rupee
+     */
+    private boolean isARupee(Item item) {
+        return "rupees".equals(item.name) || "taken_rupees".equals(item.name);
+    }
 }

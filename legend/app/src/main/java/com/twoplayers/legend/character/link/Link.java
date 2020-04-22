@@ -38,7 +38,7 @@ public class Link {
     public static final float SPEED = 1.5f;
     protected static final float PUSH_SPEED = 9f;
     protected static final float ENTER_DOOR_SPEED = 0.40f;
-    public static final float REMOVE_COINS_SPEED = 0.3f;
+    public static final float REMOVE_RUPEES_SPEED = 0.3f;
     protected static final float INITIAL_PUSH_COUNT = 9f;
     protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
     public static final float INITIAL_SHOW_COUNT = 150f;
@@ -83,9 +83,9 @@ public class Link {
 
     protected float life;
     public float lifeMax;
-    public int coins;
+    public int rupees;
     public float coinCounter;
-    public int coinsToRemove;
+    public int rupeesToRemove;
     public int keys;
 
     public Boomerang boomerang;
@@ -230,8 +230,8 @@ public class Link {
         return lifeMax;
     }
 
-    public int getCoins() {
-        return coins;
+    public int getRupees() {
+        return rupees;
     }
 
     public int getKeys() {

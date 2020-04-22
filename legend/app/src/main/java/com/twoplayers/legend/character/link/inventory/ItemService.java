@@ -3,6 +3,7 @@ package com.twoplayers.legend.character.link.inventory;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.link.Link;
+import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.link.inventory.arrow.ArrowService;
 import com.twoplayers.legend.character.link.inventory.bomb.BombService;
 import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangService;
@@ -23,6 +24,7 @@ public class ItemService {
 
     private GuiManager guiManager;
     private IZoneManager zoneManager;
+    private LinkManager linkManager;
     private SoundEffectManager soundEffectManager;
 
     private SwordService swordService;
@@ -34,9 +36,10 @@ public class ItemService {
     /**
      * Constructor
      */
-    public ItemService(GuiManager guiManager, IZoneManager zoneManager, IEnemyManager enemyManager, SoundEffectManager soundEffectManager) {
+    public ItemService(GuiManager guiManager, IZoneManager zoneManager, LinkManager linkManager, IEnemyManager enemyManager, SoundEffectManager soundEffectManager) {
         this.guiManager = guiManager;
         this.zoneManager = zoneManager;
+        this.linkManager = linkManager;
         this.soundEffectManager = soundEffectManager;
 
         swordService = new SwordService(enemyManager, soundEffectManager);
@@ -103,11 +106,10 @@ public class ItemService {
     public void handleLinkPickingItem(Link link, float deltaTime) {
         for (Item item : zoneManager.getItems()) {
             if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
-                if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.coins - link.coinsToRemove >= item.price && linkCanPickItem(link, item)) {
+                if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.rupees - link.rupeesToRemove >= item.price && linkCanPickItem(link, item)) {
                     link.isPushed = false;
                     item.hideItemForTheZone();
-                    link.coinCounter = 0;
-                    link.coinsToRemove += item.price;
+                    linkManager.removeRupees(item.price);
                     link.itemToShow = item;
                     link.isShowingItem = true;
                     link.showItemCounter = Link.INITIAL_SHOW_COUNT;
@@ -124,16 +126,28 @@ public class ItemService {
                 link.switchToMoveAnimation(Orientation.DOWN);
             }
         }
-        if (link.coinsToRemove > 0) {
-            link.coinCounter += deltaTime * Link.REMOVE_COINS_SPEED;
+    }
+
+    /**
+     * Removes rupees from link when he is paying somthing
+     */
+    public void handleLinkPayment(Link link, float deltaTime) {
+        if (link.rupeesToRemove > 0) {
+            link.coinCounter += deltaTime * Link.REMOVE_RUPEES_SPEED;
             if (link.coinCounter > 1) {
-                int floor = (int) Math.min(Math.floor(link.coinCounter), link.coinsToRemove);
-                link.coins -= floor;
-                link.coinsToRemove -= floor;
-                link.coinCounter -= floor;
-                soundEffectManager.play("coin_payment");
+                int floor = (int) Math.min(Math.floor(link.coinCounter), link.rupeesToRemove);
+                if (floor < link.rupees) {
+                    link.rupees -= floor;
+                    link.rupeesToRemove -= floor;
+                    link.coinCounter -= floor;
+                    soundEffectManager.play("coin_payment");
+                } else {
+                    link.rupees = 0;
+                    link.rupeesToRemove = 0;
+                    link.coinCounter = 0;
+                }
             }
-            if (link.coinsToRemove == 0) {
+            if (link.rupeesToRemove == 0) {
                 soundEffectManager.play("coin_payment_end");
             }
         }
@@ -228,6 +242,8 @@ public class ItemService {
                 return link.sword.type != SwordType.MAGICAL;
             case "big_heart":
                 return link.lifeMax < 16;
+            case "taken_rupees":
+                return false;
         }
         return false;
     }
@@ -369,5 +385,4 @@ public class ItemService {
 
         guiManager.updateCursor(link.secondItem);
     }
-
 }

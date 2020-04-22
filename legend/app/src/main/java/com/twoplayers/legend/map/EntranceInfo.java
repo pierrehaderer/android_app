@@ -6,16 +6,12 @@ import com.twoplayers.legend.util.Location;
 
 public class EntranceInfo {
 
-    public static final int CAVE = 1;
-    public static final int DUNGEON = 2;
+    public static final int DOOR = 1;
+    public static final int STAIRS = 2;
+    public static final int WALL = 3;
+    public static final int BUSH = 4;
+    public static final int LAKE = 5;
 
-    public static final int DOOR = 3;
-    public static final int STAIRS = 4;
-    public static final int WALL = 5;
-    public static final int BUSH = 6;
-    public static final int LAKE = 7;
-
-    public int type;
     public int hiddenStyle;
     public int style;
     public boolean hidden;

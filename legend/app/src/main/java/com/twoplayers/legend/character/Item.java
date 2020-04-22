@@ -1,11 +1,13 @@
 package com.twoplayers.legend.character;
 
+import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Image;
 
 public class Item {
 
     public String name;
     public Image image;
+    public Animation animation;
     public int pickAnimation;
     public boolean hidden;
 

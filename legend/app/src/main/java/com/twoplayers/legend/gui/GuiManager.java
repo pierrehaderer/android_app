@@ -91,8 +91,8 @@ public class GuiManager implements IManager {
     private static final int TOP_ITEM_B = 28;
     private static final float COEF_SELECTED_ITEMS = 3;
 
-    private static final int LEFT_COINS = 305;
-    private static final int TOP_COINS = 29;
+    private static final int LEFT_RUPEES = 305;
+    private static final int TOP_RUPEES = 29;
     private static final int LEFT_KEYS = 305;
     private static final int TOP_KEYS = 57;
     private static final int LEFT_BOMBS = 305;
@@ -380,9 +380,9 @@ public class GuiManager implements IManager {
         g.drawImage(imagesGui.get("cursor"), leftCursor, topCursor);
 
         // Draw resources
-        int linkCoins = link.getCoins();
-        String coinsToDisplay = (linkCoins < 100) ? "x" + linkCoins : String.valueOf(linkCoins);
-        g.drawString(coinsToDisplay, LEFT_COINS, TOP_COINS, TextUtil.getPaint());
+        int linkRupees = link.getRupees();
+        String rupeesToDisplay = (linkRupees < 100) ? "x" + linkRupees : String.valueOf(linkRupees);
+        g.drawString(rupeesToDisplay, LEFT_RUPEES, TOP_RUPEES, TextUtil.getPaint());
         g.drawString("x" + link.getKeys(), LEFT_KEYS, TOP_KEYS, TextUtil.getPaint());
         g.drawString("x" + link.getBombQuantity(), LEFT_BOMBS, TOP_BOMBS, TextUtil.getPaint());
 

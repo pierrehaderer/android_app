@@ -35,11 +35,11 @@ public class ArrowService {
      */
     public void initiateArrow(Link link) {
         Arrow arrow = link.arrow;
-        if (!arrow.isActive && !arrow.isAnImpact && link.coins > 0) {
+        if (!arrow.isActive && !arrow.isAnImpact && link.rupees > 0) {
             Logger.info("Link is using bow and arrow.");
             link.isUsingSecondItem = true;
             link.switchToUseAnimation();
-            link.coins--;
+            link.rupees--;
             soundEffectManager.play("coin_remove");
             arrow.isActive = true;
             arrow.hitbox = arrow.hitboxes.get(link.orientation);

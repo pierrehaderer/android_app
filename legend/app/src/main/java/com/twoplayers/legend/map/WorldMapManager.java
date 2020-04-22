@@ -7,6 +7,7 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.cave.CaveType;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -165,7 +166,7 @@ public class WorldMapManager implements IZoneManager {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 8; j++) {
                 String key = String.valueOf(i) + j;
-                if (entranceProperties.containsKey(key)) {
+                if (entranceProperties.containsKey(key) && entranceProperties.getProperty(key).length() > 0) {
                     String[] entranceArray = entranceProperties.getProperty(key).split("\\|");
                     if ("DUNGEON".equals(entranceArray[0])) {
                         DungeonInfo dungeonInfo = new DungeonInfo();
@@ -179,8 +180,9 @@ public class WorldMapManager implements IZoneManager {
                         dungeonInfo.id = entranceArray[4];
                         dungeonInfo.startLocation = new Location(entranceArray[5]);
                         worldMapEntrances[i][j] = dungeonInfo;
-                    } else if ("CAVE".equals(entranceArray[0])) {
+                    } else {
                         CaveInfo caveInfo = new CaveInfo();
+                        caveInfo.type = CaveType.valueOf(entranceArray[0]);
                         caveInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
                         caveInfo.style = EntranceInfo.getStyle(entranceArray[2]);
                         caveInfo.hidden = (caveInfo.hiddenStyle != caveInfo.style);
@@ -195,8 +197,6 @@ public class WorldMapManager implements IZoneManager {
                             caveInfo.itemsAndPrices.add(entranceArray[index]);
                         }
                         worldMapEntrances[i][j] = caveInfo;
-                    } else {
-                        worldMapEntrances[i][j] = new CaveInfo();
                     }
                 } else {
                     worldMapEntrances[i][j] = new CaveInfo();
