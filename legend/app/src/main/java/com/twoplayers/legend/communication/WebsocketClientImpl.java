@@ -85,7 +85,7 @@ public class WebsocketClientImpl implements WebsocketClient {
 				}
 			}
 		}
-		stompSession.send("/app/data" + subject, gson.toJson(data));
+		stompSession.send("/app/data/" + subject, gson.toJson(data));
 	}
 
 	private void sendPending() {

@@ -28,7 +28,17 @@ import com.twoplayers.legend.util.TextUtil;
 import io.reactivex.functions.Consumer;
 
 public class MainActivity extends AndroidGame {
+    public static class Message {
+        public String hello = "hello";
 
+        public String getHello() {
+            return hello;
+        }
+
+        public void setHello(String hello) {
+            this.hello = hello;
+        }
+    }
     private AssetManager assetManager;
     private AllImages allImages;
     private MusicManager musicManager;
@@ -64,7 +74,7 @@ public class MainActivity extends AndroidGame {
         hideNavigationBar();
         allImages.getImageOther().loadSplashLoadingScreen(this.getGraphics());
         websocketClient = new WebsocketClientImpl("wss://jean-backend.k8s.keyconsulting.fr/socket");
-        websocketClient.listen("zelda", Pair.class, (Pair pair) -> {
+        websocketClient.listen("zelda", Message.class, (pair) -> {
                 System.out.println(1);
         });
         return new SplashLoadingScreen(this);
