@@ -26,12 +26,12 @@ public class Coordinate {
         this.y = 0;
         if (coordinateAsString.indexOf(",") > 0) {
             String[] coordinateAsArray = coordinateAsString.split(",");
-            this.x = LocationUtil.getXFromGrid(Integer.valueOf(coordinateAsArray[0])) + ONE_MORE_PIXEL;
-            this.y = LocationUtil.getYFromGrid(Integer.valueOf(coordinateAsArray[1])) + A_TINY_BIT_MORE;
+            this.x = LocationUtil.getXFromGrid(Integer.parseInt(coordinateAsArray[0])) + ONE_MORE_PIXEL;
+            this.y = LocationUtil.getYFromGrid(Integer.parseInt(coordinateAsArray[1])) + A_TINY_BIT_MORE;
         } else if (coordinateAsString.indexOf(";") > 0) {
             String[] coordinateAsArray = coordinateAsString.split(";");
-            this.x = LocationUtil.getXFromGrid(Integer.valueOf(coordinateAsArray[0])) + ONE_MORE_PIXEL;
-            this.y = LocationUtil.getYFromGrid(Integer.valueOf(coordinateAsArray[1])) + A_TINY_BIT_MORE;
+            this.x = LocationUtil.getXFromGrid(Integer.parseInt(coordinateAsArray[0])) + ONE_MORE_PIXEL;
+            this.y = LocationUtil.getYFromGrid(Integer.parseInt(coordinateAsArray[1])) + A_TINY_BIT_MORE;
         }
     }
 }

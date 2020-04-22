@@ -49,6 +49,6 @@ public class Save {
     }
 
     public DungeonSave getDungeonSave(String dungeonId) {
-        return dungeonSaves[Integer.valueOf(dungeonId)];
+        return dungeonSaves[Integer.parseInt(dungeonId)];
     }
 }

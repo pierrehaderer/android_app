@@ -185,8 +185,8 @@ public class DungeonManager implements IZoneManager {
         for (String key : doorsProperties.stringPropertyNames()) {
             String doorProperty = ((String) doorsProperties.get(key)).trim();
             if (doorProperty.length() > 0) {
-                int abscissa = Integer.valueOf(key.substring(1,2));
-                int ordinate = Integer.valueOf(key.substring(2,3));
+                int abscissa = Integer.parseInt(key.substring(1,2));
+                int ordinate = Integer.parseInt(key.substring(2,3));
                 String[] dungeonDoorsAsString = doorProperty.split("\\|");
                 for (String dungeonDoorAsString : dungeonDoorsAsString) {
                     String[] dungeonDoorInfo = dungeonDoorAsString.split(";");

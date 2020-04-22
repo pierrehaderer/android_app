@@ -19,12 +19,12 @@ public class Location {
         this.y = 0;
         if (locationAsString.indexOf(",") > 0) {
             String[] locationAsArray = locationAsString.split(",");
-            this.x = Integer.valueOf(locationAsArray[0]);
-            this.y = Integer.valueOf(locationAsArray[1]);
+            this.x = Integer.parseInt(locationAsArray[0]);
+            this.y = Integer.parseInt(locationAsArray[1]);
         } else if (locationAsString.indexOf(";") > 0) {
             String[] locationAsArray = locationAsString.split(";");
-            this.x = Integer.valueOf(locationAsArray[0]);
-            this.y = Integer.valueOf(locationAsArray[1]);
+            this.x = Integer.parseInt(locationAsArray[0]);
+            this.y = Integer.parseInt(locationAsArray[1]);
         }
     }
 
