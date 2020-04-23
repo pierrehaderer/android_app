@@ -99,6 +99,13 @@ public class DungeonEnemyManager implements IEnemyManager {
         enemyMap.put("Stalfos", Stalfos.class);
         enemyMap.put("RedKeeze", RedKeeze.class);
         enemyMap.put("BlueKeeze", BlueKeeze.class);
+        enemyMap.put("DarkBlueGel", DarkBlueGel.class);
+        enemyMap.put("LightBlueGel", LightBlueGel.class);
+        enemyMap.put("LightGreenGel", LightGreenGel.class);
+        enemyMap.put("DarkGreenGel", DarkGreenGel.class);
+        enemyMap.put("BrownGel", BrownGel.class);
+        enemyMap.put("GreyGel", GreyGel.class);
+        enemyMap.put("BlackGel", BlackGel.class);
     }
 
     /**
@@ -151,8 +158,10 @@ public class DungeonEnemyManager implements IEnemyManager {
     public void update(float deltaTime, Graphics g) {
         colorMatrix.update(deltaTime);
         for (Enemy enemy : enemies) {
-            if (enemy.isDead && !enemy.currentAnimation.isOver()) {
-                enemy.currentAnimation.update(deltaTime);
+            if (enemy.isDead) {
+                if (!enemy.currentAnimation.isOver()) {
+                    enemy.currentAnimation.update(deltaTime);
+                }
             } else {
                 enemy.update(deltaTime, g);
             }

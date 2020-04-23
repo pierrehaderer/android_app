@@ -59,7 +59,7 @@ public abstract class Enemy {
         deathAnimation.addFrame(imagesEnemy.get("enemy_death_1"), AllImages.COEF, 10);
         deathAnimation.addFrame(imagesEnemy.get("enemy_death_2"), AllImages.COEF, 10);
         deathAnimation.addFrame(imagesEnemy.get("enemy_death_3"), AllImages.COEF, 10);
-        deathAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 1);
+        deathAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         deathAnimation.setOccurrences(1);
 
         x = 0;
@@ -78,8 +78,10 @@ public abstract class Enemy {
      */
     public void update(float deltaTime, Graphics g) {
         if (hasBeenHit) {
+            Logger.info("Enemy " + this.getClass().getSimpleName() + " has been hit.");
             hasBeenHit = false;
             if (this.life <= 0) {
+                Logger.info("Enemy " + this.getClass().getSimpleName() + " is dead.");
                 // Move hitbox away when enemy is dead
                 this.hitbox.x = 0;
                 this.hitbox.y = 0;

@@ -4,7 +4,6 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
@@ -38,6 +37,37 @@ public abstract class MoveOnTileEnemy extends Enemy {
     public MoveOnTileEnemy(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
         orientation = Orientation.UP;
+    }
+
+
+    @Override
+    public void update(float deltaTime, Graphics g) {
+        super.update(deltaTime, g);
+
+        // The enemy is pushed
+        if (!isDead && isPushed) {
+            Logger.info("Enemy is pushed, remaining counter : " + pushCounter);
+            float distance = Math.min(deltaTime * PUSH_SPEED, pushCounter);
+            pushCounter -= distance;
+
+            float deltaY = pushY * distance;
+            boolean pushed = false;
+            if ((deltaY < 0 && zoneManager.isUpValid(x, y + deltaY)) || (deltaY > 0 && zoneManager.isDownValid(x, y + deltaY))) {
+                pushed = true;
+                y += deltaY;
+                hitbox.y += deltaY;
+            }
+            float deltaX = pushX * distance;
+            if ((deltaX < 0 && zoneManager.isLeftValid(x + deltaX, y)) || (deltaX > 0 && zoneManager.isRightValid(x + deltaX, y))) {
+                pushed = true;
+                x += deltaX;
+                hitbox.x += deltaX;
+            }
+            // Stop pushing if there is an obstacle or if the counter is down to 0
+            if (!pushed || pushCounter <= 0) {
+                isPushed = false;
+            }
+        }
     }
 
     /**

@@ -19,7 +19,7 @@ public class BlueKeeze extends Keese {
     @Override
     protected void initAnimations(Graphics g) {
         EnemyUtil enemyUtil = new EnemyUtil();
-        initAnimation = enemyUtil.getFastCloudAnimation(imagesEnemy, g);
+        initialAnimation = enemyUtil.getFastCloudAnimation(imagesEnemy, g);
 
         moveAnimation = g.newAnimation();
         moveAnimation.addFrame(imagesEnemy.get("blue_keese_1"), AllImages.COEF, 6);

@@ -28,7 +28,7 @@ public class BlueLeever extends MoveOnTileEnemy {
     protected Animation moveAnimation;
     protected Animation despawnAnimation;
 
-    private boolean initNotDone;
+    private boolean shouldInitialize;
     private boolean isSpawning;
     private boolean hasSpawned;
     private float timeBeforeSpawn;
@@ -41,7 +41,7 @@ public class BlueLeever extends MoveOnTileEnemy {
     public BlueLeever(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
         initAnimations(g);
-        initNotDone = true;
+        shouldInitialize = true;
         isActive = false;
         isSpawning = false;
         hasSpawned = false;
@@ -87,8 +87,8 @@ public class BlueLeever extends MoveOnTileEnemy {
     public void update(float deltaTime, Graphics g) {
         super.update(deltaTime, g);
         // Init
-        if (initNotDone) {
-            initNotDone = false;
+        if (shouldInitialize) {
+            shouldInitialize = false;
             nextTileX = x;
             nextTileY = y;
             Destination destination = enemyService.chooseNextNextTile(orientation, nextTileX, nextTileY);

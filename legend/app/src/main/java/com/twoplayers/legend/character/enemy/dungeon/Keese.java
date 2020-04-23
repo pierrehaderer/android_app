@@ -37,7 +37,7 @@ public abstract class Keese extends Enemy {
     private boolean isStopping;
     private boolean isStarting;
 
-    protected Animation initAnimation;
+    protected Animation initialAnimation;
     protected Animation moveAnimation;
 
     public Keese(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
@@ -53,7 +53,7 @@ public abstract class Keese extends Enemy {
         life = 1;
         hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
         damage = -0.5f;
-        currentAnimation = initAnimation;
+        currentAnimation = initialAnimation;
     }
 
     /**

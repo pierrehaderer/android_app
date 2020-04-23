@@ -103,7 +103,7 @@ public class LinkManager implements IManager {
 
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
-        link.boomerang.type = BoomerangType.NONE;
+        link.boomerang.type = BoomerangType.WOOD;
         link.bomb = new Bomb(imagesLink, game.getGraphics());
         link.bombCloud = new BombCloud(imagesLink, game.getGraphics());
         link.bombQuantity = 0;
@@ -132,7 +132,7 @@ public class LinkManager implements IManager {
         link.dungeonMap = DungeonMap.MAP;
 
         link.sword = new Sword(imagesLink, game.getGraphics());
-        link.sword.type = SwordType.NONE;
+        link.sword.type = SwordType.WOOD;
         link.shield = Shield.SMALL;
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
         link.isUsingSecondItem = false;

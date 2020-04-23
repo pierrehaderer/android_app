@@ -22,7 +22,7 @@ public abstract class Moblin extends AttackingEnemy {
     private static final float MIN_TIME_BEFORE_ATTACK = 300.0f;
     private static final float MAX_TIME_BEFORE_ATTACK = 700.0f;
 
-    private boolean initNotDone;
+    private boolean shouldInitialize;
     private float timeBeforeFirstMove;
     private boolean isImmobilised;
     private float immobilisationCounter;
@@ -33,7 +33,7 @@ public abstract class Moblin extends AttackingEnemy {
     public Moblin(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
         super(i, s, z, l, e, es, g);
         initAnimations(g);
-        initNotDone = true;
+        shouldInitialize = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
         isLethal = false;
         isActive = false;
@@ -56,8 +56,8 @@ public abstract class Moblin extends AttackingEnemy {
     public void update(float deltaTime, Graphics g) {
         super.update(deltaTime, g);
         // Init
-        if (initNotDone) {
-            initNotDone = false;
+        if (shouldInitialize) {
+            shouldInitialize = false;
             nextTileX = x;
             nextTileY = y;
             Destination destination = enemyService.chooseNextNextTile(orientation, nextTileX, nextTileY);
@@ -85,31 +85,6 @@ public abstract class Moblin extends AttackingEnemy {
             if (immobilisationCounter <= 0) {
                 isImmobilised = false;
                 isLethal = true;
-            }
-        }
-
-        // The enemy is pushed
-        if (isPushed) {
-            Logger.info("Enemy is pushed, remaining counter : " + pushCounter);
-            float distance = Math.min(deltaTime * PUSH_SPEED, pushCounter);
-            pushCounter -= distance;
-
-            float deltaY = pushY * distance;
-            boolean pushed = false;
-            if ((deltaY < 0 && zoneManager.isUpValid(x, y + deltaY)) || (deltaY > 0 && zoneManager.isDownValid(x, y + deltaY))){
-                pushed = true;
-                y += deltaY;
-                hitbox.y += deltaY;
-            }
-            float deltaX = pushX * distance;
-            if ((deltaX < 0 && zoneManager.isLeftValid(x + deltaX, y)) || (deltaX > 0 && zoneManager.isRightValid(x + deltaX, y))) {
-                pushed = true;
-                x += deltaX;
-                hitbox.x += deltaX;
-            }
-            // Stop pushing if there is an obstacle or if the counter is down to 0
-            if (!pushed || pushCounter == 0) {
-                isPushed = false;
             }
         }
 

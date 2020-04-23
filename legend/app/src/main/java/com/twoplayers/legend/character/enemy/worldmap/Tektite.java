@@ -29,7 +29,7 @@ public abstract class Tektite extends Enemy {
     private static Coordinate[][] destinationTree;
     private static int[][] moveFunctionTree;
 
-    private boolean initNotDone;
+    private boolean shouldInitialize;
     private float timeBeforeFirstMove;
 
     private float pauseBeforeJump;
@@ -56,7 +56,7 @@ public abstract class Tektite extends Enemy {
         super(i, s, z, l, e, es, g);
         initAnimations(g);
         initDestinationTree();
-        initNotDone = true;
+        shouldInitialize = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
         isActive = false;
         isJumping = false;
@@ -122,8 +122,8 @@ public abstract class Tektite extends Enemy {
     public void update(float deltaTime, Graphics g) {
         super.update(deltaTime, g);
         // Init
-        if (initNotDone) {
-            initNotDone = false;
+        if (shouldInitialize) {
+            shouldInitialize = false;
             nextPositionX = x;
             nextPositionY = y;
             chooseNextNextPosition();
