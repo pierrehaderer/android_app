@@ -15,6 +15,15 @@ public class Hitbox {
     public float width;
     public float height;
 
+    public Hitbox() {
+        this.x = 0;
+        this.y = 0;
+        this.x_offset = 0;
+        this.y_offset = 0;
+        this.width = 0;
+        this.height = 0;
+    }
+
     /**
      * Constructor
      */

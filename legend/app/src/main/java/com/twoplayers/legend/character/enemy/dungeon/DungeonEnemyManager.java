@@ -97,6 +97,8 @@ public class DungeonEnemyManager implements IEnemyManager {
     private void initEnemyMap() {
         enemyMap = new HashMap<>();
         enemyMap.put("Stalfos", Stalfos.class);
+        enemyMap.put("RedKeeze", RedKeeze.class);
+        enemyMap.put("BlueKeeze", BlueKeeze.class);
     }
 
     /**

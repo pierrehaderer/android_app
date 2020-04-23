@@ -64,7 +64,7 @@ public abstract class Enemy {
 
         x = 0;
         y = 0;
-        hitbox = new Hitbox(0,0,0,0,0,0);
+        hitbox = new Hitbox();
         isLethal = false;
         damage = 0;
         isInvincible = false;

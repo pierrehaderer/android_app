@@ -36,8 +36,16 @@ public enum Orientation {
                 return RIGHT;
             case RIGHT:
                 return LEFT;
+            case DEGREES_45:
+                return DEGREES_225;
+            case DEGREES_135:
+                return DEGREES_315;
+            case DEGREES_225:
+                return DEGREES_45;
+            case DEGREES_315:
+                return DEGREES_135;
         }
-        return INIT;
+        return UP;
     }
 
     public boolean isSameAs(Orientation orientation) {
@@ -52,5 +60,28 @@ public enum Orientation {
                 return true;
         }
         return false;
+    }
+
+    public Orientation[] getOrientationsBeside() {
+        switch (this) {
+            case UP:
+                return new Orientation[] {DEGREES_45, DEGREES_135};
+            case DOWN:
+                return new Orientation[] {DEGREES_225, DEGREES_315};
+            case LEFT:
+                return new Orientation[] {DEGREES_135, DEGREES_225};
+            case RIGHT:
+                return new Orientation[] {DEGREES_45, DEGREES_315};
+            case DEGREES_45:
+                return new Orientation[] {UP, RIGHT};
+            case DEGREES_135:
+                return new Orientation[] {UP, LEFT};
+            case DEGREES_225:
+                return new Orientation[] {DOWN, LEFT};
+            case DEGREES_315:
+                return new Orientation[] {DOWN, RIGHT};
+        }
+        return new Orientation[] {DEGREES_45, DEGREES_135};
+
     }
 }

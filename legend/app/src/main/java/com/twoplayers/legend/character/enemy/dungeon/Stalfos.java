@@ -54,8 +54,8 @@ public class Stalfos extends MoveOnTileEnemy {
         initialAnimation = enemyUtil.getFastCloudAnimation(imagesEnemy, g);
 
         Animation animation = g.newAnimation();
-        animation.addFrame(imagesEnemy.get("skeleton_1"), AllImages.COEF, 15);
-        animation.addFrame(imagesEnemy.get("skeleton_2"), AllImages.COEF, 15);
+        animation.addFrame(imagesEnemy.get("stalfos_1"), AllImages.COEF, 15);
+        animation.addFrame(imagesEnemy.get("stalfos_2"), AllImages.COEF, 15);
         moveAnimations = new HashMap<>();
         moveAnimations.put(Orientation.UP, animation);
         moveAnimations.put(Orientation.DOWN, animation);
@@ -75,12 +75,6 @@ public class Stalfos extends MoveOnTileEnemy {
             nextNextTileX = destination.x;
             nextNextTileY = destination.y;
             nextOrientation = destination.orientation;
-        }
-
-        // Move hitbox away when enemy is dead
-        if (isDead) {
-            hitbox.x = 0;
-            hitbox.y = 0;
         }
 
         if (timeBeforeFirstMove > 0) {

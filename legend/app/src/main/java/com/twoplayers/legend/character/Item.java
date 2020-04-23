@@ -24,6 +24,6 @@ public class Item {
 
     public void hideItemForTheZone() {
         hidden = true;
-        hitbox = new Hitbox(0, 0, 0, 0, 0, 0);
+        hitbox = new Hitbox();
     }
 }
