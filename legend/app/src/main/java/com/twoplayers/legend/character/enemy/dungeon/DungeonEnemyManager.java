@@ -83,7 +83,7 @@ public class DungeonEnemyManager implements IEnemyManager {
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         graphics = game.getGraphics();
 
-        enemyService = new EnemyService(dungeonManager);
+        enemyService = new EnemyService(dungeonManager, linkManager, soundEffectManager);
 
         initEnemyMap();
         initMissileMap();

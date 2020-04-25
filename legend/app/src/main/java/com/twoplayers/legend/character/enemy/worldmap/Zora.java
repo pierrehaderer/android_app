@@ -19,7 +19,7 @@ public class Zora extends TurretEnemy {
 
     private static final float TIME_BEFORE_SPAWN = 200f;
     private static final float SPAWNING_TIME = 25f;
-    public static final float DESPAWNING_TIME = 150f;
+    private static final float DESPAWNING_TIME = 150f;
     private static final float TIME_BEFORE_ATTACK = 75f;
 
     private boolean isSpawning;
@@ -74,7 +74,9 @@ public class Zora extends TurretEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        super.update(deltaTime, g);
+
+        enemyService.handleEnemyHasBeenHit(this, deltaTime);
+
         // Spawn in water
         if (spawnCounter > 0) {
             currentAnimation.update(deltaTime);
@@ -85,7 +87,7 @@ public class Zora extends TurretEnemy {
             x = spawnCoordinate.x;
             y = spawnCoordinate.y;
             hitbox.relocate(x, y);
-            orientation = chooseOrientation();
+            orientation = enemyService.chooseOrientation(this);
             isSpawning = true;
             currentAnimation = (y > linkManager.getLink().y - LocationUtil.TILE_SIZE) ? animationUp : animationDown;
             currentAnimation.reset();

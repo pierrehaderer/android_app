@@ -40,7 +40,7 @@ public abstract class Enemy {
     protected float damage;
     protected boolean isInvincible;
     protected float invicibleCounter;
-    private boolean hasBeenHit;
+    protected boolean hasBeenHit;
     public boolean isDead;
     protected boolean isActive;
 
@@ -77,29 +77,7 @@ public abstract class Enemy {
      * Update the enemy has it is existing in the room
      */
     public void update(float deltaTime, Graphics g) {
-        if (hasBeenHit) {
-            Logger.info("Enemy " + this.getClass().getSimpleName() + " has been hit.");
-            hasBeenHit = false;
-            if (this.life <= 0) {
-                Logger.info("Enemy " + this.getClass().getSimpleName() + " is dead.");
-                // Move hitbox away when enemy is dead
-                this.hitbox.x = 0;
-                this.hitbox.y = 0;
-                isDead = true;
-                soundEffectManager.play("enemy_dies");
-                this.currentAnimation = this.deathAnimation;
-            } else {
-                isInvincible = true;
-                invicibleCounter = INITIAL_INVINCIBLE_COUNT;
-                soundEffectManager.play("enemy_wounded");
-            }
-        }
-        if (invicibleCounter >= 0) {
-            invicibleCounter -= deltaTime;
-            if (invicibleCounter < 0) {
-                isInvincible = false;
-            }
-        }
+        enemyService.handleEnemyHasBeenHit(this, deltaTime);
     }
 
     public Hitbox getHitbox() {
@@ -139,6 +117,20 @@ public abstract class Enemy {
     /**
      * This method is overridden if something special happens to the enemy
      */
+    public void isHitByArrow(Arrow arrow) {
+        isWounded(arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy
+     */
+    public void isHitByBomb(Bomb bomb) {
+        isWounded(Bomb.DAMAGE, bomb.getHitbox(), Orientation.ANY);
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy
+     */
     public void isHitByFire(Fire fire) {
         isWounded(Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
     }
@@ -149,20 +141,6 @@ public abstract class Enemy {
     protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
         this.life -= damage;
         this.hasBeenHit = true;
-    }
-
-    /**
-     * This method is overridden if something special happens to the enemy
-     */
-    public void isHitByArrow(Arrow arrow) {
-        isWounded(arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
-    }
-
-    /**
-     * This method is overridden if something special happens to the enemy
-     */
-    public void isHitByBomb(Bomb bomb) {
-        isWounded(Bomb.DAMAGE, bomb.getHitbox(), Orientation.ANY);
     }
 
     /**

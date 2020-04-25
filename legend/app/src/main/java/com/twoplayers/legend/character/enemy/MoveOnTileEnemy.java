@@ -9,15 +9,11 @@ import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
-import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.Orientation;
 
 import java.util.Map;
 
 public abstract class MoveOnTileEnemy extends Enemy {
-
-    protected static final float PUSH_SPEED = 9f;
-    protected static final float INITIAL_PUSH_DISTANCE = 4 * LocationUtil.TILE_SIZE;
 
     public Orientation orientation;
     protected Orientation nextOrientation;
@@ -43,31 +39,7 @@ public abstract class MoveOnTileEnemy extends Enemy {
     @Override
     public void update(float deltaTime, Graphics g) {
         super.update(deltaTime, g);
-
-        // The enemy is pushed
-        if (!isDead && isPushed) {
-            Logger.info("Enemy is pushed, remaining counter : " + pushCounter);
-            float distance = Math.min(deltaTime * PUSH_SPEED, pushCounter);
-            pushCounter -= distance;
-
-            float deltaY = pushY * distance;
-            boolean pushed = false;
-            if ((deltaY < 0 && zoneManager.isUpValid(x, y + deltaY)) || (deltaY > 0 && zoneManager.isDownValid(x, y + deltaY))) {
-                pushed = true;
-                y += deltaY;
-                hitbox.y += deltaY;
-            }
-            float deltaX = pushX * distance;
-            if ((deltaX < 0 && zoneManager.isLeftValid(x + deltaX, y)) || (deltaX > 0 && zoneManager.isRightValid(x + deltaX, y))) {
-                pushed = true;
-                x += deltaX;
-                hitbox.x += deltaX;
-            }
-            // Stop pushing if there is an obstacle or if the counter is down to 0
-            if (!pushed || pushCounter <= 0) {
-                isPushed = false;
-            }
-        }
+        enemyService.handleEnemyIsPushed(this, deltaTime);
     }
 
     /**
@@ -75,14 +47,7 @@ public abstract class MoveOnTileEnemy extends Enemy {
      */
     protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
         super.isWounded(damage, hitbox, orientation);
-        if (this.orientation.isSameAs(orientation)) {
-            isPushed = true;
-            pushCounter = INITIAL_PUSH_DISTANCE;
-            Float[] pushDirections = LocationUtil.computePushDirections(hitbox, this.hitbox, this.orientation);
-            pushX = pushDirections[0];
-            pushY = pushDirections[1];
-            Logger.info("Enemy push direction : " + pushX + ", " + pushY);
-        }
+        enemyService.handleEnemyIsWounded(this, damage, hitbox, orientation);
     }
 
     protected Animation getMoveAnimation() {

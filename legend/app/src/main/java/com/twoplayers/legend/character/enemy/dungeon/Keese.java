@@ -63,7 +63,9 @@ public abstract class Keese extends Enemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        super.update(deltaTime, g);
+
+        enemyService.handleEnemyHasBeenHit(this, deltaTime);
+
         // Init
         if (shouldInitialize) {
             shouldInitialize = false;

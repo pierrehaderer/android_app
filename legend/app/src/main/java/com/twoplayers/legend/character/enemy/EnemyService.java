@@ -1,7 +1,11 @@
 package com.twoplayers.legend.character.enemy;
 
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Coordinate;
+import com.twoplayers.legend.util.Logger;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.LocationUtil;
@@ -11,19 +15,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.twoplayers.legend.character.enemy.Enemy.INITIAL_INVINCIBLE_COUNT;
+
 public class EnemyService {
 
     private static final float PROBABILITY_TO_KEEP_SAME_ORIENTATION = 0.6f;
 
+    protected static final float INITIAL_PUSH_DISTANCE = 4 * LocationUtil.TILE_SIZE;
+    protected static final float PUSH_SPEED = 9f;
+
+    public static final float ATTACK_TOLERANCE = 2f;
+
     private IZoneManager zoneManager;
+    private LinkManager linkManager;
+    private SoundEffectManager soundEffectManager;
 
     private static Map<Orientation, Orientation[][]> directionTree;
 
     /**
      * Constructor
      */
-    public EnemyService(IZoneManager zoneManager) {
+    public EnemyService(IZoneManager zoneManager, LinkManager linkManager, SoundEffectManager soundEffectManager) {
         this.zoneManager = zoneManager;
+        this.soundEffectManager = soundEffectManager;
+        this.linkManager = linkManager;
         initDirectionTree();
     }
 
@@ -267,4 +282,158 @@ public class EnemyService {
         }
         return missiles;
     }
+
+    /**
+     * Handle when enemy has been hit
+     */
+    public void handleEnemyHasBeenHit(Enemy enemy, float deltaTime) {
+        if (enemy.hasBeenHit) {
+            Logger.info("Enemy " + this.getClass().getSimpleName() + " has been hit.");
+            enemy.hasBeenHit = false;
+            if (enemy.life <= 0) {
+                Logger.info("Enemy " + this.getClass().getSimpleName() + " is dead.");
+                // Move hitbox away when enemy is dead
+                enemy.hitbox.x = 0;
+                enemy.hitbox.y = 0;
+                enemy.isDead = true;
+                soundEffectManager.play("enemy_dies");
+                enemy.currentAnimation = enemy.deathAnimation;
+            } else {
+                enemy.isInvincible = true;
+                enemy.invicibleCounter = INITIAL_INVINCIBLE_COUNT;
+                soundEffectManager.play("enemy_wounded");
+            }
+        }
+        if (enemy.invicibleCounter >= 0) {
+            enemy.invicibleCounter -= deltaTime;
+            if (enemy.invicibleCounter < 0) {
+                enemy.isInvincible = false;
+            }
+        }
+    }
+
+    public void handleEnemyIsPushed(MoveOnTileEnemy enemy, float deltaTime) {
+        // The enemy is pushed
+        if (!enemy.isDead && enemy.isPushed) {
+            Logger.info("Enemy is pushed, remaining counter : " + enemy.pushCounter);
+            float distance = Math.min(deltaTime * PUSH_SPEED, enemy.pushCounter);
+            enemy.pushCounter -= distance;
+
+            float deltaY = enemy.pushY * distance;
+            boolean pushed = false;
+            if ((deltaY < 0 && zoneManager.isUpValid(enemy.x, enemy.y + deltaY)) || (deltaY > 0 && zoneManager.isDownValid(enemy.x, enemy.y + deltaY))) {
+                pushed = true;
+                enemy.y += deltaY;
+                enemy.hitbox.y += deltaY;
+            }
+            float deltaX = enemy.pushX * distance;
+            if ((deltaX < 0 && zoneManager.isLeftValid(enemy.x + deltaX, enemy.y)) || (deltaX > 0 && zoneManager.isRightValid(enemy.x + deltaX, enemy.y))) {
+                pushed = true;
+                enemy.x += deltaX;
+                enemy.hitbox.x += deltaX;
+            }
+            // Stop pushing if there is an obstacle or if the counter is down to 0
+            if (!pushed || enemy.pushCounter <= 0) {
+                enemy.isPushed = false;
+            }
+        }
+    }
+
+    public void handleEnemyIsWounded(MoveOnTileEnemy enemy, int damage, Hitbox hitbox, Orientation orientation) {
+        if (enemy.getClass() == AttackingEnemy.class) {
+            if (((AttackingEnemy) enemy).isAttacking && !enemy.isPushed) {
+                float deltaX = enemy.x - LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(enemy.x));
+                float deltaY = enemy.x - LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(enemy.y));
+                if (deltaX < ATTACK_TOLERANCE && deltaY < ATTACK_TOLERANCE) {
+                    enemy.isPushed = true;
+                    enemy.pushCounter = INITIAL_PUSH_DISTANCE;
+                    Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, orientation);
+                    enemy.pushX = pushDirections[0];
+                    enemy.pushY = pushDirections[1];
+                    Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
+                }
+            }
+        } else {
+            if (enemy.orientation.isSameAs(orientation)) {
+                enemy.isPushed = true;
+                enemy.pushCounter = INITIAL_PUSH_DISTANCE;
+                Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, enemy.orientation);
+                enemy.pushX = pushDirections[0];
+                enemy.pushY = pushDirections[1];
+                Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
+            }
+        }
+    }
+
+
+    /**
+     * Choose the orinetation according to link position
+     */
+    public Orientation chooseOrientation(Enemy enemy) {
+        Orientation orientation = Orientation.UP;
+        float deltaX = enemy.x - linkManager.getLink().x;
+        float deltaY = enemy.y - linkManager.getLink().y;
+        float ratio = 0;
+        if (deltaX == 0) {
+            if (deltaY > 0) {
+                orientation = Orientation.UP;
+            } else {
+                orientation = Orientation.DOWN;
+            }
+        } else {
+            ratio = deltaY / deltaX;
+            if (deltaX < 0 && deltaY >= 0) {
+                if (ratio > -1/4f) {
+                    orientation = Orientation.RIGHT;
+                } else if (ratio > -3/4f) {
+                    orientation = Orientation.DEGREES_340;
+                } else if (ratio > -4/3f) {
+                    orientation = Orientation.DEGREES_315;
+                } else if (ratio > -4f) {
+                    orientation = Orientation.DEGREES_290;
+                } else {
+                    orientation = Orientation.UP;
+                }
+            } else if (deltaX > 0 && deltaY >= 0) {
+                if (ratio < 1/4f) {
+                    orientation = Orientation.LEFT;
+                } else if (ratio < 3/4f) {
+                    orientation = Orientation.DEGREES_200;
+                } else if (ratio < 4/3f) {
+                    orientation = Orientation.DEGREES_225;
+                } else if (ratio < 4f) {
+                    orientation = Orientation.DEGREES_250;
+                } else {
+                    orientation = Orientation.UP;
+                }
+            } else if (deltaX > 0 && deltaY < 0) {
+                if (ratio > -1/4f) {
+                    orientation = Orientation.LEFT;
+                } else if (ratio > -3/4f) {
+                    orientation = Orientation.DEGREES_160;
+                } else if (ratio > -4/3f) {
+                    orientation = Orientation.DEGREES_135;
+                } else if (ratio > -4f) {
+                    orientation = Orientation.DEGREES_110;
+                } else {
+                    orientation = Orientation.DOWN;
+                }
+            } else if (deltaX < 0 && deltaY < 0) {
+                if (ratio < 1/4f) {
+                    orientation = Orientation.RIGHT;
+                } else if (ratio < 3/4f) {
+                    orientation = Orientation.DEGREES_20;
+                } else if (ratio < 4/3f) {
+                    orientation = Orientation.DEGREES_45;
+                } else if (ratio < 4f) {
+                    orientation = Orientation.DEGREES_70;
+                } else {
+                    orientation = Orientation.DOWN;
+                }
+            }
+        }
+        Logger.info("deltaX=" + deltaX + ",deltaY=" + deltaY + ",ratio=" + ratio + ",orientation=" + orientation.toString());
+        return orientation;
+    }
+
 }

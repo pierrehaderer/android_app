@@ -86,7 +86,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         graphics = game.getGraphics();
 
-        enemyService = new EnemyService(worldMapManager);
+        enemyService = new EnemyService(worldMapManager, linkManager, soundEffectManager);
 
         initEnemyMap();
         initMissileMap();

@@ -72,7 +72,9 @@ public class RedLeever extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        super.update(deltaTime, g);
+
+        enemyService.handleEnemyHasBeenHit(this, deltaTime);
+        enemyService.handleEnemyIsPushed(this, deltaTime);
 
         // Spawn in front of link
         if (timeBeforeSpawn > 0) {

@@ -54,7 +54,10 @@ public abstract class Moblin extends AttackingEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        super.update(deltaTime, g);
+
+        enemyService.handleEnemyHasBeenHit(this, deltaTime);
+        enemyService.handleEnemyIsPushed(this, deltaTime);
+
         // Init
         if (shouldInitialize) {
             shouldInitialize = false;
@@ -109,8 +112,8 @@ public abstract class Moblin extends AttackingEnemy {
             if (timeBeforeAttack <= PAUSE_BEFORE_ATTACK) {
                 // The enemy wants to attack check its position first : on tile or half tile only
                 if (remainingMoves > 0
-                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaX(x)) < ATTACK_TOLERANCE
-                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaY(y)) < ATTACK_TOLERANCE) {
+                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaX(x)) < EnemyService.ATTACK_TOLERANCE
+                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaY(y)) < EnemyService.ATTACK_TOLERANCE) {
                     isAttacking = true;
                     remainingMoves = 0;
                 }

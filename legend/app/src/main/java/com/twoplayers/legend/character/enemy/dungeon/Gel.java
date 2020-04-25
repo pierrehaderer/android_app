@@ -49,7 +49,10 @@ public abstract class Gel extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        super.update(deltaTime, g);
+
+        enemyService.handleEnemyHasBeenHit(this, deltaTime);
+        enemyService.handleEnemyIsPushed(this, deltaTime);
+
         // Init
         if (shouldInitialize) {
             shouldInitialize = false;

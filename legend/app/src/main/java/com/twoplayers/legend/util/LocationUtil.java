@@ -76,23 +76,6 @@ public class LocationUtil {
     }
 
     /**
-     * Compute the directions where pushingHitbox is pushing pushedHitbox
-     */
-    public static Float[] computePushDirections(Hitbox pushingHitbox, Orientation pushingOrientation, Hitbox pushedHitbox) {
-        float deltaX = 0;
-        float deltaY = 0;
-        if (pushingOrientation == Orientation.UP || pushingOrientation == Orientation.DOWN) {
-            deltaY = (pushedHitbox.y + pushedHitbox.height / 2) - (pushingHitbox.y + pushingHitbox.height / 2);
-            deltaY = (deltaY == 0) ? 1 : deltaY / Math.abs(deltaY);
-        }
-        if (pushingOrientation == Orientation.LEFT || pushingOrientation == Orientation.RIGHT) {
-            deltaX = (pushedHitbox.x + pushedHitbox.width / 2) - (pushingHitbox.x + pushingHitbox.width / 2);
-            deltaX = (deltaX == 0) ? 1 : deltaX / Math.abs(deltaX);
-        }
-        return new Float[] {deltaX, deltaY};
-    }
-
-    /**
      * Check if a tile is on the border of the map
      */
     public static boolean isTileAtBorder(float x, float y) {
