@@ -6,9 +6,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
-import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Missile;
-import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.util.Orientation;
@@ -37,6 +35,8 @@ import java.util.Map;
 import java.util.Properties;
 
 public class DungeonEnemyManager implements IEnemyManager {
+
+    public static final int TIME_BEFORE_FIRST_MOVE = 36;
 
     private boolean initNotDone = true;
 
@@ -200,14 +200,13 @@ public class DungeonEnemyManager implements IEnemyManager {
         for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
             try {
                 if (enemyToSpawn.enemyClass != null) {
-                    Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(IImagesEnemy.class,
-                            SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class, Graphics.class);
-                    Enemy enemy = constructor.newInstance(imagesEnemyDungeon, soundEffectManager, dungeonManager, linkManager, this, enemyService, graphics);
+                    Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class);
+                    Enemy enemy = constructor.newInstance(soundEffectManager, dungeonManager, linkManager, this, enemyService);
                     Coordinate spawnCoordinate = enemyService.getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
                     Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
                     enemy.x = spawnCoordinate.x;
                     enemy.y = spawnCoordinate.y;
-                    enemy.hitbox.relocate(enemy.x, enemy.y);
+                    enemy.init(imagesEnemyDungeon, graphics);
                     this.enemies.add(enemy);
                 } else {
                     Logger.error("Could not find the enemy type : " + enemyToSpawn.name);
@@ -219,22 +218,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void spawnMissile(AttackingEnemy enemy) {
-        try {
-            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
-            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
-            Missile missile = constructor.newInstance(imagesEnemyDungeon, dungeonManager, graphics);
-            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
-            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
-            missile.orientation = enemy.orientation;
-            missiles.add(missile);
-        } catch (Exception e) {
-            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void spawnMissile(TurretEnemy enemy) {
+    public void spawnMissile(Enemy enemy) {
         try {
             Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
             Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
@@ -242,7 +226,7 @@ public class DungeonEnemyManager implements IEnemyManager {
             missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
             missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
             missile.hitbox.relocate(missile.x, missile.y);
-            missile.orientation = enemy.orientation;
+            missile.defineOrientation(enemy.orientation);
             missiles.add(missile);
         } catch (Exception e) {
             Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());

@@ -15,7 +15,6 @@ import com.twoplayers.legend.util.Orientation;
 
 public abstract class Keese extends Enemy {
 
-    private static final int TIME_BEFORE_FIRST_MOVE = 36;
     private static final float MIN_TIME_BEFORE_STOP = 200f;
     private static final float MAX_TIME_BEFORE_STOP = 800f;
     private static final float INITIAL_TIME_BEFORE_RESTART = 200f;
@@ -23,74 +22,47 @@ public abstract class Keese extends Enemy {
     private static final float MAX_SPEED = 1.2f;
     private static final float ACCELERATION = 0.01f;
 
-    private boolean shouldInitialize;
-    private float timeBeforeFirstMove;
     private float timeBeforeStop;
     private float timeBeforeRestart;
 
-    private float speed;
-    private Orientation orientation;
     private float distance;
-    private Orientation nextOrientation;
-    private float nextDistance;
 
     private boolean isStopping;
     private boolean isStarting;
 
-    protected Animation initialAnimation;
     protected Animation moveAnimation;
 
-    public Keese(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
-        initAnimations(g);
-        shouldInitialize = true;
-        timeBeforeFirstMove = TIME_BEFORE_FIRST_MOVE;
+    public Keese(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
+    }
+
+    @Override
+    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+        initAnimations(imagesEnemy, g);
+        timeBeforeFirstMove = DungeonEnemyManager.TIME_BEFORE_FIRST_MOVE;
         timeBeforeStop = 0;
         timeBeforeRestart = 0;
-        isActive = false;
         isStarting = true;
         isStopping = false;
         life = 1;
-        hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
+        hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
+        orientation = Orientation.getRandomOrientation(Math.random());
+        chooseNextDestination();
         currentAnimation = initialAnimation;
     }
 
     /**
      * Initialise the move animations
      */
-    protected abstract void initAnimations(Graphics g);
+    protected abstract void initAnimations(IImagesEnemy imagesEnemy, Graphics g);
 
     @Override
     public void update(float deltaTime, Graphics g) {
-
+        handleKeeseAppears(deltaTime);
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
 
-        // Init
-        if (shouldInitialize) {
-            shouldInitialize = false;
-            hitbox.relocate(x, y);
-            orientation = Orientation.UP;
-            // 3 times to mix the next orientation
-            chooseNextDestination();
-            chooseNextDestination();
-            chooseNextDestination();
-            distance = nextDistance;
-            orientation = nextOrientation;
-            chooseNextDestination();
-        }
-
-        if (timeBeforeFirstMove > 0) {
-            timeBeforeFirstMove -= deltaTime;
-            if (timeBeforeFirstMove <= 60) {
-                currentAnimation.update(deltaTime);
-            }
-            if (timeBeforeFirstMove <= 0) {
-                isLethal = true;
-                isActive = true;
-                currentAnimation = moveAnimation;
-            }
-        } else {
+        if (isActive) {
             if (isStarting) {
                 speed += ACCELERATION * MAX_SPEED;
                 goStraightAhead(deltaTime);
@@ -125,6 +97,27 @@ public abstract class Keese extends Enemy {
         }
     }
 
+    /**
+     * Handle when enemy appears
+     */
+    public void handleKeeseAppears(float deltaTime) {
+        if (timeBeforeFirstMove > 0) {
+            timeBeforeFirstMove -= deltaTime;
+            if (timeBeforeFirstMove <= 60) {
+                currentAnimation.update(deltaTime);
+            }
+            if (timeBeforeFirstMove <= 0) {
+                isLethal = true;
+                isActive = true;
+                isInvincible = false;
+                currentAnimation = moveAnimation;
+            }
+        }
+    }
+
+    /**
+     * Enemy is moving straight ahead when accelarating or decelerating
+     */
     private void goStraightAhead(float deltaTime) {
         currentAnimation.update(deltaTime * speed / MAX_SPEED);
         float distanceToDo = deltaTime * speed;
@@ -164,8 +157,6 @@ public abstract class Keese extends Enemy {
             completeDistanceToDo -= distanceToDo;
             if (distance <= 0) {
                 // Destination has been reached, go to next destination
-                distance = nextDistance;
-                orientation = nextOrientation;
                 chooseNextDestination();
             }
         }
@@ -190,8 +181,8 @@ public abstract class Keese extends Enemy {
      */
     private void chooseNextDestination() {
         int orientationChoice = (int) (Math.random() * 2);
-        nextOrientation = orientation.getOrientationsBeside()[orientationChoice];
-        nextDistance = ((int) (Math.random() * MAX_DISTANCE)) * LocationUtil.HALF_TILE_SIZE;
+        orientation = orientation.getOrientationsBeside()[orientationChoice];
+        distance = ((int) (Math.random() * MAX_DISTANCE)) * LocationUtil.HALF_TILE_SIZE;
     }
 
     @Override

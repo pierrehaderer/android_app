@@ -8,7 +8,6 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.EnemyService;
-import com.twoplayers.legend.character.enemy.EnemyUtil;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Orientation;
 
@@ -16,16 +15,16 @@ import java.util.HashMap;
 
 public class DarkBlueGel extends Gel {
 
-    public DarkBlueGel(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
+    public DarkBlueGel(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
     }
 
     /**
      * Init enemy animations
      */
-    protected void initAnimations(Graphics g) {
-        EnemyUtil enemyUtil = new EnemyUtil();
-        initialAnimation = enemyUtil.getFastCloudAnimation(imagesEnemy, g);
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        initialAnimation = enemyService.getFastCloudAnimation(imagesEnemy, g);
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
 
         Animation animation = g.newAnimation();
         animation.addFrame(imagesEnemy.get("dark_blue_gel_1"), AllImages.COEF, 5);

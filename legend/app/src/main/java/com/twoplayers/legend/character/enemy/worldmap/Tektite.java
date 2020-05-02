@@ -29,51 +29,44 @@ public abstract class Tektite extends Enemy {
     private static Coordinate[][] destinationTree;
     private static int[][] moveFunctionTree;
 
-    private boolean shouldInitialize;
-    private float timeBeforeFirstMove;
-
-    private float pauseBeforeJump;
-    private boolean isJumping;
     private float nextPositionX;
     private float nextPositionY;
-    private float nextNextPositionX;
-    private float nextNextPositionY;
+    private float pauseBeforeJump;
+    private boolean isJumping;
     private int leftOrRight;
-    private int nextLeftOrRight;
     private float distance;
     private float deltaX;
     private float deltaY;
     private int moveFunction;
-    private int nextMoveFunction;
-    protected float immobilisationCounter;
 
-    protected Animation initAnimation;
     protected Animation waitAnimation;
     protected Animation prepareAnimation;
     protected Animation jumpAnimation;
 
-    public Tektite(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
-        initAnimations(g);
+    public Tektite(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
+    }
+
+    @Override
+    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+        initAnimations(imagesEnemy, g);
         initDestinationTree();
-        shouldInitialize = true;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
-        isActive = false;
-        isJumping = false;
-        computePauseBeforeNextJump();
+        isJumping = true;
+        pauseBeforeJump = 0;
         moveFunction = MOVE_FUNTION_MIDDLE;
-        nextMoveFunction = MOVE_FUNTION_MIDDLE;
         life = 1;
-        hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
+        hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
-        immobilisationCounter = 0;
-        currentAnimation = initAnimation;
+        nextPositionX = x;
+        nextPositionY = y;
+        currentAnimation = initialAnimation;
     }
 
     /**
      * Initialise the move animations
      */
-    protected abstract void initAnimations(Graphics g);
+    protected abstract void initAnimations(IImagesEnemy imagesEnemy, Graphics g);
 
     /**
      * Initialize the tree of destination which will ease the randow choice of destination
@@ -121,135 +114,112 @@ public abstract class Tektite extends Enemy {
     @Override
     public void update(float deltaTime, Graphics g) {
 
+        enemyService.handleEnemyAppears(this, deltaTime);
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
+        enemyService.handleEnemyIsStunned(this, deltaTime);
 
-        // Init
-        if (shouldInitialize) {
-            shouldInitialize = false;
-            nextPositionX = x;
-            nextPositionY = y;
-            chooseNextNextPosition();
-            nextPositionX = nextNextPositionX;
-            nextPositionY = nextNextPositionY;
-            leftOrRight = nextLeftOrRight;
-            moveFunction = nextMoveFunction;
-            chooseNextNextPosition();
-        }
-
-        if (timeBeforeFirstMove > 0) {
-            timeBeforeFirstMove -= deltaTime;
-            if (timeBeforeFirstMove <= 60) {
-                currentAnimation.update(deltaTime);
-            }
-            if (timeBeforeFirstMove <= 0) {
-                isLethal = true;
-                isActive = true;
-                currentAnimation = waitAnimation;
-            }
-        } else {
-            if (immobilisationCounter > 0) {
-                immobilisationCounter -= deltaTime;
-                if (immobilisationCounter <= 0) {
-                    isLethal = true;
-                }
+        if (isActive && !isStunned && !isDead) {
+            if (isJumping) {
+                goToNextPosition(deltaTime);
             } else {
-                if (!isJumping && pauseBeforeJump > 0) {
-                    pauseBeforeJump -= deltaTime;
-                    if (pauseBeforeJump < 80) {
-                        currentAnimation = prepareAnimation;
-                    }
-                    if (pauseBeforeJump < 0) {
-                        isJumping = true;
-                        deltaX = 0;
-                        deltaY = 0;
-                        distance = 0;
-                        currentAnimation = jumpAnimation;
-                        computePauseBeforeNextJump();
-                        chooseNextNextPosition();
-                    }
-                }
-                if (isJumping) {
-                    goToNextPosition(deltaTime);
-                }
+                pauseBeforeJump(deltaTime);
             }
             currentAnimation.update(deltaTime);
         }
     }
 
     /**
-     * Compute the next pause before the next jump
+     * The enemy is waiting before he jumps
      */
-    private void computePauseBeforeNextJump() {
-        pauseBeforeJump = MIN_PAUSE_BEFORE_JUMP + (MAX_PAUSE_BEFORE_JUMP - MIN_PAUSE_BEFORE_JUMP) * (float) Math.random();
-        pauseBeforeJump = (Math.random() < PROBABILITY_TO_JUMP_AGAIN) ? pauseBeforeJump / 10 : pauseBeforeJump;
+    private void pauseBeforeJump(float deltaTime) {
+        pauseBeforeJump -= deltaTime;
+        if (pauseBeforeJump < 80) {
+            currentAnimation = prepareAnimation;
+        }
+        if (pauseBeforeJump < 0) {
+            // The enemy moves
+            isJumping = true;
+            deltaX = 0;
+            deltaY = 0;
+            distance = 0;
+            currentAnimation = jumpAnimation;
+        }
     }
 
     /**
      * Move until the enemy has arrived at the next position or until remainingTime is consumed
      */
     private void goToNextPosition(float deltaTime) {
-        applyMoveFunction(deltaTime * SPEED);
         if (x == nextPositionX && y == nextPositionY) {
             isJumping = false;
-            nextPositionX = nextNextPositionX;
-            nextPositionY = nextNextPositionY;
-            leftOrRight = nextLeftOrRight;
-            moveFunction = nextMoveFunction;
+            pauseBeforeJump = computePauseBeforeNextJump();
+            chooseNextPosition();
             waitAnimation.reset();
             currentAnimation = waitAnimation;
+        } else {
+            applyMoveFunction(deltaTime * SPEED);
         }
+    }
+
+    /**
+     * Compute the next pause before the next jump
+     */
+    private float computePauseBeforeNextJump() {
+        float pause = MIN_PAUSE_BEFORE_JUMP + (MAX_PAUSE_BEFORE_JUMP - MIN_PAUSE_BEFORE_JUMP) * (float) Math.random();
+        pause = (Math.random() < PROBABILITY_TO_JUMP_AGAIN) ? pause / 10 : pause;
+        return pause;
     }
 
     /**
      * Randomly choose the next position to go
      */
-    private void chooseNextNextPosition() {
-        nextLeftOrRight = 1 - 2 * (int) (Math.floor(2 * Math.random())); // -1 or 1
+    private void chooseNextPosition() {
+        leftOrRight = 1 - 2 * (int) (Math.floor(2 * Math.random())); // -1 or 1
         int decision1 = (int) (Math.floor(3 * Math.random()));
         int decision2 = 10 + (int) (Math.floor(2 * Math.random()));
         int decision3 = 10 + decision2;
-        nextNextPositionX = nextPositionX + nextLeftOrRight * destinationTree[decision1][0].x;
-        nextNextPositionY = nextPositionY + destinationTree[decision1][0].y;
-        nextMoveFunction = moveFunctionTree[decision1][0];
-        if (isNextNextPositionNotValid()) {
-            nextLeftOrRight = -1 * nextLeftOrRight;
-            nextNextPositionX = nextPositionX + nextLeftOrRight * destinationTree[decision1][0].x;
-            nextNextPositionY = nextPositionY + destinationTree[decision1][0].y;
-            nextMoveFunction = moveFunctionTree[decision1][0];
-            if (isNextNextPositionNotValid()) {
-                nextLeftOrRight = -1 * nextLeftOrRight;
-                nextNextPositionX = nextPositionX + nextLeftOrRight * destinationTree[decision1][decision2].x;
-                nextNextPositionY = nextPositionY + destinationTree[decision1][decision2].y;
-                nextMoveFunction = moveFunctionTree[decision1][decision2];
-                if (isNextNextPositionNotValid()) {
-                    nextLeftOrRight = -1 * nextLeftOrRight;
-                    nextNextPositionX = nextPositionX + nextLeftOrRight * destinationTree[decision1][decision2].x;
-                    nextNextPositionY = nextPositionY + destinationTree[decision1][decision2].y;
-                    nextMoveFunction = moveFunctionTree[decision1][decision2];
-                    if (isNextNextPositionNotValid()) {
-                        nextLeftOrRight = -1 * nextLeftOrRight;
-                        nextNextPositionX = nextPositionX + nextLeftOrRight * destinationTree[decision1][decision3].x;
-                        nextNextPositionY = nextPositionY + destinationTree[decision1][decision3].y;
-                        nextMoveFunction = moveFunctionTree[decision1][decision3];
-                        if (isNextNextPositionNotValid()) {
-                            nextLeftOrRight = -1 * nextLeftOrRight;
-                            nextNextPositionX = nextPositionX + nextLeftOrRight * destinationTree[decision1][decision3].x;
-                            nextNextPositionY = nextPositionY + destinationTree[decision1][decision3].y;
-                            nextMoveFunction = moveFunctionTree[decision1][decision3];
+        nextPositionX = x + leftOrRight * destinationTree[decision1][0].x;
+        nextPositionY = y + destinationTree[decision1][0].y;
+        moveFunction = moveFunctionTree[decision1][0];
+        if (nextPositionNotValid()) {
+            leftOrRight = -1 * leftOrRight;
+            nextPositionX = x + leftOrRight * destinationTree[decision1][0].x;
+            nextPositionY = y + destinationTree[decision1][0].y;
+            moveFunction = moveFunctionTree[decision1][0];
+            if (nextPositionNotValid()) {
+                leftOrRight = -1 * leftOrRight;
+                nextPositionX = x + leftOrRight * destinationTree[decision1][decision2].x;
+                nextPositionY = y + destinationTree[decision1][decision2].y;
+                moveFunction = moveFunctionTree[decision1][decision2];
+                if (nextPositionNotValid()) {
+                    leftOrRight = -1 * leftOrRight;
+                    nextPositionX = x + leftOrRight * destinationTree[decision1][decision2].x;
+                    nextPositionY = y + destinationTree[decision1][decision2].y;
+                    moveFunction = moveFunctionTree[decision1][decision2];
+                    if (nextPositionNotValid()) {
+                        leftOrRight = -1 * leftOrRight;
+                        nextPositionX = x + leftOrRight * destinationTree[decision1][decision3].x;
+                        nextPositionY = y + destinationTree[decision1][decision3].y;
+                        moveFunction = moveFunctionTree[decision1][decision3];
+                        if (nextPositionNotValid()) {
+                            leftOrRight = -1 * leftOrRight;
+                            nextPositionX = x + leftOrRight * destinationTree[decision1][decision3].x;
+                            nextPositionY = y + destinationTree[decision1][decision3].y;
+                            moveFunction = moveFunctionTree[decision1][decision3];
                         }
                     }
                 }
             }
         }
-        Logger.debug("Tecktite decided to go to (" + nextNextPositionX + "," + nextNextPositionY + ")");
+        Logger.debug("Tecktite decided to go to (" + nextPositionX + "," + nextPositionY + ")");
     }
 
     /**
      * Evaluate if the next next position is Valid
      */
-    private boolean isNextNextPositionNotValid() {
-        return LocationUtil.isTileAtBorder(nextNextPositionX, nextNextPositionY + LocationUtil.TILE_SIZE)
-                || LocationUtil.isTileAtBorder(nextNextPositionX + LocationUtil.TILE_SIZE, nextNextPositionY + LocationUtil.TILE_SIZE);
+    private boolean nextPositionNotValid() {
+        return LocationUtil.isTileAtBorder(nextPositionX, nextPositionY + LocationUtil.TILE_SIZE)
+                || LocationUtil.isTileAtBorder(nextPositionX + LocationUtil.TILE_SIZE, nextPositionY + LocationUtil.TILE_SIZE);
     }
 
     /**
@@ -330,14 +300,5 @@ public abstract class Tektite extends Enemy {
         deltaX = nextDeltaX;
         deltaY = nextDeltaY;
         distance = nextDistance;
-    }
-
-    @Override
-    public void isHitByBoomerang() {
-        soundEffectManager.play("enemy_wounded");
-        if (isActive) {
-            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isLethal = false;
-        }
     }
 }

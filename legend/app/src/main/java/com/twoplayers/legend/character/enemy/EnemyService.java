@@ -1,6 +1,10 @@
 package com.twoplayers.legend.character.enemy;
 
+import com.kilobolt.framework.Animation;
+import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.assets.image.AllImages;
+import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.LinkManager;
@@ -15,16 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.twoplayers.legend.character.enemy.Enemy.INITIAL_INVINCIBLE_COUNT;
-
 public class EnemyService {
 
     private static final float PROBABILITY_TO_KEEP_SAME_ORIENTATION = 0.6f;
+    private static final float INITIAL_PUSH_DISTANCE = 4 * LocationUtil.TILE_SIZE;
+    private static final float PUSH_SPEED = 9f;
 
-    protected static final float INITIAL_PUSH_DISTANCE = 4 * LocationUtil.TILE_SIZE;
-    protected static final float PUSH_SPEED = 9f;
-
-    public static final float ATTACK_TOLERANCE = 2f;
+    private static final float ATTACK_TOLERANCE = 2f;
 
     private IZoneManager zoneManager;
     private LinkManager linkManager;
@@ -120,137 +121,42 @@ public class EnemyService {
     }
 
     /**
-     * Move until the enemy has arrived at the next tile or until remainingMoves is consumed
+     * Generate a initial slow animation with cloud
      */
-    public float goToNextTile(Orientation orientation, MoveOnTileEnemy enemy, float remainingMoves, float nextTileX, float nextTileY) {
-        boolean nextTileIsReachable = false;
-        switch (orientation) {
-            case UP:
-                nextTileIsReachable = (enemy.y - remainingMoves < nextTileY);
-                if (nextTileIsReachable) {
-                    remainingMoves -= (enemy.y - nextTileY);
-                    enemy.y = nextTileY;
-                } else {
-                    enemy.y -= remainingMoves;
-                    remainingMoves = 0;
-                }
-                enemy.hitbox.y = enemy.y + enemy.hitbox.y_offset;
-                break;
-            case DOWN:
-                nextTileIsReachable = (enemy.y + remainingMoves > nextTileY);
-                if (nextTileIsReachable) {
-                    remainingMoves -= (nextTileY - enemy.y);
-                    enemy.y = nextTileY;
-                } else {
-                    enemy.y += remainingMoves;
-                    remainingMoves = 0;
-                }
-                enemy.hitbox.y = enemy.y + enemy.hitbox.y_offset;
-                break;
-            case LEFT:
-                nextTileIsReachable = (enemy.x - remainingMoves < nextTileX);
-                if (nextTileIsReachable) {
-                    remainingMoves -= (enemy.x - nextTileX);
-                    enemy.x = nextTileX;
-                } else {
-                    enemy.x -= remainingMoves;
-                    remainingMoves = 0;
-                }
-                enemy.hitbox.x = enemy.x + enemy.hitbox.x_offset;
-                break;
-            case RIGHT:
-                nextTileIsReachable = (enemy.x + remainingMoves > nextTileX);
-                if (nextTileIsReachable) {
-                    remainingMoves -= (nextTileX - enemy.x);
-                    enemy.x = nextTileX;
-                } else {
-                    enemy.x += remainingMoves;
-                    remainingMoves = 0;
-                }
-                enemy.hitbox.x = enemy.x + enemy.hitbox.x_offset;
-                break;
-            default:
-                remainingMoves = 0;
-        }
-        if (nextTileIsReachable) {
-            enemy.orientation = enemy.nextOrientation;
-            enemy.currentAnimation = enemy.getMoveAnimation();
-        }
-
-        return remainingMoves;
+    public Animation getSlowCloudAnimation(IImagesEnemy imagesEnemy, Graphics g) {
+        return createCloudAnimation(imagesEnemy, g, 36);
     }
 
     /**
-     * Randomly choose the next tile to go
+     * Generate a initial slow animation with cloud
      */
-    public Destination chooseNextNextTile(Orientation orientation, float nextTileX, float nextTileY) {
-        // Continue in the same direction if possible
-        if (Math.random() < PROBABILITY_TO_KEEP_SAME_ORIENTATION) {
-            Destination destination = tryToChooseThisOrientationForNextNextTile(orientation, nextTileX, nextTileY);
-            if (destination.isValid) {
-                return destination;
-            }
-        }
-        // Either the enemy has chosen to change direction or continue is not possible
-        int direction1 = (int) (Math.floor(3 * Math.random()));
-        int direction2 = 10 + (int) (Math.floor(2 * Math.random()));
-        int direction3 = 10 + direction2;
-        Orientation orientation1 = directionTree.get(orientation)[direction1][0];
-        Destination destination1 = tryToChooseThisOrientationForNextNextTile(orientation1, nextTileX, nextTileY);
-        if (destination1.isValid) {
-            return destination1;
-        }
-        Orientation orientation2 = directionTree.get(orientation)[direction1][direction2];
-        Destination destination2 = tryToChooseThisOrientationForNextNextTile(orientation2, nextTileX, nextTileY);
-        if (destination2.isValid) {
-            return destination2;
-        }
-        Orientation orientation3 = directionTree.get(orientation)[direction1][direction3];
-        Destination destination3 = tryToChooseThisOrientationForNextNextTile(orientation3, nextTileX, nextTileY);
-        if (destination3.isValid) {
-            return destination3;
-        }
-        return new Destination(0, 0, Orientation.UP, false);
+    public Animation getFastCloudAnimation(IImagesEnemy imagesEnemy, Graphics g) {
+        return createCloudAnimation(imagesEnemy, g, 12);
     }
 
     /**
-     * Try to choose an orientation. +HALF_TILE_SIZE to be sure we are not at the boundaries of 2 tiles.
+     * Genearate death animation
      */
-    private Destination tryToChooseThisOrientationForNextNextTile(Orientation chosenOrientation, float nextTileX, float nextTileY) {
-        float nextTileXCandidate = nextTileX;
-        float nextTileYCandidate = nextTileY;
-        switch (chosenOrientation) {
-            case UP:
-                nextTileYCandidate = nextTileY - LocationUtil.TILE_SIZE;
-                break;
-            case DOWN:
-                nextTileYCandidate = nextTileY + LocationUtil.TILE_SIZE;
-                break;
-            case LEFT:
-                nextTileXCandidate = nextTileX - LocationUtil.TILE_SIZE;
-                break;
-            case RIGHT:
-                nextTileXCandidate = nextTileX + LocationUtil.TILE_SIZE;
-        }
-        switch (chosenOrientation) {
-            case UP:
-            case DOWN:
-                if ((LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
-                        || !LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE))
-                        && zoneManager.isTileWalkable(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE)) {
-                    return new Destination(nextTileX, nextTileYCandidate, chosenOrientation, true);
-                }
-                break;
-            case LEFT:
-            case RIGHT:
-                if ((LocationUtil.isTileAtBorder(nextTileX + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)
-                        || !LocationUtil.isTileAtBorder(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE))
-                        && zoneManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, nextTileY + LocationUtil.HALF_TILE_SIZE)) {
-                    return new Destination(nextTileXCandidate, nextTileY, chosenOrientation, true);
-                }
-                break;
-        }
-        return new Destination(0, 0, Orientation.UP, false);
+    public Animation getDeathAnimation(IImagesEnemy imagesEnemy, Graphics g) {
+        Animation animation = g.newAnimation();
+        animation.addFrame(imagesEnemy.get("enemy_death_1"), AllImages.COEF, 10);
+        animation.addFrame(imagesEnemy.get("enemy_death_2"), AllImages.COEF, 10);
+        animation.addFrame(imagesEnemy.get("enemy_death_3"), AllImages.COEF, 10);
+        animation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
+        animation.setOccurrences(1);
+        return animation;
+    }
+
+    /**
+     * Generate a initial animation with cloud
+     */
+    private Animation createCloudAnimation(IImagesEnemy imagesEnemy, Graphics g, int firstStepDuration) {
+        Animation animationCloud = g.newAnimation();
+        animationCloud.addFrame(imagesEnemy.get("cloud_1"), AllImages.COEF, firstStepDuration);
+        animationCloud.addFrame(imagesEnemy.get("cloud_2"), AllImages.COEF, 12);
+        animationCloud.addFrame(imagesEnemy.get("cloud_3"), AllImages.COEF, 12);
+        animationCloud.setOccurrences(1);
+        return animationCloud;
     }
 
     /**
@@ -284,6 +190,23 @@ public class EnemyService {
     }
 
     /**
+     * Handle when enemy appears
+     */
+    public void handleEnemyAppears(Enemy enemy, float deltaTime) {
+        if (enemy.timeBeforeFirstMove > 0) {
+            enemy.timeBeforeFirstMove -= deltaTime;
+            if (enemy.timeBeforeFirstMove <= 60) {
+                enemy.currentAnimation.update(deltaTime);
+            }
+            if (enemy.timeBeforeFirstMove <= 0) {
+                enemy.isLethal = true;
+                enemy.isActive = true;
+                enemy.isInvincible = false;
+            }
+        }
+    }
+
+    /**
      * Handle when enemy has been hit
      */
     public void handleEnemyHasBeenHit(Enemy enemy, float deltaTime) {
@@ -300,7 +223,7 @@ public class EnemyService {
                 enemy.currentAnimation = enemy.deathAnimation;
             } else {
                 enemy.isInvincible = true;
-                enemy.invicibleCounter = INITIAL_INVINCIBLE_COUNT;
+                enemy.invicibleCounter = Enemy.INITIAL_INVINCIBLE_COUNTER;
                 soundEffectManager.play("enemy_wounded");
             }
         }
@@ -312,7 +235,32 @@ public class EnemyService {
         }
     }
 
-    public void handleEnemyIsPushed(MoveOnTileEnemy enemy, float deltaTime) {
+    /**
+     * Handle when enemy is stunned by boomerang
+     */
+    public void handleEnemyIsStunned(Enemy enemy, float deltaTime) {
+        if (enemy.isStunned) {
+            enemy.stunCounter -= deltaTime;
+            if (enemy.stunCounter <= 0) {
+                enemy.isStunned = false;
+                enemy.isLethal = true;
+            }
+        }
+        if (enemy.hasBeenStunned) {
+            enemy.hasBeenStunned = false;
+            if (enemy.isActive) {
+                soundEffectManager.play("enemy_wounded");
+                enemy.isStunned = true;
+                enemy.stunCounter = Enemy.INITIAL_STUN_COUNTER;
+                enemy.isLethal = false;
+            }
+        }
+    }
+
+    /**
+     * Handle when enemy is pushed
+     */
+    public void handleEnemyIsPushed(Enemy enemy, float deltaTime) {
         // The enemy is pushed
         if (!enemy.isDead && enemy.isPushed) {
             Logger.info("Enemy is pushed, remaining counter : " + enemy.pushCounter);
@@ -339,37 +287,273 @@ public class EnemyService {
         }
     }
 
-    public void handleEnemyIsWounded(MoveOnTileEnemy enemy, int damage, Hitbox hitbox, Orientation orientation) {
-        if (enemy.getClass() == AttackingEnemy.class) {
-            if (((AttackingEnemy) enemy).isAttacking && !enemy.isPushed) {
-                float deltaX = enemy.x - LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(enemy.x));
-                float deltaY = enemy.x - LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(enemy.y));
-                if (deltaX < ATTACK_TOLERANCE && deltaY < ATTACK_TOLERANCE) {
-                    enemy.isPushed = true;
-                    enemy.pushCounter = INITIAL_PUSH_DISTANCE;
-                    Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, orientation);
-                    enemy.pushX = pushDirections[0];
-                    enemy.pushY = pushDirections[1];
-                    Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
-                }
-            }
-        } else {
-            if (enemy.orientation.isSameAs(orientation)) {
+    /**
+     * Handle when enemy is wounded
+     */
+    public void handleEnemyIsWounded(Enemy enemy, int damage, Hitbox hitbox, Orientation orientation) {
+        enemy.life -= damage;
+        enemy.hasBeenHit = true;
+
+        // For enemies that are spawning
+        if (enemy.life <= 0) {
+            enemy.isSpawning = false;
+            enemy.hasSpawned = false;
+        }
+
+        // For enemies that are attacking on tile
+        if (enemy.isAttacking) {
+            float deltaX = enemy.x - LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(enemy.x));
+            float deltaY = enemy.x - LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(enemy.y));
+            if (deltaX < ATTACK_TOLERANCE && deltaY < ATTACK_TOLERANCE) {
                 enemy.isPushed = true;
                 enemy.pushCounter = INITIAL_PUSH_DISTANCE;
-                Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, enemy.orientation);
+                Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, orientation);
                 enemy.pushX = pushDirections[0];
                 enemy.pushY = pushDirections[1];
                 Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
             }
         }
+
+        // For enemies that are moving on tile
+        if (enemy.orientation.isSameAs(orientation)) {
+            enemy.isPushed = true;
+            enemy.pushCounter = INITIAL_PUSH_DISTANCE;
+            Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, enemy.orientation);
+            enemy.pushX = pushDirections[0];
+            enemy.pushY = pushDirections[1];
+            Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
+        }
     }
 
+    /**
+     * Handle when the enemy is attacking
+     */
+    public void handleEnemyIsAttacking(Enemy enemy, float deltaTime) {
+        if (!enemy.isDead && enemy.isAttacking && !enemy.isStunned) {
+            enemy.timeBeforeAttack -= deltaTime;
+            if (enemy.timeBeforeAttack < 0) {
+                Logger.info("Octorok is attacking (" + enemy.x + "," + enemy.y + ")");
+                enemy.isAttacking = false;
+                enemy.enemyManager.spawnMissile(enemy);
+                enemy.timeBeforeAttack = chooseTimeBeforeAttack(Enemy.MIN_TIME_BEFORE_ATTACK, Enemy.MAX_TIME_BEFORE_ATTACK);
+            }
+        }
+    }
 
     /**
-     * Choose the orinetation according to link position
+     * Randomly choose a duration before the next attack
      */
-    public Orientation chooseOrientation(Enemy enemy) {
+    public float chooseTimeBeforeAttack(float min, float max) {
+        return (float) ((max - min) * Math.random() + min);
+    }
+
+    /**
+     * Handle when the attacking enemy is moving
+     */
+    public void handleAttackingEnemyIsMoving(Enemy enemy, float deltaTime) {
+        if (!enemy.isDead && enemy.isActive && !enemy.isAttacking && !enemy.isStunned) {
+            if (enemy.timeBeforeAttack > Enemy.PAUSE_BEFORE_ATTACK) {
+                enemy.timeBeforeAttack -= deltaTime;
+            }
+            float remainingMoves = deltaTime * enemy.speed;
+            remainingMoves = goToNextTile(enemy, remainingMoves);
+            if (remainingMoves > 0) {
+                Destination destination = chooseNextTile(enemy.orientation, enemy.x, enemy.y);
+                enemy.nextTileX = destination.x;
+                enemy.nextTileY = destination.y;
+                enemy.orientation = destination.orientation;
+                enemy.currentAnimation = enemy.moveAnimations.get(enemy.orientation);
+            }
+            if (enemy.timeBeforeAttack <= Enemy.PAUSE_BEFORE_ATTACK) {
+                // The enemy wants to attack check its position first : on tile or half tile only
+                if (remainingMoves > 0
+                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaX(enemy.x)) < EnemyService.ATTACK_TOLERANCE
+                        || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaY(enemy.y)) < EnemyService.ATTACK_TOLERANCE) {
+                    enemy.isAttacking = true;
+                    remainingMoves = 0;
+                }
+            }
+            if (remainingMoves > 0) {
+                goToNextTile(enemy, remainingMoves);
+            }
+        }
+    }
+
+    /**
+     * Handle when the enemy is moving
+     */
+    public void handleEnemyIsMoving(Enemy enemy, float deltaTime) {
+        if (!enemy.isDead && enemy.isActive && !enemy.isStunned) {
+            // The enemy moves
+            float remainingMoves = deltaTime * enemy.speed;
+            remainingMoves = goToNextTile(enemy, remainingMoves);
+            while (remainingMoves > 0) {
+                Destination destination = chooseNextTile(enemy.orientation, enemy.nextTileX, enemy.nextTileY);
+                enemy.nextTileX = destination.x;
+                enemy.nextTileY = destination.y;
+                enemy.orientation = destination.orientation;
+                enemy.currentAnimation = enemy.moveAnimations.get(enemy.orientation);
+                remainingMoves = goToNextTile(enemy, remainingMoves);
+            }
+        }
+    }
+
+    /**
+     * Handle when the enemy is moving with pause on tiles
+     */
+    public void handleEnemyIsMovingWithPause(Enemy enemy, float deltaTime) {
+        if (!enemy.isDead && enemy.isActive) {
+            if (enemy.pauseBeforeNextTile > 0) {
+                enemy.pauseBeforeNextTile -= deltaTime;
+            } else {
+                // The enemy moves
+                float remainingMoves = deltaTime * enemy.speed;
+                remainingMoves = goToNextTile(enemy, remainingMoves);
+                if (remainingMoves > 0) {
+                    Destination destination = chooseNextTile(enemy.orientation, enemy.nextTileX, enemy.nextTileY);
+                    enemy.pauseBeforeNextTile = choosePauseBeforeNextTile();
+                    enemy.nextTileX = destination.x;
+                    enemy.nextTileY = destination.y;
+                    enemy.orientation = destination.orientation;
+                    enemy.currentAnimation = enemy.moveAnimations.get(enemy.orientation);
+                }
+            }
+        }
+    }
+
+    /**
+     * Move until the enemy has arrived at the next tile or until remainingMoves is consumed
+     */
+    public float goToNextTile(Enemy enemy, float remainingMoves) {
+        boolean nextTileIsReachable = false;
+        switch (enemy.orientation) {
+            case UP:
+                nextTileIsReachable = (enemy.y - remainingMoves < enemy.nextTileY);
+                if (nextTileIsReachable) {
+                    remainingMoves -= (enemy.y - enemy.nextTileY);
+                    enemy.y = enemy.nextTileY;
+                } else {
+                    enemy.y -= remainingMoves;
+                    remainingMoves = 0;
+                }
+                enemy.hitbox.y = enemy.y + enemy.hitbox.y_offset;
+                break;
+            case DOWN:
+                nextTileIsReachable = (enemy.y + remainingMoves > enemy.nextTileY);
+                if (nextTileIsReachable) {
+                    remainingMoves -= (enemy.nextTileY - enemy.y);
+                    enemy.y = enemy.nextTileY;
+                } else {
+                    enemy.y += remainingMoves;
+                    remainingMoves = 0;
+                }
+                enemy.hitbox.y = enemy.y + enemy.hitbox.y_offset;
+                break;
+            case LEFT:
+                nextTileIsReachable = (enemy.x - remainingMoves < enemy.nextTileX);
+                if (nextTileIsReachable) {
+                    remainingMoves -= (enemy.x - enemy.nextTileX);
+                    enemy.x = enemy.nextTileX;
+                } else {
+                    enemy.x -= remainingMoves;
+                    remainingMoves = 0;
+                }
+                enemy.hitbox.x = enemy.x + enemy.hitbox.x_offset;
+                break;
+            case RIGHT:
+                nextTileIsReachable = (enemy.x + remainingMoves > enemy.nextTileX);
+                if (nextTileIsReachable) {
+                    remainingMoves -= (enemy.nextTileX - enemy.x);
+                    enemy.x = enemy.nextTileX;
+                } else {
+                    enemy.x += remainingMoves;
+                    remainingMoves = 0;
+                }
+                enemy.hitbox.x = enemy.x + enemy.hitbox.x_offset;
+                break;
+            default:
+                remainingMoves = 0;
+        }
+        return remainingMoves;
+    }
+
+    /**
+     * Randomly choose the next tile to go
+     */
+    public Destination chooseNextTile(Orientation orientation, float x, float y) {
+        // Continue in the same direction if possible
+        if (Math.random() < PROBABILITY_TO_KEEP_SAME_ORIENTATION) {
+            Destination destination = tryToChooseThisOrientationForNextTile(orientation, x, y);
+            if (destination.isValid) {
+                return destination;
+            }
+        }
+        // Either the enemy has chosen to change direction or continue is not possible
+        int direction1 = (int) (Math.floor(3 * Math.random()));
+        int direction2 = 10 + (int) (Math.floor(2 * Math.random()));
+        int direction3 = 10 + direction2;
+        Orientation orientation1 = directionTree.get(orientation)[direction1][0];
+        Destination destination1 = tryToChooseThisOrientationForNextTile(orientation1, x, y);
+        if (destination1.isValid) {
+            return destination1;
+        }
+        Orientation orientation2 = directionTree.get(orientation)[direction1][direction2];
+        Destination destination2 = tryToChooseThisOrientationForNextTile(orientation2, x, y);
+        if (destination2.isValid) {
+            return destination2;
+        }
+        Orientation orientation3 = directionTree.get(orientation)[direction1][direction3];
+        Destination destination3 = tryToChooseThisOrientationForNextTile(orientation3, x, y);
+        if (destination3.isValid) {
+            return destination3;
+        }
+        return new Destination(x, y, Orientation.UP, false);
+    }
+
+    /**
+     * Try to choose an orientation. +HALF_TILE_SIZE to be sure we are not at the boundaries of 2 tiles.
+     */
+    private Destination tryToChooseThisOrientationForNextTile(Orientation chosenOrientation, float x, float y) {
+        float nextTileXCandidate = x;
+        float nextTileYCandidate = y;
+        switch (chosenOrientation) {
+            case UP:
+                nextTileYCandidate = y - LocationUtil.TILE_SIZE;
+                break;
+            case DOWN:
+                nextTileYCandidate = y + LocationUtil.TILE_SIZE;
+                break;
+            case LEFT:
+                nextTileXCandidate = x - LocationUtil.TILE_SIZE;
+                break;
+            case RIGHT:
+                nextTileXCandidate = x + LocationUtil.TILE_SIZE;
+        }
+        switch (chosenOrientation) {
+            case UP:
+            case DOWN:
+                if ((LocationUtil.isTileAtBorder(x + LocationUtil.HALF_TILE_SIZE, y + LocationUtil.HALF_TILE_SIZE)
+                        || !LocationUtil.isTileAtBorder(x + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE))
+                        && zoneManager.isTileWalkable(x + LocationUtil.HALF_TILE_SIZE, nextTileYCandidate + LocationUtil.HALF_TILE_SIZE)) {
+                    return new Destination(x, nextTileYCandidate, chosenOrientation, true);
+                }
+                break;
+            case LEFT:
+            case RIGHT:
+                if ((LocationUtil.isTileAtBorder(x + LocationUtil.HALF_TILE_SIZE, y + LocationUtil.HALF_TILE_SIZE)
+                        || !LocationUtil.isTileAtBorder(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, y + LocationUtil.HALF_TILE_SIZE))
+                        && zoneManager.isTileWalkable(nextTileXCandidate + LocationUtil.HALF_TILE_SIZE, y + LocationUtil.HALF_TILE_SIZE)) {
+                    return new Destination(nextTileXCandidate, y, chosenOrientation, true);
+                }
+                break;
+        }
+        return new Destination(0, 0, Orientation.UP, false);
+    }
+
+    /**
+     * Choose the orientation according to link position
+     */
+    public Orientation chooseTurretOrientation(Enemy enemy) {
         Orientation orientation = Orientation.UP;
         float deltaX = enemy.x - linkManager.getLink().x;
         float deltaY = enemy.y - linkManager.getLink().y;
@@ -436,4 +620,11 @@ public class EnemyService {
         return orientation;
     }
 
+    /**
+     * One chance out of 2 to continue moving immediately
+     */
+    private float choosePauseBeforeNextTile() {
+        boolean doNotStay = (Math.random() < Enemy.PROBABILITY_TO_CONTINUE_MOVING);
+        return (doNotStay) ? 5f : Enemy.MIN_TIME_FOR_MOVING_PAUSE + ((Enemy.MAX_TIME_FOR_MOVING_PAUSE - Enemy.MIN_TIME_FOR_MOVING_PAUSE) * (float) Math.random());
+    }
 }

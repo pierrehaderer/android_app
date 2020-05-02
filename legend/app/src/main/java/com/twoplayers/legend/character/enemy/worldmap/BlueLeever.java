@@ -4,8 +4,6 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.character.enemy.MoveOnTileEnemy;
-import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -16,7 +14,7 @@ import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.Logger;
 
-public class BlueLeever extends MoveOnTileEnemy {
+public class BlueLeever extends Enemy {
 
     private static final float INITIAL_TIME_BEFORE_SPAWN = 100f;
     private static final float TIME_BEFORE_RESPAWN = 250f;
@@ -28,30 +26,26 @@ public class BlueLeever extends MoveOnTileEnemy {
     protected Animation moveAnimation;
     protected Animation despawnAnimation;
 
-    private boolean shouldInitialize;
-    private boolean isSpawning;
-    private boolean hasSpawned;
-    private float timeBeforeSpawn;
     private float timeBeforeDespawn;
-    protected float immobilisationCounter;
 
     /**
      * Constructor
      */
-    public BlueLeever(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
-        initAnimations(g);
-        shouldInitialize = true;
-        isActive = false;
+    public BlueLeever(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
+    }
+
+    @Override
+    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+        initAnimations(imagesEnemy, g);
+        nextTileX = x;
+        nextTileY = y;
         isSpawning = false;
         hasSpawned = false;
-        isLethal = false;
-        orientation = Orientation.UP;
-        timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
+        spawnCounter = INITIAL_TIME_BEFORE_SPAWN;
         timeBeforeDespawn = 0;
-        immobilisationCounter = 0;
         life = 3;
-        hitbox = new Hitbox(0, 0, 3, 3, 11, 11);
+        hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
         currentAnimation = spawnAnimation;
     }
@@ -59,7 +53,9 @@ public class BlueLeever extends MoveOnTileEnemy {
     /**
      * Initialise the move animations
      */
-    protected void initAnimations(Graphics g) {
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
+
         spawnAnimation = g.newAnimation();
         spawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         spawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
@@ -85,23 +81,12 @@ public class BlueLeever extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
         enemyService.handleEnemyIsPushed(this, deltaTime);
+        enemyService.handleEnemyIsStunned(this, deltaTime);
 
-        // Init
-        if (shouldInitialize) {
-            shouldInitialize = false;
-            nextTileX = x;
-            nextTileY = y;
-            Destination destination = enemyService.chooseNextNextTile(orientation, nextTileX, nextTileY);
-            nextNextTileX = destination.x;
-            nextNextTileY = destination.y;
-            nextOrientation = destination.orientation;
-        }
-
-        if (timeBeforeSpawn > 0) {
-            timeBeforeSpawn -= deltaTime;
+        if (spawnCounter > 0) {
+            spawnCounter -= deltaTime;
             moveEnemy(deltaTime * SPAWNING_SPEED);
         }
 
@@ -128,25 +113,19 @@ public class BlueLeever extends MoveOnTileEnemy {
                         timeBeforeDespawn = TIME_BEFORE_DESPAWN;
                     } else {
                         hasSpawned = false;
-                        timeBeforeSpawn = TIME_BEFORE_RESPAWN;
+                        spawnCounter = TIME_BEFORE_RESPAWN;
                     }
                 }
             }
-            if (isActive) {
-                if (immobilisationCounter > 0) {
-                    immobilisationCounter -= deltaTime;
-                    if (immobilisationCounter <= 0) {
-                        isLethal = true;
-                    }
-                } else {
-                    moveEnemy(deltaTime * SPEED);
-                    timeBeforeDespawn -= deltaTime;
-                    if (timeBeforeDespawn < 0) {
-                        despawnAnimation.reset();
-                        currentAnimation = despawnAnimation;
-                        isActive = false;
-                        isLethal = false;
-                    }
+
+            if (isActive && !isStunned) {
+                moveEnemy(deltaTime * SPEED);
+                timeBeforeDespawn -= deltaTime;
+                if (timeBeforeDespawn < 0) {
+                    despawnAnimation.reset();
+                    currentAnimation = despawnAnimation;
+                    isActive = false;
+                    isLethal = false;
                 }
             }
         }
@@ -156,17 +135,14 @@ public class BlueLeever extends MoveOnTileEnemy {
      * Move the enemy and find next tiles if needed
      */
     private void moveEnemy(float remainingMoves) {
-        remainingMoves = enemyService.goToNextTile(orientation, this, remainingMoves, nextTileX, nextTileY);
+        remainingMoves = enemyService.goToNextTile(this, remainingMoves);
         while (remainingMoves > 0) {
             Logger.debug("BlueLeever is on a new Tile (" + x + "," + y + ")");
-            nextTileX = nextNextTileX;
-            nextTileY = nextNextTileY;
-            orientation = nextOrientation;
-            Destination destination = enemyService.chooseNextNextTile(orientation, nextTileX, nextTileY);
-            nextNextTileX = destination.x;
-            nextNextTileY = destination.y;
-            nextOrientation = destination.orientation;
-            remainingMoves = enemyService.goToNextTile(orientation, this, remainingMoves, nextTileX, nextTileY);
+            Destination destination = enemyService.chooseNextTile(orientation, x, y);
+            nextTileX = destination.x;
+            nextTileY = destination.y;
+            orientation = destination.orientation;
+            remainingMoves = enemyService.goToNextTile(this, remainingMoves);
         }
     }
 
@@ -174,7 +150,7 @@ public class BlueLeever extends MoveOnTileEnemy {
      * Check if a blue leever can spawn
      */
     private boolean isPossibleToSpawn() {
-        if (timeBeforeSpawn > 0 || isSpawning || hasSpawned || isDead) {
+        if (spawnCounter > 0 || isSpawning || hasSpawned || isDead) {
             return false;
         }
         for (Enemy enemy : enemyManager.getEnemies()) {
@@ -187,28 +163,4 @@ public class BlueLeever extends MoveOnTileEnemy {
         }
         return true;
     }
-
-    @Override
-    public void isHitByBoomerang() {
-        soundEffectManager.play("enemy_wounded");
-        if (isActive) {
-            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isLethal = false;
-        }
-    }
-
-    @Override
-    public void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
-        super.isWounded(damage, hitbox, orientation);
-        if (life <= 0) {
-            isSpawning = false;
-            hasSpawned = false;
-        }
-    }
-
-    @Override
-    protected Animation getMoveAnimation() {
-        return moveAnimation;
-    }
-
 }

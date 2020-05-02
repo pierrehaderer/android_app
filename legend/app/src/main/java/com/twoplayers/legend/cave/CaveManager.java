@@ -39,7 +39,7 @@ public class CaveManager implements IZoneManager {
     private static final float INITIAL_BLINK_COUNTER = 20f;
 
     private boolean initNotDone = true;
-    private float immobilisationCounter;
+    private float stunCounter;
 
     private LinkManager linkManager;
     private GuiManager guiManager;
@@ -71,7 +71,7 @@ public class CaveManager implements IZoneManager {
         initCave(game, caveInfo);
         textCounter = 0;
         textSoundCounter = 0;
-        immobilisationCounter = INITIAL_IMMOBILISATION_COUNTER;
+        stunCounter = INITIAL_IMMOBILISATION_COUNTER;
         hasExitedZone = false;
         blinkCounter = 0;
     }
@@ -151,9 +151,9 @@ public class CaveManager implements IZoneManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (immobilisationCounter > 0) {
-            immobilisationCounter -= deltaTime;
-            if (immobilisationCounter <= 0) {
+        if (stunCounter > 0) {
+            stunCounter -= deltaTime;
+            if (stunCounter <= 0) {
                 if (cave.type == CaveType.PAYME) {
                     linkManager.removeRupees(20);
                 }

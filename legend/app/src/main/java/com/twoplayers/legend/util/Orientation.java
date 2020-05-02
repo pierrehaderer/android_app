@@ -26,6 +26,19 @@ public enum Orientation {
         this.angle = (float) angle;
     }
 
+    public static Orientation getRandomOrientation(double random) {
+        if (random < 0.25) {
+            return Orientation.UP;
+        }
+        if (random < 0.5) {
+            return Orientation.DOWN;
+        }
+        if (random < 0.75) {
+            return Orientation.LEFT;
+        }
+        return Orientation.RIGHT;
+    }
+
     public Orientation reverseOrientation() {
         switch (this) {
             case UP:

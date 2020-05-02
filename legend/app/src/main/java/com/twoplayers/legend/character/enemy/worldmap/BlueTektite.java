@@ -7,19 +7,18 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.EnemyService;
-import com.twoplayers.legend.character.enemy.EnemyUtil;
 import com.twoplayers.legend.character.link.LinkManager;
 
 public class BlueTektite extends Tektite {
 
-    public BlueTektite(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
+    public BlueTektite(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
     }
 
     @Override
-    protected void initAnimations(Graphics g) {
-        EnemyUtil enemyUtil = new EnemyUtil();
-        initAnimation = enemyUtil.getSlowCloudAnimation(imagesEnemy, g);
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        initialAnimation = enemyService.getSlowCloudAnimation(imagesEnemy, g);
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
 
         waitAnimation = g.newAnimation();
         waitAnimation.addFrame(imagesEnemy.get("blue_tektite_1"), AllImages.COEF, 26);

@@ -4,7 +4,6 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.character.enemy.MoveOnTileEnemy;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
@@ -17,32 +16,29 @@ import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
-public class RedLeever extends MoveOnTileEnemy {
+public class RedLeever extends Enemy {
 
     private static final float INITIAL_TIME_BEFORE_SPAWN = 100f;
     private static final float SPEED = 0.8f;
-
-    private boolean isSpawning;
-    private boolean hasSpawned;
-    private float timeBeforeSpawn;
-    private float immobilisationCounter;
 
     private Animation spawnAnimation;
     private Animation moveAnimation;
     private Animation despawnAnimation;
 
-    public RedLeever(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
-        initAnimations(g);
-        isActive = false;
+    public RedLeever(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
+    }
+
+    @Override
+    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+        initAnimations(imagesEnemy, g);
+        nextTileX = x;
+        nextTileY = y;
         isSpawning = false;
         hasSpawned = false;
-        isLethal = false;
-        orientation = Orientation.UP;
-        timeBeforeSpawn = INITIAL_TIME_BEFORE_SPAWN;
-        immobilisationCounter = 0;
+        spawnCounter = INITIAL_TIME_BEFORE_SPAWN;
         life = 2;
-        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        hitbox = new Hitbox(x, y, 3, 3, 10, 10);
         damage = -0.5f;
         currentAnimation = spawnAnimation;
     }
@@ -50,7 +46,9 @@ public class RedLeever extends MoveOnTileEnemy {
     /**
      * Initialise the move animations
      */
-    protected void initAnimations(Graphics g) {
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
+
         spawnAnimation = g.newAnimation();
         spawnAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         spawnAnimation.addFrame(imagesEnemy.get("leevers_1"), AllImages.COEF, 15);
@@ -72,13 +70,13 @@ public class RedLeever extends MoveOnTileEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
         enemyService.handleEnemyIsPushed(this, deltaTime);
+        enemyService.handleEnemyIsStunned(this, deltaTime);
 
         // Spawn in front of link
-        if (timeBeforeSpawn > 0) {
-            timeBeforeSpawn -= deltaTime;
+        if (spawnCounter > 0) {
+            spawnCounter -= deltaTime;
         }
         if (isPossibleToSpawn()) {
             Link link = linkManager.getLink();
@@ -126,15 +124,8 @@ public class RedLeever extends MoveOnTileEnemy {
                     }
                 }
             }
-            if (isActive) {
-                if (immobilisationCounter > 0) {
-                    immobilisationCounter -= deltaTime;
-                    if (immobilisationCounter <= 0) {
-                        isLethal = true;
-                    }
-                } else {
-                    moveEnemy(deltaTime * SPEED);
-                }
+            if (isActive && !isStunned) {
+                moveEnemy(deltaTime * SPEED);
             }
         }
     }
@@ -143,7 +134,7 @@ public class RedLeever extends MoveOnTileEnemy {
      * Check if a red leever can spawn
      */
     private boolean isPossibleToSpawn() {
-        if (timeBeforeSpawn > 0 || isSpawning || hasSpawned || isDead) {
+        if (spawnCounter > 0 || isSpawning || hasSpawned || isDead) {
             return false;
         }
         int leeversCount = 0;
@@ -270,26 +261,8 @@ public class RedLeever extends MoveOnTileEnemy {
     }
 
     @Override
-    public void isHitByBoomerang() {
-        soundEffectManager.play("enemy_wounded");
-        if (isActive) {
-            immobilisationCounter = Enemy.INITIAL_IMMOBILISATION_COUNTER;
-            isLethal = false;
-        }
-    }
-
-    @Override
     public void hasHitLink() {
         Logger.info("RedLeever has hit link, change its direction.");
         orientation = orientation.reverseOrientation();
-    }
-
-    @Override
-    public void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
-        super.isWounded(damage, hitbox, orientation);
-        if (life <= 0) {
-            isSpawning = false;
-            hasSpawned = false;
-        }
     }
 }

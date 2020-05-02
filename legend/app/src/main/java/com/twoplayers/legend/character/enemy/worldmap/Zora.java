@@ -8,50 +8,47 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.EnemyService;
-import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
-import com.twoplayers.legend.util.Orientation;
 
-public class Zora extends TurretEnemy {
+public class Zora extends Enemy {
 
     private static final float TIME_BEFORE_SPAWN = 200f;
     private static final float SPAWNING_TIME = 25f;
     private static final float DESPAWNING_TIME = 150f;
     private static final float TIME_BEFORE_ATTACK = 75f;
 
-    private boolean isSpawning;
-    private boolean hasSpawned;
-    private float spawnCounter;
-
-    private Animation animationInit;
     private Animation animationUp;
     private Animation animationDown;
 
-    public Zora(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
-        initAnimations(g);
-        isActive = false;
+    public Zora(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
+    }
+
+    @Override
+    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+        initAnimations(imagesEnemy, g);
         isSpawning = false;
         hasSpawned = false;
-        isLethal = false;
         spawnCounter = TIME_BEFORE_SPAWN;
         life = 2;
-        hitbox = new Hitbox(0, 0, 3, 3, 10, 10);
+        hitbox = new Hitbox(x, y, 3, 3, 10, 10);
         damage = -0.5f;
-        currentAnimation = animationInit;
-        orientation = Orientation.UP;
+        currentAnimation = initialAnimation;
     }
 
     /**
      * Initialise the move animations
      */
-    protected void initAnimations(Graphics g) {
-        animationInit = g.newAnimation();
-        animationInit.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
-        animationInit.setOccurrences(1);
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        initialAnimation = g.newAnimation();
+        initialAnimation.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
+        initialAnimation.setOccurrences(1);
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
+
         animationUp = g.newAnimation();
         animationUp.addFrame(imagesEnemy.get("empty"), AllImages.COEF, 10);
         animationUp.addFrame(imagesEnemy.get("zora_1"), AllImages.COEF, 15);
@@ -74,7 +71,6 @@ public class Zora extends TurretEnemy {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
 
         // Spawn in water
@@ -87,7 +83,7 @@ public class Zora extends TurretEnemy {
             x = spawnCoordinate.x;
             y = spawnCoordinate.y;
             hitbox.relocate(x, y);
-            orientation = enemyService.chooseOrientation(this);
+            orientation = enemyService.chooseTurretOrientation(this);
             isSpawning = true;
             currentAnimation = (y > linkManager.getLink().y - LocationUtil.TILE_SIZE) ? animationUp : animationDown;
             currentAnimation.reset();
@@ -125,14 +121,5 @@ public class Zora extends TurretEnemy {
     @Override
     public void isHitByBoomerang() {
         soundEffectManager.play("enemy_wounded");
-    }
-
-    @Override
-    public void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
-        super.isWounded(damage, hitbox, orientation);
-        if (life <= 0) {
-            isSpawning = false;
-            hasSpawned = false;
-        }
     }
 }

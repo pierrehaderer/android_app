@@ -9,7 +9,6 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.EnemyService;
-import com.twoplayers.legend.character.enemy.EnemyUtil;
 import com.twoplayers.legend.character.link.LinkManager;
 
 import java.util.HashMap;
@@ -22,19 +21,18 @@ public class BlueFastOctorok extends Octorok {
     /**
      * Constructor
      */
-    public BlueFastOctorok(IImagesEnemy i, SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es, Graphics g) {
-        super(i, s, z, l, e, es, g);
+    public BlueFastOctorok(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+        super(s, z, l, e, es);
         life = INITIAL_LIFE;
         speed = SPEED;
     }
 
     @Override
-    protected void initAnimations(Graphics g) {
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        initialAnimation = enemyService.getSlowCloudAnimation(imagesEnemy, g);
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
+
         moveAnimations = new HashMap<>();
-
-        EnemyUtil enemyUtil = new EnemyUtil();
-        moveAnimations.put(Orientation.INIT, enemyUtil.getSlowCloudAnimation(imagesEnemy, g));
-
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imagesEnemy.get("blue_octorok_up_1"), AllImages.COEF, 15);
         animationUp.addFrame(imagesEnemy.get("blue_octorok_up_2"), AllImages.COEF, 15);

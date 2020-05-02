@@ -3,10 +3,8 @@ package com.twoplayers.legend.character.enemy.cave;
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
-import com.twoplayers.legend.character.enemy.AttackingEnemy;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.Missile;
-import com.twoplayers.legend.character.enemy.TurretEnemy;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
@@ -46,11 +44,7 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void spawnMissile(AttackingEnemy enemy) {
-    }
-
-    @Override
-    public void spawnMissile(TurretEnemy enemy) {
+    public void spawnMissile(Enemy enemy) {
     }
 
     @Override

@@ -50,7 +50,7 @@ public class DungeonManager implements IZoneManager {
     private Map<DungeonDoorPlacement, DungeonDoor>[][] dungeonDoors;
 
     private boolean initNotDone = true;
-    private float immobilisationCounter;
+    private float stunCounter;
     private Dungeon dungeon;
     private boolean hasExitedZone;
 
@@ -85,7 +85,7 @@ public class DungeonManager implements IZoneManager {
             initNotDone = false;
             init(game);
         }
-        immobilisationCounter = INITIAL_IMMOBILISATION_COUNTER;
+        stunCounter = INITIAL_IMMOBILISATION_COUNTER;
 
         dungeon = new Dungeon(dungeonInfo);
         Location start = dungeonInfo.startLocation;
@@ -234,9 +234,9 @@ public class DungeonManager implements IZoneManager {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        if (immobilisationCounter > 0) {
-            immobilisationCounter -= deltaTime;
-            if (immobilisationCounter <= 0) {
+        if (stunCounter > 0) {
+            stunCounter -= deltaTime;
+            if (stunCounter <= 0) {
                 guiManager.activateButtons();
             }
         }
