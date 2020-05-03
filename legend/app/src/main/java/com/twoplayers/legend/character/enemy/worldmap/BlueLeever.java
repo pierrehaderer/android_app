@@ -154,7 +154,7 @@ public class BlueLeever extends Enemy {
             return false;
         }
         for (Enemy enemy : enemyManager.getEnemies()) {
-            if (enemy.getClass() == BlueLeever.class) {
+            if (enemy instanceof BlueLeever) {
                 BlueLeever blueLeever = (BlueLeever) enemy;
                 if (blueLeever.isSpawning) {
                     return false;

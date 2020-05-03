@@ -187,6 +187,6 @@ public abstract class Keese extends Enemy {
 
     @Override
     public void isHitByBoomerang() {
-        isWounded(1, new Hitbox(), Orientation.UP);
+        enemyService.handleEnemyIsWounded(this, 1, new Hitbox(), Orientation.UP);
     }
 }

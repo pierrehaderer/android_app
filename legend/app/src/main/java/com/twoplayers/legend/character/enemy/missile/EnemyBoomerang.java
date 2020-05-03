@@ -10,15 +10,17 @@ import com.twoplayers.legend.util.Orientation;
 
 import java.util.HashMap;
 
-public class Rock extends Missile {
+public class EnemyBoomerang extends Missile {
 
-    private static final float SPEED = 3f;
+    public static final float INITIAL_BOOMERANG_COUNTER = 85f;
+
+    public static final float INITIAL_SPEED = 4f;
     private static final float DAMAGE = -0.5f;
 
-    /**
-     * Constructor
-     */
-    public Rock(MissileService missileService) {
+    public float counter;
+    public boolean isMovingForward;
+
+    public EnemyBoomerang(MissileService missileService) {
         super(missileService);
     }
 
@@ -28,8 +30,10 @@ public class Rock extends Missile {
         hitbox = new Hitbox(x,y,0,0,8,8);
         isActive = true;
         damage = DAMAGE;
-        speed = SPEED;
+        speed = INITIAL_SPEED;
         isBlockedByObstacle = true;
+        counter = INITIAL_BOOMERANG_COUNTER;
+        isMovingForward = true;
         currentAnimation = animations.get(orientation);
     }
 
@@ -39,8 +43,14 @@ public class Rock extends Missile {
     public void initAnimations(IImagesEnemy imagesEnemyWorldMap, Graphics g) {
         Animation animation = g.newAnimation();
         animation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 5f);
-        animation.addFrame(imagesEnemyWorldMap.get("rock"), AllImages.COEF, 20f);
-        animation.setOccurrences(1);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_1"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_2"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_3"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_4"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_5"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_6"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_7"), AllImages.COEF, 4f);
+        animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_8"), AllImages.COEF, 4f);
         animations = new HashMap<>();
         animations.put(Orientation.UP, animation);
         animations.put(Orientation.DOWN, animation);
@@ -50,7 +60,13 @@ public class Rock extends Missile {
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        missileService.moveStraightMissile(this, deltaTime);
-        missileService.handleStraightMissileHits(this);
+        missileService.moveBoomerang(this, deltaTime);
+        missileService.handleBoomerangHits(this);
+        missileService.handleBoomerangBackToSender(this);
+    }
+
+    @Override
+    public void hasHitLink() {
+        isMovingForward = false;
     }
 }

@@ -6,7 +6,6 @@ import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangType;
 
 import java.util.HashMap;
 import java.util.Map;

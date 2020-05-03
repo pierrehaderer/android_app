@@ -5,12 +5,13 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.character.enemy.MissileService;
+import com.twoplayers.legend.character.enemy.missile.EnemyBoomerang;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
-import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.util.Orientation;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.image.ImagesEnemyDungeon;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
@@ -45,6 +46,7 @@ public class DungeonEnemyManager implements IEnemyManager {
     private ImagesEnemyDungeon imagesEnemyDungeon;
     private SoundEffectManager soundEffectManager;
     private EnemyService enemyService;
+    private MissileService missileService;
     private Graphics graphics;
 
     private Map<String, EnemyToSpawn[]> dungeonEnemies;
@@ -83,7 +85,8 @@ public class DungeonEnemyManager implements IEnemyManager {
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         graphics = game.getGraphics();
 
-        enemyService = new EnemyService(dungeonManager, linkManager, soundEffectManager);
+        enemyService = new EnemyService(dungeonManager, linkManager, this, soundEffectManager);
+        missileService = new MissileService(dungeonManager);
 
         initEnemyMap();
         initMissileMap();
@@ -106,6 +109,8 @@ public class DungeonEnemyManager implements IEnemyManager {
         enemyMap.put("BrownGel", BrownGel.class);
         enemyMap.put("GreyGel", GreyGel.class);
         enemyMap.put("BlackGel", BlackGel.class);
+        enemyMap.put("RedGoriya", RedGoriya.class);
+        enemyMap.put("BlueGoriya", BlueGoriya.class);
     }
 
     /**
@@ -113,6 +118,8 @@ public class DungeonEnemyManager implements IEnemyManager {
      */
     private void initMissileMap() {
         missileMap = new HashMap<>();
+        missileMap.put(RedGoriya.class, EnemyBoomerang.class);
+        missileMap.put(BlueGoriya.class, EnemyBoomerang.class);
     }
 
     /**
@@ -174,7 +181,7 @@ public class DungeonEnemyManager implements IEnemyManager {
                 cleanRequired = true;
             }
         }
-        missiles = enemyService.cleanMissiles(missiles, cleanRequired);
+        missiles = missileService.cleanMissiles(missiles, cleanRequired);
     }
 
     @Override
@@ -189,6 +196,12 @@ public class DungeonEnemyManager implements IEnemyManager {
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
             } else if (!enemy.currentAnimation.isOver()) {
                 g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
+            }
+        }
+        for (Missile missile: missiles) {
+            if (missile.isActive) {
+                g.drawAnimation(missile.currentAnimation, (int) missile.x, (int) missile.y);
+                g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
             }
         }
     }
@@ -219,18 +232,7 @@ public class DungeonEnemyManager implements IEnemyManager {
 
     @Override
     public void spawnMissile(Enemy enemy) {
-        try {
-            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
-            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
-            Missile missile = constructor.newInstance(imagesEnemyDungeon, dungeonManager, graphics);
-            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
-            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
-            missile.hitbox.relocate(missile.x, missile.y);
-            missile.defineOrientation(enemy.orientation);
-            missiles.add(missile);
-        } catch (Exception e) {
-            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
-        }
+        missiles.add(missileService.spawnMissile(imagesEnemyDungeon, graphics, enemy, missileMap.get(enemy.getClass())));
     }
 
     @Override
@@ -246,7 +248,16 @@ public class DungeonEnemyManager implements IEnemyManager {
 
     @Override
     public List<Missile> getMissiles() {
-        return new ArrayList<>();
+        return missiles;
+    }
+
+    @Override
+    public void enemyHasDied(Enemy enemy) {
+        for (Missile missile : missiles) {
+            if (missile instanceof EnemyBoomerang && missile.creator == enemy) {
+                missile.isActive = false;
+            }
+        }
     }
 
     @Override

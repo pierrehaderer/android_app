@@ -143,35 +143,28 @@ public abstract class Enemy {
      * This method is overridden if something special happens to the enemy
      */
     public void isHitBySword(Sword sword) {
-        isWounded(sword.getType().damage, sword.getHitbox(), sword.getOrientation());
+        enemyService.handleEnemyIsWounded(this, sword.getType().damage, sword.getHitbox(), sword.getOrientation());
     }
 
     /**
      * This method is overridden if something special happens to the enemy
      */
     public void isHitByArrow(Arrow arrow) {
-        isWounded(arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
+        enemyService.handleEnemyIsWounded(this, arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
     }
 
     /**
      * This method is overridden if something special happens to the enemy
      */
     public void isHitByBomb(Bomb bomb) {
-        isWounded(Bomb.DAMAGE, bomb.getHitbox(), Orientation.ANY);
+        enemyService.handleEnemyIsWounded(this, Bomb.DAMAGE, bomb.getHitbox(), Orientation.ANY);
     }
 
     /**
      * This method is overridden if something special happens to the enemy
      */
     public void isHitByFire(Fire fire) {
-        isWounded(Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
-    }
-
-    /**
-     * This method is overridden if something special happens to the enemy
-     */
-    protected void isWounded(int damage, Hitbox hitbox, Orientation orientation) {
-        enemyService.handleEnemyIsWounded(this, damage, hitbox, orientation);
+        enemyService.handleEnemyIsWounded(this, Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
     }
 
     /**

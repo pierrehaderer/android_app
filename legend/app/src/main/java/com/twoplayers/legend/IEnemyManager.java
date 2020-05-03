@@ -1,7 +1,7 @@
 package com.twoplayers.legend;
 
 import com.twoplayers.legend.character.enemy.Enemy;
-import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
@@ -20,6 +20,8 @@ public interface IEnemyManager extends IManager {
     List<Enemy> getEnemies();
     /** Get missiles */
     List<Missile> getMissiles();
+    /** Inform that an enemy has died */
+    void enemyHasDied(Enemy enemy);
     /** Enemy has been damaged */
     void isHitBySword(Enemy enemy, Sword sword);
     /** Enemy has been hit by boomerang */

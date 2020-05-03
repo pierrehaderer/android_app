@@ -2,6 +2,7 @@ package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
+import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
@@ -14,9 +15,7 @@ import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Destination;
 import com.twoplayers.legend.util.LocationUtil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EnemyService {
@@ -29,6 +28,7 @@ public class EnemyService {
 
     private IZoneManager zoneManager;
     private LinkManager linkManager;
+    private IEnemyManager enemyManager;
     private SoundEffectManager soundEffectManager;
 
     private static Map<Orientation, Orientation[][]> directionTree;
@@ -36,10 +36,11 @@ public class EnemyService {
     /**
      * Constructor
      */
-    public EnemyService(IZoneManager zoneManager, LinkManager linkManager, SoundEffectManager soundEffectManager) {
+    public EnemyService(IZoneManager zoneManager, LinkManager linkManager, IEnemyManager enemyManager, SoundEffectManager soundEffectManager) {
         this.zoneManager = zoneManager;
-        this.soundEffectManager = soundEffectManager;
         this.linkManager = linkManager;
+        this.enemyManager = enemyManager;
+        this.soundEffectManager = soundEffectManager;
         initDirectionTree();
     }
 
@@ -174,22 +175,6 @@ public class EnemyService {
     }
 
     /**
-     * Remove the missiles that are not active anymore
-     */
-    public List<Missile> cleanMissiles(List<Missile> missiles, boolean cleanRequired) {
-        if (cleanRequired) {
-            List<Missile> newMissiles = new ArrayList<>();
-            for (Missile missile : missiles) {
-                if (missile.isActive) {
-                    newMissiles.add(missile);
-                }
-            }
-            return newMissiles;
-        }
-        return missiles;
-    }
-
-    /**
      * Handle when enemy appears
      */
     public void handleEnemyAppears(Enemy enemy, float deltaTime) {
@@ -221,6 +206,7 @@ public class EnemyService {
                 enemy.isDead = true;
                 soundEffectManager.play("enemy_dies");
                 enemy.currentAnimation = enemy.deathAnimation;
+                enemyManager.enemyHasDied(enemy);
             } else {
                 enemy.isInvincible = true;
                 enemy.invicibleCounter = Enemy.INITIAL_INVINCIBLE_COUNTER;
@@ -332,7 +318,7 @@ public class EnemyService {
         if (!enemy.isDead && enemy.isAttacking && !enemy.isStunned) {
             enemy.timeBeforeAttack -= deltaTime;
             if (enemy.timeBeforeAttack < 0) {
-                Logger.info("Octorok is attacking (" + enemy.x + "," + enemy.y + ")");
+                Logger.info("Enemy is attacking (" + enemy.x + "," + enemy.y + ")");
                 enemy.isAttacking = false;
                 enemy.enemyManager.spawnMissile(enemy);
                 enemy.timeBeforeAttack = chooseTimeBeforeAttack(Enemy.MIN_TIME_BEFORE_ATTACK, Enemy.MAX_TIME_BEFORE_ATTACK);
@@ -340,6 +326,19 @@ public class EnemyService {
         }
     }
 
+    /**
+     * Handle when the enemy is attacking
+     */
+    public void handleEnemyIsAttackingWithBoomerang(Enemy enemy, float deltaTime) {
+        if (!enemy.isDead && enemy.isAttacking && !enemy.isStunned) {
+            enemy.timeBeforeAttack -= deltaTime;
+            if (enemy.timeBeforeAttack < 0) {
+                Logger.info("Enemy is attacking (" + enemy.x + "," + enemy.y + ")");
+                enemy.enemyManager.spawnMissile(enemy);
+                enemy.timeBeforeAttack = chooseTimeBeforeAttack(Enemy.MIN_TIME_BEFORE_ATTACK, Enemy.MAX_TIME_BEFORE_ATTACK);
+            }
+        }
+    }
     /**
      * Randomly choose a duration before the next attack
      */
@@ -350,9 +349,9 @@ public class EnemyService {
     /**
      * Handle when the attacking enemy is moving
      */
-    public void handleAttackingEnemyIsMoving(Enemy enemy, float deltaTime) {
+    public void handleAttackingEnemyIsMoving(Enemy enemy, float deltaTime, float pauseBeforeAttack) {
         if (!enemy.isDead && enemy.isActive && !enemy.isAttacking && !enemy.isStunned) {
-            if (enemy.timeBeforeAttack > Enemy.PAUSE_BEFORE_ATTACK) {
+            if (enemy.timeBeforeAttack > pauseBeforeAttack) {
                 enemy.timeBeforeAttack -= deltaTime;
             }
             float remainingMoves = deltaTime * enemy.speed;
@@ -364,7 +363,7 @@ public class EnemyService {
                 enemy.orientation = destination.orientation;
                 enemy.currentAnimation = enemy.moveAnimations.get(enemy.orientation);
             }
-            if (enemy.timeBeforeAttack <= Enemy.PAUSE_BEFORE_ATTACK) {
+            if (enemy.timeBeforeAttack <= pauseBeforeAttack) {
                 // The enemy wants to attack check its position first : on tile or half tile only
                 if (remainingMoves > 0
                         || Math.abs(LocationUtil.HALF_TILE_SIZE - LocationUtil.getDeltaX(enemy.x)) < EnemyService.ATTACK_TOLERANCE

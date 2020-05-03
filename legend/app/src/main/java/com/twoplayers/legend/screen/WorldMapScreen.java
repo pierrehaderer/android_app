@@ -45,7 +45,7 @@ public class WorldMapScreen extends Screen {
         musicManager.update(deltaTime, game.getGraphics());
         if (linkManager.hasFinishedEnteringSomewhere()) {
             EntranceInfo entranceInfo = worldMapManager.getCave();
-            if (entranceInfo.getClass() == DungeonInfo.class) {
+            if (entranceInfo instanceof DungeonInfo) {
                 game.setScreen(new DungeonLoadingScreen(game, (DungeonInfo) entranceInfo));
             } else {
                 game.setScreen(new CaveLoadingScreen(game, (CaveInfo) entranceInfo));

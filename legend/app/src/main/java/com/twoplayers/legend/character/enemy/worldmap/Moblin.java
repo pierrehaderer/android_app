@@ -40,7 +40,7 @@ public abstract class Moblin extends Enemy {
         enemyService.handleEnemyIsPushed(this, deltaTime);
         enemyService.handleEnemyIsStunned(this, deltaTime);
         enemyService.handleEnemyIsAttacking(this, deltaTime);
-        enemyService.handleAttackingEnemyIsMoving(this, deltaTime);
+        enemyService.handleAttackingEnemyIsMoving(this, deltaTime, Enemy.PAUSE_BEFORE_ATTACK);
         if (isActive) currentAnimation.update(deltaTime);
     }
 }

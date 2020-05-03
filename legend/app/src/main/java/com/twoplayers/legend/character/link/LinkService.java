@@ -3,7 +3,7 @@ package com.twoplayers.legend.character.link;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
-import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.MusicManager;

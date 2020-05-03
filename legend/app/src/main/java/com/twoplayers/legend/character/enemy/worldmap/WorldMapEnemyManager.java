@@ -5,9 +5,10 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
+import com.twoplayers.legend.character.enemy.MissileService;
 import com.twoplayers.legend.character.enemy.missile.EnemyArrow;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
-import com.twoplayers.legend.character.enemy.Missile;
+import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.enemy.missile.Plasma;
 import com.twoplayers.legend.character.enemy.missile.Rock;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
@@ -46,6 +47,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
     private ImagesEnemyWorldMap imagesEnemyWorldMap;
     private SoundEffectManager soundEffectManager;
     private EnemyService enemyService;
+    private MissileService missileService;
     private Graphics graphics;
 
     private Map<String, EnemyToSpawn[]> worldMapEnemies;
@@ -84,7 +86,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         graphics = game.getGraphics();
 
-        enemyService = new EnemyService(worldMapManager, linkManager, soundEffectManager);
+        enemyService = new EnemyService(worldMapManager, linkManager, this, soundEffectManager);
+        missileService = new MissileService(worldMapManager);
 
         initEnemyMap();
         initMissileMap();
@@ -181,7 +184,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
                 cleanRequired = true;
             }
         }
-        missiles = enemyService.cleanMissiles(missiles, cleanRequired);
+        missiles = missileService.cleanMissiles(missiles, cleanRequired);
     }
 
     @Override
@@ -232,18 +235,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
     @Override
     public void spawnMissile(Enemy enemy) {
-        try {
-            Class<? extends Missile> missileClass = missileMap.get(enemy.getClass());
-            Constructor<? extends Missile> constructor = missileClass.getConstructor(IImagesEnemy.class, IZoneManager.class, Graphics.class);
-            Missile missile = constructor.newInstance(imagesEnemyWorldMap, worldMapManager, graphics);
-            missile.x = enemy.x + LocationUtil.QUARTER_TILE_SIZE;
-            missile.y = enemy.y + LocationUtil.QUARTER_TILE_SIZE;
-            missile.hitbox.relocate(missile.x, missile.y);
-            missile.defineOrientation(enemy.orientation);
-            missiles.add(missile);
-        } catch (Exception e) {
-            Logger.error("Could not create missile with enemy " + enemy.getClass().getSimpleName() + " : " + e.getMessage());
-        }
+        missiles.add(missileService.spawnMissile(imagesEnemyWorldMap, graphics, enemy, missileMap.get(enemy.getClass())));
     }
 
     @Override
@@ -260,6 +252,10 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public List<Missile> getMissiles() {
         return missiles;
+    }
+
+    @Override
+    public void enemyHasDied(Enemy enemy) {
     }
 
     @Override

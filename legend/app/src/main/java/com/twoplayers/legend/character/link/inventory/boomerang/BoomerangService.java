@@ -163,8 +163,8 @@ public class BoomerangService {
                 soundEffectManager.play("boomerang");
                 boomerang.soundCounter = Boomerang.INITIAL_SOUND_COUNTER;
             }
-            float deltaX = link.x + LocationUtil.HALF_TILE_SIZE / 2 - boomerang.x;
-            float deltaY = link.y + LocationUtil.HALF_TILE_SIZE / 2 - boomerang.y;
+            float deltaX = link.x + LocationUtil.QUARTER_TILE_SIZE - boomerang.x;
+            float deltaY = link.y + LocationUtil.QUARTER_TILE_SIZE - boomerang.y;
             float ratioX = 0.5f;
             float ratioY = 0.5f;
             if (deltaX != 0 || deltaY != 0) {
