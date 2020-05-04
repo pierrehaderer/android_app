@@ -40,8 +40,6 @@ public class BlueLeever extends Enemy {
         initAnimations(imagesEnemy, g);
         nextTileX = x;
         nextTileY = y;
-        isSpawning = false;
-        hasSpawned = false;
         spawnCounter = INITIAL_TIME_BEFORE_SPAWN;
         timeBeforeDespawn = 0;
         life = 3;

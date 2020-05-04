@@ -12,7 +12,6 @@ import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.EnemyService;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.util.Destination;
 
 import java.util.HashMap;
 
@@ -60,7 +59,6 @@ public class Stalfos extends Enemy {
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
         enemyService.handleEnemyIsPushed(this, deltaTime);
         enemyService.handleEnemyIsStunned(this, deltaTime);
-        enemyService.handleEnemyIsAttacking(this, deltaTime);
         enemyService.handleEnemyIsMoving(this, deltaTime);
         if (isActive) currentAnimation.update(deltaTime);
     }

@@ -186,6 +186,12 @@ public class DungeonEnemyManager implements IEnemyManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
+        for (Missile missile: missiles) {
+            if (missile.isActive) {
+                g.drawAnimation(missile.currentAnimation, (int) missile.x, (int) missile.y);
+                g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
+            }
+        }
         for (Enemy enemy : enemies) {
             if (!enemy.isDead) {
                 if (enemy.isInvincible()) {
@@ -196,12 +202,6 @@ public class DungeonEnemyManager implements IEnemyManager {
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
             } else if (!enemy.currentAnimation.isOver()) {
                 g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));
-            }
-        }
-        for (Missile missile: missiles) {
-            if (missile.isActive) {
-                g.drawAnimation(missile.currentAnimation, (int) missile.x, (int) missile.y);
-                g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
             }
         }
     }

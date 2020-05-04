@@ -34,8 +34,6 @@ public class RedLeever extends Enemy {
         initAnimations(imagesEnemy, g);
         nextTileX = x;
         nextTileY = y;
-        isSpawning = false;
-        hasSpawned = false;
         spawnCounter = INITIAL_TIME_BEFORE_SPAWN;
         life = 2;
         hitbox = new Hitbox(x, y, 3, 3, 10, 10);

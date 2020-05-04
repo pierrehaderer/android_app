@@ -7,6 +7,7 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.enemy.MissileService;
 import com.twoplayers.legend.character.enemy.missile.EnemyArrow;
+import com.twoplayers.legend.character.enemy.missile.EnemySword;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.enemy.missile.Plasma;
@@ -111,6 +112,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyMap.put("RedMoblin", RedMoblin.class);
         enemyMap.put("BlueMoblin", BlueMoblin.class);
         enemyMap.put("Zora", Zora.class);
+        enemyMap.put("RedLynel", RedLynel.class);
+        enemyMap.put("BlueLynel", BlueLynel.class);
     }
 
     /**
@@ -125,6 +128,8 @@ public class WorldMapEnemyManager implements IEnemyManager {
         missileMap.put(Zora.class, Plasma.class);
         missileMap.put(RedMoblin.class, EnemyArrow.class);
         missileMap.put(BlueMoblin.class, EnemyArrow.class);
+        missileMap.put(RedLynel.class, EnemySword.class);
+        missileMap.put(BlueLynel.class, EnemySword.class);
     }
 
     /**
@@ -189,6 +194,12 @@ public class WorldMapEnemyManager implements IEnemyManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
+        for (Missile missile: missiles) {
+            if (missile.isActive) {
+                g.drawAnimation(missile.currentAnimation, (int) missile.x, (int) missile.y);
+                g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
+            }
+        }
         for (Enemy enemy : enemies) {
             if (!enemy.isDead) {
                 if (enemy.isInvincible()) {
@@ -199,12 +210,6 @@ public class WorldMapEnemyManager implements IEnemyManager {
                 g.drawRect((int) enemy.hitbox.x, (int) enemy.hitbox.y, (int) enemy.hitbox.width, (int) enemy.hitbox.height, Hitbox.COLOR);
             } else if (!enemy.currentAnimation.isOver()) {
                 g.drawAnimation(enemy.currentAnimation, (int) enemy.x, (int) enemy.y);
-            }
-        }
-        for (Missile missile: missiles) {
-            if (missile.isActive) {
-                g.drawAnimation(missile.currentAnimation, (int) missile.x, (int) missile.y);
-                g.drawRect((int) missile.hitbox.x, (int) missile.hitbox.y, (int) missile.hitbox.width, (int) missile.hitbox.height, Hitbox.COLOR);
             }
         }
     }

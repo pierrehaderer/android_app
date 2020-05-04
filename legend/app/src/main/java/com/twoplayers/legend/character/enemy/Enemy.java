@@ -112,12 +112,18 @@ public abstract class Enemy {
         pushY = 0;
         pushCounter = 0;
 
+        timeBeforeAttack = 0;
+        isAttacking = false;
+
         hasBeenStunned = false;
         isStunned = false;
         stunCounter = 0;
 
-        isAttacking = false;
-        timeBeforeAttack = 0;
+        isSpawning = false;
+        hasSpawned = false;
+        spawnCounter = 0;
+
+
     }
 
     /**

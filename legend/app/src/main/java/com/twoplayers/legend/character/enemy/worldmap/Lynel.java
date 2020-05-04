@@ -10,9 +10,12 @@ import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.EnemyService;
 import com.twoplayers.legend.character.link.LinkManager;
 
-public abstract class Octorok extends Enemy {
+public abstract class Lynel extends Enemy {
 
-    public Octorok(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+    private static final float MIN_TIME_BEFORE_LYNEL_ATTACK = 200f;
+    private static final float MAX_TIME_BEFORE_LYNEL_ATTACK = 400f;
+
+    public Lynel(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
         super(s, z, l, e, es);
     }
 
@@ -22,7 +25,7 @@ public abstract class Octorok extends Enemy {
         nextTileX = x;
         nextTileY = y;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
-        timeBeforeAttack = enemyService.chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
+        timeBeforeAttack = 0;
         hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
         currentAnimation = initialAnimation;
@@ -39,7 +42,7 @@ public abstract class Octorok extends Enemy {
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
         enemyService.handleEnemyIsPushed(this, deltaTime);
         enemyService.handleEnemyIsStunned(this, deltaTime);
-        enemyService.handleEnemyIsAttacking(this, deltaTime, MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
+        enemyService.handleEnemyIsAttacking(this, deltaTime, MIN_TIME_BEFORE_LYNEL_ATTACK, MAX_TIME_BEFORE_LYNEL_ATTACK);
         enemyService.handleAttackingEnemyIsMoving(this, deltaTime, Enemy.PAUSE_BEFORE_ATTACK);
         if (isActive) currentAnimation.update(deltaTime);
     }

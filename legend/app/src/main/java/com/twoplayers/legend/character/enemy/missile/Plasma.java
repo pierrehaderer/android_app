@@ -35,7 +35,6 @@ public class Plasma extends Missile {
      */
     public void initAnimations(IImagesEnemy imagesEnemyWorldMap, Graphics g) {
         Animation animation = g.newAnimation();
-        animation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 5f);
         animation.addFrame(imagesEnemyWorldMap.get("plasma_1"), AllImages.COEF, 5f);
         animation.addFrame(imagesEnemyWorldMap.get("plasma_2"), AllImages.COEF, 5f);
         animation.addFrame(imagesEnemyWorldMap.get("plasma_3"), AllImages.COEF, 5f);

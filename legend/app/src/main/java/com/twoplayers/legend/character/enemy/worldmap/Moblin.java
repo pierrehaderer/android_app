@@ -39,7 +39,7 @@ public abstract class Moblin extends Enemy {
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
         enemyService.handleEnemyIsPushed(this, deltaTime);
         enemyService.handleEnemyIsStunned(this, deltaTime);
-        enemyService.handleEnemyIsAttacking(this, deltaTime);
+        enemyService.handleEnemyIsAttacking(this, deltaTime, MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         enemyService.handleAttackingEnemyIsMoving(this, deltaTime, Enemy.PAUSE_BEFORE_ATTACK);
         if (isActive) currentAnimation.update(deltaTime);
     }

@@ -314,14 +314,14 @@ public class EnemyService {
     /**
      * Handle when the enemy is attacking
      */
-    public void handleEnemyIsAttacking(Enemy enemy, float deltaTime) {
+    public void handleEnemyIsAttacking(Enemy enemy, float deltaTime, float minTime, float maxTime) {
         if (!enemy.isDead && enemy.isAttacking && !enemy.isStunned) {
             enemy.timeBeforeAttack -= deltaTime;
             if (enemy.timeBeforeAttack < 0) {
                 Logger.info("Enemy is attacking (" + enemy.x + "," + enemy.y + ")");
                 enemy.isAttacking = false;
                 enemy.enemyManager.spawnMissile(enemy);
-                enemy.timeBeforeAttack = chooseTimeBeforeAttack(Enemy.MIN_TIME_BEFORE_ATTACK, Enemy.MAX_TIME_BEFORE_ATTACK);
+                enemy.timeBeforeAttack = chooseTimeBeforeAttack(minTime, maxTime);
             }
         }
     }
