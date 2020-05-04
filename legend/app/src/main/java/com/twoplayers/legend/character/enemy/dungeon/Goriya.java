@@ -42,7 +42,7 @@ public abstract class Goriya extends Enemy {
             enemyService.handleEnemyIsPushed(this, deltaTime);
             enemyService.handleAttackingEnemyIsMoving(this, deltaTime, 0);
         }
-        enemyService.handleEnemyIsAttackingWithBoomerang(this, deltaTime);
+        enemyService.handleEnemyIsAttackingWithBoomerang(this, deltaTime, MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         if (isActive) currentAnimation.update(deltaTime);
     }
 }
