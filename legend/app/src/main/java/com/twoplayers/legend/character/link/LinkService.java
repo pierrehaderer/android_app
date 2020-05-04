@@ -68,6 +68,7 @@ public class LinkService {
                 // Check if link is entering somewhere
                 checkAndInitDoorEntering(link);
                 checkStairsEntering(link);
+                checkBombHoleEntering(link);
             }
             if (guiManager.isDownPressed() && guiManager.areButtonsActivated() && zoneManager.upAndDownAuthorized(link)) {
                 link.orientation = Orientation.DOWN;
@@ -90,6 +91,7 @@ public class LinkService {
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
+                checkBombHoleEntering(link);
             }
             if (guiManager.isLeftPressed() && guiManager.areButtonsActivated() && zoneManager.leftAndRightAuthorized(link) && linkHasNotMovedYet) {
                 link.orientation = Orientation.LEFT;
@@ -111,6 +113,7 @@ public class LinkService {
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
+                checkBombHoleEntering(link);
             }
             if (guiManager.isRightPressed() && guiManager.areButtonsActivated() && zoneManager.leftAndRightAuthorized(link) && linkHasNotMovedYet) {
                 link.orientation = Orientation.RIGHT;
@@ -131,6 +134,7 @@ public class LinkService {
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
+                checkBombHoleEntering(link);
             }
         }
     }
@@ -309,6 +313,21 @@ public class LinkService {
             link.isPushed = false;
             link.isAttacking = false;
             link.isInvincible = false;
+        }
+    }
+
+    /**
+     * Check if entering a cave and set the variables to make link enter a cave
+     */
+    private void checkBombHoleEntering(Link link) {
+        if (zoneManager.isTileABombHole(link.x + LocationUtil.QUARTER_TILE_SIZE, link.y + 3 * LocationUtil.QUARTER_TILE_SIZE)
+            || zoneManager.isTileABombHole(link.x + 3 * LocationUtil.QUARTER_TILE_SIZE, link.y + 3 * LocationUtil.QUARTER_TILE_SIZE)) {
+            Logger.info("Link is entering a bomb hole.");
+            linkManager.hideItemsAndEffects();
+            link.isPushed = false;
+            link.isAttacking = false;
+            link.isInvincible = false;
+            zoneManager.changeRoom(link.orientation);
         }
     }
 

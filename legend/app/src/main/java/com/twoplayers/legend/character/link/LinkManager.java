@@ -103,7 +103,7 @@ public class LinkManager implements IManager {
 
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
-        link.boomerang.type = BoomerangType.WOOD;
+        link.boomerang.type = BoomerangType.NONE;
         link.bomb = new Bomb(imagesLink, game.getGraphics());
         link.bombCloud = new BombCloud(imagesLink, game.getGraphics());
         link.bombQuantity = 0;
@@ -236,15 +236,17 @@ public class LinkManager implements IManager {
     /**
      * Ask LinkManager to move link
      */
-    public void moveLinkX(float deltaX) {
+    public void moveLinkX(float deltaX, boolean withAnimation) {
         linkService.moveLinkX(link, deltaX);
+        if (withAnimation) link.currentAnimation.update(Math.abs(deltaX) / Link.SPEED);
     }
 
     /**
      * Ask LinkManager to move link
      */
-    public void moveLinkY(float deltaY) {
+    public void moveLinkY(float deltaY, boolean withAnimation) {
         linkService.moveLinkY(link, deltaY);
+        if (withAnimation) link.currentAnimation.update(Math.abs(deltaY) / Link.SPEED);
     }
 
     /**

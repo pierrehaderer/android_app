@@ -87,8 +87,7 @@ public class BombService {
             bomb.timeBeforeExplosion -= deltaTime;
             if (bomb.timeBeforeExplosion < 0) {
                 soundEffectManager.play("bomb");
-                zoneManager.bombBlink();
-                zoneManager.openHiddenEntrance(bomb.hitbox, EntranceInfo.WALL);
+                zoneManager.bombHasExploded(bomb);
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.bomb.hitbox, enemy.getHitbox())) {
                         Logger.info("Link has hit enemy with bomb.");

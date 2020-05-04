@@ -4,6 +4,8 @@ import com.kilobolt.framework.Image;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Orientation;
 
@@ -16,6 +18,8 @@ public interface IZoneManager extends IManager {
     boolean isTileADoor(float x, float y);
     /** Check if a tile is stairs */
     boolean isTileStairs(float x, float y);
+    /** Check if a tile is a bomb hole */
+    boolean isTileABombHole(float x, float y);
     /** Check if a door is in front of link */
     boolean checkKeyDoor(Orientation orientation, float x, float y);
     /** Open the door in front of link */
@@ -53,7 +57,7 @@ public interface IZoneManager extends IManager {
     /** Find spawnable corrdinate for an water enemy */
     Coordinate findSpawnableCoordinateInWater();
     /** Burn the bushes under the fire if any */
-    void openHiddenEntrance(Hitbox hitbox, int entranceType);
-    /** Make the screen blink when a bomb explode */
-    void bombBlink();
+    void fireHasJustFinished(Fire fire);
+    /** Inform that a bomb has exploded */
+    void bombHasExploded(Bomb bomb);
 }

@@ -6,7 +6,9 @@ import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.assets.save.SaveManager;
-import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesDungeon;
@@ -42,6 +44,7 @@ public class DungeonManager implements IZoneManager {
     private LinkManager linkManager;
     private DungeonEnemyManager dungeonEnemyManager;
     private MusicManager musicManager;
+    private SoundEffectManager soundEffectManager;
     private SaveManager saveManager;
 
     /** dungeonRooms that represent the whole dungeon in this game */
@@ -49,7 +52,7 @@ public class DungeonManager implements IZoneManager {
     private Boolean[][] exploredRooms;
     private Map<DungeonDoorPlacement, DungeonDoor>[][] dungeonDoors;
 
-    private boolean initNotDone = true;
+    private boolean shouldInitialize = true;
     private float stunCounter;
     private Dungeon dungeon;
     private boolean hasExitedZone;
@@ -74,15 +77,14 @@ public class DungeonManager implements IZoneManager {
     private DoorCache currentDoorCache;
     private DoorCache nextDoorCache;
 
-    private float blinkCounter;
     private ColorMatrixZone colorMatrix;
 
     /**
      * Load this manager
      */
     public void load(Game game, DungeonInfo dungeonInfo) {
-        if (initNotDone) {
-            initNotDone = false;
+        if (shouldInitialize) {
+            shouldInitialize = false;
             init(game);
         }
         stunCounter = INITIAL_IMMOBILISATION_COUNTER;
@@ -125,6 +127,7 @@ public class DungeonManager implements IZoneManager {
         linkManager = ((MainActivity) game).getLinkManager();
         dungeonEnemyManager = ((MainActivity) game).getDungeonEnemyManager();
         musicManager = ((MainActivity) game).getMusicManager();
+        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         saveManager = ((MainActivity) game).getSaveManager();
 
         imagesDungeon = ((MainActivity) game).getAllImages().getImagesDungeon();
@@ -132,7 +135,6 @@ public class DungeonManager implements IZoneManager {
 
         DungeonTile.initHashMap();
 
-        blinkCounter = 0;
         colorMatrix = new ColorMatrixZone();
     }
 
@@ -200,34 +202,10 @@ public class DungeonManager implements IZoneManager {
                         dungeonDoor.isOpen = true;
                     } else {
                         // Make the door not walkable
-                        updateDungeonRoomsWithClosedDoor(abscissa, ordinate, placement, type);
+                        updateDungeonRoomsWithDoorClosed(abscissa, ordinate, placement, type);
                     }
                     dungeonDoors[abscissa][ordinate].put(placement, dungeonDoor);
                 }
-            }
-        }
-    }
-
-    /**
-     * Update the rooms to make the closed doors not walkable
-     */
-    private void updateDungeonRoomsWithClosedDoor(int abscissa, int ordinate, DungeonDoorPlacement placement, DungeonDoorType type) {
-        if (type == DungeonDoorType.KEY || type == DungeonDoorType.NO_MORE_ENEMY || type == DungeonDoorType.PUSH) {
-            switch (placement) {
-                case UP:
-                    dungeonRooms[abscissa][ordinate].changeTile(7, 1, DungeonTile.CLOSED_DOOR_LEFT);
-                    dungeonRooms[abscissa][ordinate].changeTile(8, 1, DungeonTile.CLOSED_DOOR_RIGHT);
-                    break;
-                case DOWN:
-                    dungeonRooms[abscissa][ordinate].changeTile(7, 9, DungeonTile.CLOSED_DOOR_LEFT);
-                    dungeonRooms[abscissa][ordinate].changeTile(8, 9, DungeonTile.CLOSED_DOOR_RIGHT);
-                    break;
-                case LEFT:
-                    dungeonRooms[abscissa][ordinate].changeTile(1, 5, DungeonTile.CLOSED_DOOR);
-                    break;
-                case RIGHT:
-                    dungeonRooms[abscissa][ordinate].changeTile(14, 5, DungeonTile.CLOSED_DOOR);
-                    break;
             }
         }
     }
@@ -241,7 +219,25 @@ public class DungeonManager implements IZoneManager {
             }
         }
         if (transitionRunning) {
-            if (transitionCount> 0) {
+            if (transitionSteps > 2 * LocationUtil.TILE_SIZE) {
+                // This transition is through a bomb hole so first, link is moving into the hole
+                float transitionStep = Math.min(deltaTime * Link.SPEED, transitionSteps - 2 * LocationUtil.TILE_SIZE);
+                transitionSteps -= transitionStep;
+                switch (transitionOrientation) {
+                    case UP:
+                        linkManager.moveLinkY(-1 * transitionStep, true);
+                        break;
+                    case DOWN:
+                        linkManager.moveLinkY(transitionStep, true);
+                        break;
+                    case LEFT:
+                        linkManager.moveLinkX(-1 * transitionStep, true);
+                        break;
+                    case RIGHT:
+                        linkManager.moveLinkX(transitionStep, true);
+                        break;
+                }
+            } else if (transitionCount > 0) {
                 float transitionDelta = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
                 transitionCount -= transitionDelta;
                 switch (transitionOrientation) {
@@ -249,42 +245,43 @@ public class DungeonManager implements IZoneManager {
                         topCurrentRoom += transitionDelta;
                         topNextRoom += transitionDelta;
                         currentMiniOrdinate -= transitionDelta * 16 / LocationUtil.WIDTH_MAP;
-                        linkManager.moveLinkY(transitionDelta);
+                        linkManager.moveLinkY(transitionDelta, false);
                         break;
                     case DOWN:
                         topCurrentRoom -= transitionDelta;
                         topNextRoom -= transitionDelta;
                         currentMiniOrdinate += transitionDelta * 16 / LocationUtil.WIDTH_MAP;
-                        linkManager.moveLinkY(-1 * transitionDelta);
+                        linkManager.moveLinkY(-1 * transitionDelta, false);
                     break;
                     case LEFT:
                         leftCurrentRoom += transitionDelta;
                         leftNextRoom += transitionDelta;
                         currentMiniAbscissa -= transitionDelta * 16 / LocationUtil.WIDTH_MAP;
-                        linkManager.moveLinkX(transitionDelta);
+                        linkManager.moveLinkX(transitionDelta, false);
                     break;
                     case RIGHT:
                         leftCurrentRoom -= transitionDelta;
                         leftNextRoom -= transitionDelta;
                         currentMiniAbscissa += transitionDelta * 16 / LocationUtil.WIDTH_MAP;
-                        linkManager.moveLinkX(-1 * transitionDelta);
+                        linkManager.moveLinkX(-1 * transitionDelta, false);
                     break;
                 }
             } else if (transitionSteps > 0) {
+                // After room transition, link is entering one tile in the door
                 float transitionStep = Math.min(deltaTime * Link.SPEED, transitionSteps);
                 transitionSteps -= transitionStep;
                 switch (transitionOrientation) {
                     case UP:
-                        linkManager.moveLinkY(-1 * transitionStep);
+                        linkManager.moveLinkY(-1 * transitionStep, true);
                         break;
                     case DOWN:
-                        linkManager.moveLinkY(transitionStep);
+                        linkManager.moveLinkY(transitionStep, true);
                         break;
                     case LEFT:
-                        linkManager.moveLinkX(-1 * transitionStep);
+                        linkManager.moveLinkX(-1 * transitionStep, true);
                         break;
                     case RIGHT:
-                        linkManager.moveLinkX(transitionStep);
+                        linkManager.moveLinkX(transitionStep, true);
                         break;
                 }
             } else {
@@ -303,10 +300,7 @@ public class DungeonManager implements IZoneManager {
                 guiManager.activateButtons();
             }
         }
-        if (blinkCounter > 0) {
-            blinkCounter -= deltaTime;
-            colorMatrix.update(deltaTime);
-        }
+        colorMatrix.update(deltaTime);
     }
 
     @Override
@@ -314,11 +308,7 @@ public class DungeonManager implements IZoneManager {
         if (transitionRunning) {
             g.drawScaledImage(imageNextRoom, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
         }
-        if (blinkCounter > 0) {
-            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
-        } else {
-            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
-        }
+        g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
         paintDoors(g);
     }
 
@@ -331,12 +321,12 @@ public class DungeonManager implements IZoneManager {
                 if (dungeonDoor.type == DungeonDoorType.BOMB) {
                     if (dungeonDoor.isOpen) {
                         Image doorImage = imagesDungeon.get("bomb_hole_" + dungeonDoor.placement.imagePrefix);
-                        g.drawImage(doorImage, (int) (leftNextRoom + dungeonDoor.placement.x), (int) (topNextRoom + dungeonDoor.placement.y));
+                        g.drawImage(doorImage, (int) (leftNextRoom + dungeonDoor.placement.x), (int) (topNextRoom + dungeonDoor.placement.y), colorMatrix.getMatrix());
                     }
                 } else {
                     if (!dungeonDoor.isOpen) {
                         Image doorImage = imagesDungeon.get(dungeonDoor.type.imagePrefix + "_" + dungeonDoor.placement.imagePrefix + "_" + dungeon.id);
-                        g.drawImage(doorImage, (int) (leftNextRoom + dungeonDoor.placement.x), (int) (topNextRoom + dungeonDoor.placement.y));
+                        g.drawImage(doorImage, (int) (leftNextRoom + dungeonDoor.placement.x), (int) (topNextRoom + dungeonDoor.placement.y), colorMatrix.getMatrix());
                     }
                 }
             }
@@ -345,12 +335,12 @@ public class DungeonManager implements IZoneManager {
             if (dungeonDoor.type == DungeonDoorType.BOMB) {
                 if (dungeonDoor.isOpen) {
                     Image doorImage = imagesDungeon.get("bomb_hole_" + dungeonDoor.placement.imagePrefix);
-                    g.drawImage(doorImage, (int) (leftCurrentRoom + dungeonDoor.placement.x), (int) (topCurrentRoom + dungeonDoor.placement.y));
+                    g.drawImage(doorImage, (int) (leftCurrentRoom + dungeonDoor.placement.x), (int) (topCurrentRoom + dungeonDoor.placement.y), colorMatrix.getMatrix());
                 }
             } else {
                 if (!dungeonDoor.isOpen) {
                     Image doorImage = imagesDungeon.get(dungeonDoor.type.imagePrefix + "_" + dungeonDoor.placement.imagePrefix + "_" + dungeon.id);
-                    g.drawImage(doorImage, (int) (leftCurrentRoom + dungeonDoor.placement.x), (int) (topCurrentRoom + dungeonDoor.placement.y));
+                    g.drawImage(doorImage, (int) (leftCurrentRoom + dungeonDoor.placement.x), (int) (topCurrentRoom + dungeonDoor.placement.y), colorMatrix.getMatrix());
                 }
             }
         }
@@ -362,14 +352,14 @@ public class DungeonManager implements IZoneManager {
     public void paintDoorCache(Graphics g) {
         if (transitionRunning) {
             g.drawScaledImage(nextDoorCache.up, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
-            g.drawScaledImage(nextDoorCache.down, (int) leftNextRoom, (int) (topNextRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
+            g.drawScaledImage(nextDoorCache.down, (int) leftNextRoom, (int) (topNextRoom + LocationUtil.HEIGHT_MAP - 24 * AllImages.COEF), AllImages.COEF);
             g.drawScaledImage(nextDoorCache.left, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
-            g.drawScaledImage(nextDoorCache.right, (int) (leftNextRoom + LocationUtil.WIDTH_MAP - 17 * AllImages.COEF), (int) topNextRoom, AllImages.COEF);
+            g.drawScaledImage(nextDoorCache.right, (int) (leftNextRoom + LocationUtil.WIDTH_MAP - 24 * AllImages.COEF), (int) topNextRoom, AllImages.COEF);
         }
-        g.drawScaledImage(currentDoorCache.up, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
-        g.drawScaledImage(currentDoorCache.down, (int) leftCurrentRoom, (int) (topCurrentRoom + LocationUtil.HEIGHT_MAP - 17 * AllImages.COEF), AllImages.COEF);
-        g.drawScaledImage(currentDoorCache.left, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
-        g.drawScaledImage(currentDoorCache.right, (int) (leftCurrentRoom + LocationUtil.WIDTH_MAP - 17 * AllImages.COEF), (int) topCurrentRoom, AllImages.COEF);
+        g.drawScaledImage(currentDoorCache.up, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
+        g.drawScaledImage(currentDoorCache.down, (int) leftCurrentRoom, (int) (topCurrentRoom + LocationUtil.HEIGHT_MAP - 24 * AllImages.COEF), AllImages.COEF, colorMatrix.getMatrix());
+        g.drawScaledImage(currentDoorCache.left, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
+        g.drawScaledImage(currentDoorCache.right, (int) (leftCurrentRoom + LocationUtil.WIDTH_MAP - 24 * AllImages.COEF), (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
     }
 
     @Override
@@ -384,7 +374,6 @@ public class DungeonManager implements IZoneManager {
             switch (orientation) {
                 case UP:
                     transitionCount = 176 * AllImages.COEF;
-                    transitionSteps = LocationUtil.TILE_SIZE;
                     leftNextRoom = LocationUtil.LEFT_MAP;
                     topNextRoom = LocationUtil.TOP_MAP - LocationUtil.HEIGHT_MAP;
                     nextAbscissa = currentAbscissa;
@@ -392,7 +381,6 @@ public class DungeonManager implements IZoneManager {
                     break;
                 case DOWN:
                     transitionCount = 176 * AllImages.COEF;
-                    transitionSteps = LocationUtil.TILE_SIZE;
                     leftNextRoom = LocationUtil.LEFT_MAP;
                     topNextRoom = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP;
                     nextAbscissa = currentAbscissa;
@@ -400,7 +388,6 @@ public class DungeonManager implements IZoneManager {
                     break;
                 case LEFT:
                     transitionCount = 256 * AllImages.COEF;
-                    transitionSteps = LocationUtil.TILE_SIZE;
                     leftNextRoom = LocationUtil.LEFT_MAP - LocationUtil.WIDTH_MAP;
                     topNextRoom = LocationUtil.TOP_MAP;
                     nextAbscissa = currentAbscissa - 1;
@@ -408,7 +395,6 @@ public class DungeonManager implements IZoneManager {
                     break;
                 case RIGHT:
                     transitionCount = 256 * AllImages.COEF;
-                    transitionSteps = LocationUtil.TILE_SIZE;
                     leftNextRoom = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP;
                     topNextRoom = LocationUtil.TOP_MAP;
                     nextAbscissa = currentAbscissa + 1;
@@ -422,6 +408,8 @@ public class DungeonManager implements IZoneManager {
             saveManager.updateDungeonExploredRooms(dungeon.id, nextAbscissa, nextOrdinate);
             transitionRunning = true;
             transitionOrientation = orientation;
+            DungeonDoor dungeonDoor = dungeonDoors[currentAbscissa][currentOrdinate].get(DungeonDoorPlacement.valueOf(orientation.name()));
+            transitionSteps = (dungeonDoor != null && dungeonDoor.type == DungeonDoorType.BOMB) ? 4 * LocationUtil.TILE_SIZE : LocationUtil.TILE_SIZE;
         }
     }
 
@@ -450,6 +438,15 @@ public class DungeonManager implements IZoneManager {
     }
 
     @Override
+    public boolean isTileABombHole(float x, float y) {
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        DungeonTile tile = dungeonRooms[currentAbscissa][currentOrdinate].getTile(tileX, tileY);
+        return tile == DungeonTile.BOMB_HOLE || tile == DungeonTile.BOMB_HOLE_LEFT || tile == DungeonTile.BOMB_HOLE_RIGHT;
+
+    }
+
+    @Override
     public boolean checkKeyDoor(Orientation orientation, float x, float y) {
         DungeonDoor dungeonDoor = dungeonDoors[currentAbscissa][currentOrdinate].get(DungeonDoorPlacement.valueOf(orientation.name()));
         // If the door is not special or if the door is not a key door or if it has already been opened
@@ -475,44 +472,19 @@ public class DungeonManager implements IZoneManager {
 
     @Override
     public void openKeyDoor(Orientation orientation) {
-        int nextAbscissa = currentAbscissa;
-        int nextOrdinate = currentOrdinate;
-        switch (orientation) {
-            case UP:
-                nextOrdinate--;
-                dungeonRooms[currentAbscissa][currentOrdinate].changeTile(7, 1, DungeonTile.DOOR_LEFT);
-                dungeonRooms[currentAbscissa][currentOrdinate].changeTile(8, 1, DungeonTile.DOOR_RIGHT);
-                dungeonRooms[nextAbscissa][nextOrdinate].changeTile(7, 9, DungeonTile.DOOR_LEFT);
-                dungeonRooms[nextAbscissa][nextOrdinate].changeTile(8, 9, DungeonTile.DOOR_RIGHT);
-                break;
-            case DOWN:
-                nextOrdinate++;
-                dungeonRooms[currentAbscissa][currentOrdinate].changeTile(7, 9, DungeonTile.DOOR_LEFT);
-                dungeonRooms[currentAbscissa][currentOrdinate].changeTile(8, 9, DungeonTile.DOOR_RIGHT);
-                dungeonRooms[nextAbscissa][nextOrdinate].changeTile(7, 1, DungeonTile.DOOR_LEFT);
-                dungeonRooms[nextAbscissa][nextOrdinate].changeTile(8, 1, DungeonTile.DOOR_RIGHT);
-                break;
-            case LEFT:
-                nextAbscissa--;
-                dungeonRooms[currentAbscissa][currentOrdinate].changeTile(1, 5, DungeonTile.PATH);
-                dungeonRooms[nextAbscissa][nextOrdinate].changeTile(14, 5, DungeonTile.PATH);
-                break;
-            case RIGHT:
-                nextAbscissa++;
-                dungeonRooms[currentAbscissa][currentOrdinate].changeTile(14, 5, DungeonTile.PATH);
-                dungeonRooms[nextAbscissa][nextOrdinate].changeTile(1, 5, DungeonTile.PATH);
-                break;
-        }
-        dungeonDoors[currentAbscissa][currentOrdinate].get(DungeonDoorPlacement.valueOf(orientation.name())).isOpen = true;
-        dungeonDoors[nextAbscissa][nextOrdinate].get(DungeonDoorPlacement.valueOf(orientation.reverseOrientation().name())).isOpen = true;
-        String openedDoorKey1 = generateOpenedDoorKey(currentAbscissa, currentOrdinate, orientation.name());
-        String openedDoorKey2 = generateOpenedDoorKey(nextAbscissa, nextOrdinate, orientation.reverseOrientation().name());
+        Location nextRoom = LocationUtil.findNextRoomLocation(currentAbscissa, currentOrdinate, orientation);
+        DungeonDoorPlacement placement = DungeonDoorPlacement.valueOf(orientation.name());
+        DungeonDoorPlacement oppositePlacement = placement.reversePlacement();
+        updateDungeonRoomsWithDoorOpen(currentAbscissa, currentOrdinate, placement, DungeonDoorType.KEY);
+        updateDungeonRoomsWithDoorOpen(nextRoom.x, nextRoom.y, oppositePlacement, DungeonDoorType.KEY);
+        dungeonDoors[currentAbscissa][currentOrdinate].get(placement).isOpen = true;
+        dungeonDoors[nextRoom.x][nextRoom.y].get(oppositePlacement).isOpen = true;
+        String openedDoorKey1 = generateOpenedDoorKey(currentAbscissa, currentOrdinate, placement.name());
+        String openedDoorKey2 = generateOpenedDoorKey(nextRoom.x, nextRoom.y, oppositePlacement.name());
         saveManager.updateOpenedDoors(dungeon.id, openedDoorKey1, openedDoorKey2);
     }
 
-    /**
-     * Find a tile where a enemy can spawn avoid dungeon borders
-     */
+    @Override
     public Coordinate findSpawnableCoordinate() {
         // A counter to avoid infinite loop.
         int counter = 50;
@@ -540,24 +512,32 @@ public class DungeonManager implements IZoneManager {
         DungeonTile tileUp = dungeonRoom.getTile(7, 1);
         if (tileUp == DungeonTile.DOOR_LEFT || tileUp == DungeonTile.CLOSED_DOOR_LEFT) {
             doorCache.up = imagesDungeon.get("door_cache_up_" + dungeon.id);
+        } else if (tileUp == DungeonTile.BOMB_HOLE_LEFT) {
+            doorCache.up = imagesDungeon.get("bomb_cache_up_" + dungeon.id);
         } else {
             doorCache.up = imagesDungeon.get("empty");
         }
         DungeonTile tileDown = dungeonRoom.getTile(7, 9);
         if (tileDown == DungeonTile.DOOR_LEFT || tileDown == DungeonTile.CLOSED_DOOR_LEFT) {
             doorCache.down = imagesDungeon.get("door_cache_down_" + dungeon.id);
+        } else if (tileDown == DungeonTile.BOMB_HOLE_LEFT) {
+            doorCache.down = imagesDungeon.get("bomb_cache_down_" + dungeon.id);
         } else {
             doorCache.down = imagesDungeon.get("empty");
         }
         DungeonTile tileLeft = dungeonRoom.getTile(1, 5);
         if (tileLeft == DungeonTile.PATH || tileLeft == DungeonTile.CLOSED_DOOR) {
             doorCache.left = imagesDungeon.get("door_cache_left_" + dungeon.id);
+        } else if (tileLeft == DungeonTile.BOMB_HOLE) {
+            doorCache.left = imagesDungeon.get("bomb_cache_left_" + dungeon.id);
         } else {
             doorCache.left = imagesDungeon.get("empty");
         }
         DungeonTile tileRight = dungeonRoom.getTile(14, 5);
         if (tileRight == DungeonTile.PATH || tileRight == DungeonTile.CLOSED_DOOR) {
             doorCache.right = imagesDungeon.get("door_cache_right_" + dungeon.id);
+        } else if (tileRight == DungeonTile.BOMB_HOLE) {
+            doorCache.right = imagesDungeon.get("bomb_cache_right_" + dungeon.id);
         } else {
             doorCache.right = imagesDungeon.get("empty");
         }
@@ -582,11 +562,13 @@ public class DungeonManager implements IZoneManager {
             case CLOSED_DOOR_RIGHT:
             case WATER:
             case DOOR_RIGHT:
+            case BOMB_HOLE_RIGHT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case DOOR_LEFT:
+            case BOMB_HOLE_LEFT:
                 if (deltaX < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
@@ -606,13 +588,16 @@ public class DungeonManager implements IZoneManager {
             case CLOSED_DOOR_RIGHT:
             case WATER:
             case DOOR_LEFT:
+            case BOMB_HOLE_LEFT:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case DOOR_RIGHT:
+            case BOMB_HOLE_RIGHT:
             case DOOR_UP:
             case PATH:
+            case BOMB_HOLE:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -641,18 +626,19 @@ public class DungeonManager implements IZoneManager {
             case CLOSED_DOOR_RIGHT:
             case WATER:
             case DOOR_RIGHT:
-            case BOMB_RIGHT:
+            case BOMB_HOLE_RIGHT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case DOOR_LEFT:
-            case BOMB_LEFT:
+            case BOMB_HOLE_LEFT:
                 if (deltaX < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case PATH:
+            case BOMB_HOLE:
             case DOOR_UP:
             case OUT_OF_BOUNDS:
                 break;
@@ -667,15 +653,16 @@ public class DungeonManager implements IZoneManager {
             case CLOSED_DOOR_RIGHT:
             case WATER:
             case DOOR_LEFT:
-            case BOMB_LEFT:
+            case BOMB_HOLE_LEFT:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY > LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case DOOR_RIGHT:
-            case BOMB_RIGHT:
+            case BOMB_HOLE_RIGHT:
             case DOOR_UP:
             case PATH:
+            case BOMB_HOLE:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -705,11 +692,14 @@ public class DungeonManager implements IZoneManager {
             case WATER:
             case DOOR_LEFT:
             case DOOR_RIGHT:
+            case BOMB_HOLE_LEFT:
+            case BOMB_HOLE_RIGHT:
                 if (deltaX < LocationUtil.TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case PATH:
+            case BOMB_HOLE:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -728,11 +718,14 @@ public class DungeonManager implements IZoneManager {
                 break;
             case DOOR_LEFT:
             case DOOR_RIGHT:
+            case BOMB_HOLE_LEFT:
+            case BOMB_HOLE_RIGHT:
                 if (deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case PATH:
+            case BOMB_HOLE:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -762,11 +755,14 @@ public class DungeonManager implements IZoneManager {
             case WATER:
             case DOOR_LEFT:
             case DOOR_RIGHT:
+            case BOMB_HOLE_LEFT:
+            case BOMB_HOLE_RIGHT:
                 if (deltaX > LocationUtil.OBSTACLE_TOLERANCE && deltaY < LocationUtil.HALF_TILE_SIZE - LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case PATH:
+            case BOMB_HOLE:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -785,11 +781,14 @@ public class DungeonManager implements IZoneManager {
                 break;
             case DOOR_LEFT:
             case DOOR_RIGHT:
+            case BOMB_HOLE_LEFT:
+            case BOMB_HOLE_RIGHT:
                 if (deltaY > LocationUtil.HALF_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE) {
                     return false;
                 }
                 break;
             case PATH:
+            case BOMB_HOLE:
             case OUT_OF_BOUNDS:
                 break;
             default:
@@ -846,12 +845,72 @@ public class DungeonManager implements IZoneManager {
     }
 
     @Override
-    public void openHiddenEntrance(Hitbox hitbox, int entranceType) {
+    public void fireHasJustFinished(Fire fire) {
     }
 
     @Override
-    public void bombBlink() {
-        blinkCounter = INITIAL_BLINK_COUNTER;
+    public void bombHasExploded(Bomb bomb) {
+        colorMatrix.activate();
+        for (DungeonDoor dungeonDoor : dungeonDoors[nextAbscissa][nextOrdinate].values()) {
+            if (dungeonDoor.type == DungeonDoorType.BOMB && !dungeonDoor.isOpen
+                && LocationUtil.areColliding(bomb.hitbox, dungeonDoor.placement.hitbox)) {
+                soundEffectManager.play("find_secret");
+                Location nextRoom = LocationUtil.findNextRoomLocation(currentAbscissa, currentOrdinate, Orientation.valueOf(dungeonDoor.placement.name()));
+                DungeonDoorPlacement oppositePlacement = dungeonDoor.placement.reversePlacement();
+                updateDungeonRoomsWithDoorOpen(currentAbscissa, currentOrdinate, dungeonDoor.placement, DungeonDoorType.BOMB);
+                updateDungeonRoomsWithDoorOpen(nextRoom.x, nextRoom.y, oppositePlacement, DungeonDoorType.BOMB);
+                updateDoorCache(currentDoorCache, currentAbscissa, currentOrdinate);
+                dungeonDoor.isOpen = true;
+                dungeonDoors[nextRoom.x][nextRoom.y].get(oppositePlacement).isOpen = true;
+                String openedDoorKey1 = generateOpenedDoorKey(currentAbscissa, currentOrdinate, dungeonDoor.placement.name());
+                String openedDoorKey2 = generateOpenedDoorKey(nextRoom.x, nextRoom.y, oppositePlacement.name());
+                saveManager.updateOpenedDoors(dungeon.id, openedDoorKey1, openedDoorKey2);
+            }
+        }
+    }
+
+    /**
+     * Update the rooms to make the closed doors not walkable
+     */
+    private void updateDungeonRoomsWithDoorClosed(int abscissa, int ordinate, DungeonDoorPlacement placement, DungeonDoorType type) {
+        if (type == DungeonDoorType.KEY || type == DungeonDoorType.NO_MORE_ENEMY || type == DungeonDoorType.PUSH) {
+            updateDungeonRoomsDoors(abscissa, ordinate, placement, DungeonTile.CLOSED_DOOR_LEFT, DungeonTile.CLOSED_DOOR_RIGHT, DungeonTile.CLOSED_DOOR);
+        } else if (type == DungeonDoorType.BOMB) {
+            updateDungeonRoomsDoors(abscissa, ordinate, placement, DungeonTile.BLOC, DungeonTile.BLOC, DungeonTile.BLOC);
+        }
+    }
+
+    /**
+     * Update the rooms to make the open doors walkable
+     */
+    private void updateDungeonRoomsWithDoorOpen(int abscissa, int ordinate, DungeonDoorPlacement placement, DungeonDoorType type) {
+        if (type == DungeonDoorType.KEY || type == DungeonDoorType.NO_MORE_ENEMY || type == DungeonDoorType.PUSH) {
+            updateDungeonRoomsDoors(abscissa, ordinate, placement, DungeonTile.DOOR_LEFT, DungeonTile.DOOR_RIGHT, DungeonTile.PATH);
+        } else if (type == DungeonDoorType.BOMB) {
+            updateDungeonRoomsDoors(abscissa, ordinate, placement, DungeonTile.BOMB_HOLE_LEFT, DungeonTile.BOMB_HOLE_RIGHT, DungeonTile.BOMB_HOLE);
+        }
+    }
+
+    /**
+     * Update the rooms to make them walkable or not
+     */
+    private void updateDungeonRoomsDoors(int abscissa, int ordinate, DungeonDoorPlacement placement, DungeonTile left, DungeonTile right, DungeonTile middle) {
+        switch (placement) {
+            case UP:
+                dungeonRooms[abscissa][ordinate].changeTile(7, 1, left);
+                dungeonRooms[abscissa][ordinate].changeTile(8, 1, right);
+                break;
+            case DOWN:
+                dungeonRooms[abscissa][ordinate].changeTile(7, 9, left);
+                dungeonRooms[abscissa][ordinate].changeTile(8, 9, right);
+                break;
+            case LEFT:
+                dungeonRooms[abscissa][ordinate].changeTile(1, 5, middle);
+                break;
+            case RIGHT:
+                dungeonRooms[abscissa][ordinate].changeTile(14, 5, middle);
+                break;
+        }
     }
 
     /**

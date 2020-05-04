@@ -76,6 +76,29 @@ public class LocationUtil {
     }
 
     /**
+     * Find the location of the next room
+     */
+    public static Location findNextRoomLocation(int x, int y, Orientation orientation) {
+        int nextX = x;
+        int nextY = y;
+        switch (orientation) {
+            case UP:
+                nextY--;
+                break;
+            case DOWN:
+                nextY++;
+                break;
+            case LEFT:
+                nextX--;
+                break;
+            case RIGHT:
+                nextX++;
+                break;
+        }
+        return new Location(nextX, nextY);
+    }
+
+    /**
      * Check if a tile is on the border of the map
      */
     public static boolean isTileAtBorder(float x, float y) {

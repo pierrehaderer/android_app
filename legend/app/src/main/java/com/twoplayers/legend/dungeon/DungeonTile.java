@@ -13,9 +13,9 @@ public enum DungeonTile {
     CLOSED_DOOR_RIGHT('d', false),
     CLOSED_DOOR('a', false),
     DOOR_UP('X', false),
-    BOMB_LEFT('E', false),
-    BOMB_RIGHT('F', false),
-    BOMB('b', false),
+    BOMB_HOLE_LEFT('E', false),
+    BOMB_HOLE_RIGHT('F', false),
+    BOMB_HOLE('b', false),
     OUT_OF_BOUNDS('%', false);
 
     public char character;

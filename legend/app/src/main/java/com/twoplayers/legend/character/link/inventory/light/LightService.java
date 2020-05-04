@@ -92,13 +92,13 @@ public class LightService {
             }
         }
         if (link.fire1.hasJustFinished) {
-            zoneManager.openHiddenEntrance(link.fire1.hitbox, EntranceInfo.BUSH);
+            zoneManager.fireHasJustFinished(link.fire1);
             link.fire1.hasJustFinished = false;
             link.fire1.isActive = false;
             link.fire1.hitbox.relocate(0, 0);
         }
         if (link.fire2.hasJustFinished) {
-            zoneManager.openHiddenEntrance(link.fire2.hitbox, EntranceInfo.BUSH);
+            zoneManager.fireHasJustFinished(link.fire2);
             link.fire2.hasJustFinished = false;
             link.fire2.isActive = false;
             link.fire2.hitbox.relocate(0, 0);

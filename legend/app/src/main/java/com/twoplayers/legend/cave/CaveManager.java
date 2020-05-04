@@ -5,9 +5,10 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.link.inventory.ItemService;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -36,9 +37,8 @@ public class CaveManager implements IZoneManager {
     private static final int PRICE_OFFSET_X_3DIGITS = -11;
     private static final int PRICE_OFFSET_Y = 60;
     private static final float TEXT_SPEED = 0.12f;
-    private static final float INITIAL_BLINK_COUNTER = 20f;
 
-    private boolean initNotDone = true;
+    private boolean shouldInitialize = true;
     private float stunCounter;
 
     private LinkManager linkManager;
@@ -57,15 +57,14 @@ public class CaveManager implements IZoneManager {
     private int textSoundCounter;
     private boolean hasExitedZone;
 
-    private float blinkCounter;
     private ColorMatrixZone colorMatrix;
 
     /**
      * Load this manager
      */
     public void load(Game game, CaveInfo caveInfo) {
-        if (initNotDone) {
-            initNotDone = false;
+        if (shouldInitialize) {
+            shouldInitialize = false;
             init(game);
         }
         initCave(game, caveInfo);
@@ -73,7 +72,6 @@ public class CaveManager implements IZoneManager {
         textSoundCounter = 0;
         stunCounter = INITIAL_IMMOBILISATION_COUNTER;
         hasExitedZone = false;
-        blinkCounter = 0;
     }
 
     /**
@@ -172,20 +170,12 @@ public class CaveManager implements IZoneManager {
         }
 
         cave.updateAnimations(deltaTime);
-
-        if (blinkCounter > 0) {
-            blinkCounter -= deltaTime;
-            colorMatrix.update(deltaTime);
-        }
+        colorMatrix.update(deltaTime);
     }
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        if (blinkCounter > 0) {
-            g.drawScaledImage(imagesCave.get("cave"), LocationUtil.LEFT_MAP, LocationUtil.TOP_MAP, AllImages.COEF, colorMatrix.getMatrix());
-        } else {
-            g.drawScaledImage(imagesCave.get("cave"), LocationUtil.LEFT_MAP, LocationUtil.TOP_MAP, AllImages.COEF);
-        }
+        g.drawScaledImage(imagesCave.get("cave"), LocationUtil.LEFT_MAP, LocationUtil.TOP_MAP, AllImages.COEF, colorMatrix.getMatrix());
         float message1X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message1.length() / 22f) * LocationUtil.TILE_SIZE;
         float message2X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message2.length() / 22f) * LocationUtil.TILE_SIZE;
         g.drawString(cave.displayedMessage1, (int) message1X, (int) LocationUtil.getYFromGrid(3), TextUtil.getPaint());
@@ -230,6 +220,11 @@ public class CaveManager implements IZoneManager {
 
     @Override
     public boolean isTileStairs(float x, float y) {
+        return false;
+    }
+
+    @Override
+    public boolean isTileABombHole(float x, float y) {
         return false;
     }
 
@@ -462,12 +457,12 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
-    public void openHiddenEntrance(Hitbox hitbox, int entranceType) {
+    public void fireHasJustFinished(Fire fire) {
     }
 
     @Override
-    public void bombBlink() {
-        blinkCounter = INITIAL_BLINK_COUNTER;
+    public void bombHasExploded(Bomb bomb) {
+        colorMatrix.activate();
     }
 
     /**

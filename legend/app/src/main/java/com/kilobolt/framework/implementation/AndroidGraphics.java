@@ -16,7 +16,6 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.kilobolt.framework.ImageFormat;
-import com.twoplayers.legend.util.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -155,6 +154,16 @@ public class AndroidGraphics implements Graphics {
     }
 
     @Override
+    public void drawImage(Image image, int x, int y, ColorMatrix colorMatrix) {
+        Paint paint = null;
+        if (colorMatrix != null) {
+            paint = new Paint();
+            paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        }
+        canvas.drawBitmap(((AndroidImage) image).bitmap, x, y, paint);
+    }
+
+    @Override
     public void drawAnimation(Animation animation, int x, int y) {
         AndroidAnimationFrame frame = ((AndroidAnimation) animation).getFrame();
         int left = x + frame.leftOffset;
@@ -171,8 +180,11 @@ public class AndroidGraphics implements Graphics {
         AndroidAnimationFrame frame = ((AndroidAnimation) animation).getFrame();
         int left = x + frame.leftOffset;
         int top = y + frame.topOffset;
-        Paint paint = new Paint();
-        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        Paint paint = null;
+        if (colorMatrix != null) {
+            paint = new Paint();
+            paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        }
         if (frame.width <= 0 || frame.height <= 0) {
             canvas.drawBitmap(((AndroidImage) frame.image).bitmap, left, top, paint);
         } else {
@@ -198,8 +210,11 @@ public class AndroidGraphics implements Graphics {
     public void drawScaledImage(Image image, int x, int y, float coef, ColorMatrix colorMatrix) {
         int width = Math.round(image.getWidth() * coef);
         int height = Math.round(image.getHeight() * coef);
-        Paint paint = new Paint();
-        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        Paint paint = null;
+        if (colorMatrix != null) {
+            paint = new Paint();
+            paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        }
         Bitmap bitmap = Bitmap.createScaledBitmap(((AndroidImage) image).bitmap, width, height, true);
         canvas.drawBitmap(bitmap, x, y, paint);
     }
@@ -216,7 +231,6 @@ public class AndroidGraphics implements Graphics {
         dstRect.bottom = y + height;
 
         canvas.drawBitmap(((AndroidImage) image).bitmap, srcRect, dstRect, null);
-
     }
 
     @Override

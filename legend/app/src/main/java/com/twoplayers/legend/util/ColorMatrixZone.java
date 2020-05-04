@@ -4,6 +4,7 @@ import android.graphics.ColorMatrix;
 
 public class ColorMatrixZone {
 
+    private static final float INITIAL_COUNTER = 4f;
     private static final float ROTATION_SPEED = 0.2f;
     private ColorMatrix[] matrixList;
 
@@ -31,12 +32,17 @@ public class ColorMatrixZone {
 
     }
 
+    public void activate() {
+        count = INITIAL_COUNTER;
+    }
+
     public void update(float deltaTime) {
-        float nextCount = count + deltaTime * ROTATION_SPEED;
-        count = (nextCount < matrixList.length) ? nextCount : nextCount % matrixList.length;
+        if (count > 0) {
+            count -= deltaTime * ROTATION_SPEED;
+        }
     }
 
     public ColorMatrix getMatrix() {
-        return matrixList[(int) count];
+        return (count > 0) ? matrixList[(int) (count % matrixList.length)] : null;
     }
 }

@@ -17,7 +17,7 @@ public class DungeonRoom {
     }
 
     public DungeonTile getTile(int x, int y) {
-        if (x < 1 || x > 14 || y < 1 || y > 9) {
+        if (x < 0 || x > 15 || y < 0 || y > 10) {
             return DungeonTile.OUT_OF_BOUNDS;
         }
         return content[x][y];

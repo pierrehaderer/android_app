@@ -9,6 +9,8 @@ import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.cave.CaveType;
 import com.twoplayers.legend.character.Hitbox;
+import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesWorldMap;
@@ -34,7 +36,7 @@ public class WorldMapManager implements IZoneManager {
     private static final float TRANSITION_SPEED = 4.0f;
     private static final float INITIAL_BLINK_COUNTER = 20f;
 
-    private boolean initNotDone = true;
+    private boolean shouldInitialize = true;
 
     private ImagesWorldMap imagesWorldMap;
 
@@ -70,15 +72,14 @@ public class WorldMapManager implements IZoneManager {
     private List<Coordinate> waterCoordinate;
 
     private boolean mustReactivateButtons;
-    private float blinkCounter;
     private ColorMatrixZone colorMatrix;
 
     /**
      * Load this manager
      */
     public void load(Game game, Location location) {
-        if (initNotDone) {
-            initNotDone = false;
+        if (shouldInitialize) {
+            shouldInitialize = false;
             init(game);
         }
 
@@ -123,7 +124,6 @@ public class WorldMapManager implements IZoneManager {
         initWorldMapCaves(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/world_map_entrance.properties"));
         waterCoordinate = new ArrayList<>();
 
-        blinkCounter = 0;
         colorMatrix = new ColorMatrixZone();
     }
 
@@ -250,28 +250,28 @@ public class WorldMapManager implements IZoneManager {
                 topCurrentRoom += transitionDeltaY;
                 topNextRoom += transitionDeltaY;
                 currentMiniOrdinate -= transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
-                linkManager.moveLinkY(transitionDeltaY);
+                linkManager.moveLinkY(transitionDeltaY, false);
             }
             if (transitionOrientation == Orientation.DOWN) {
                 float transitionDeltaY = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
                 topCurrentRoom -= transitionDeltaY;
                 topNextRoom -= transitionDeltaY;
                 currentMiniOrdinate += transitionDeltaY * 16 / LocationUtil.WIDTH_MAP;
-                linkManager.moveLinkY(-1 * transitionDeltaY);
+                linkManager.moveLinkY(-1 * transitionDeltaY, false);
             }
             if (transitionOrientation == Orientation.LEFT) {
                 float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
                 leftCurrentRoom += transitionDeltaX;
                 leftNextRoom += transitionDeltaX;
                 currentMiniAbscissa -= transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
-                linkManager.moveLinkX(transitionDeltaX);
+                linkManager.moveLinkX(transitionDeltaX, false);
             }
             if (transitionOrientation == Orientation.RIGHT) {
                 float transitionDeltaX = Math.min(TRANSITION_SPEED * deltaTime, transitionCount);
                 leftCurrentRoom -= transitionDeltaX;
                 leftNextRoom -= transitionDeltaX;
                 currentMiniAbscissa += transitionDeltaX * 16 / LocationUtil.WIDTH_MAP;
-                linkManager.moveLinkX(-1 * transitionDeltaX);
+                linkManager.moveLinkX(-1 * transitionDeltaX, false);
             }
             transitionCount -= TRANSITION_SPEED * deltaTime;
 
@@ -291,10 +291,7 @@ public class WorldMapManager implements IZoneManager {
                 guiManager.activateButtons();
             }
         }
-        if (blinkCounter > 0) {
-            blinkCounter -= deltaTime;
-            colorMatrix.update(deltaTime);
-        }
+        colorMatrix.update(deltaTime);
     }
 
     @Override
@@ -302,11 +299,7 @@ public class WorldMapManager implements IZoneManager {
         if (transitionRunning) {
             g.drawScaledImage(imageNextRoom, (int) leftNextRoom, (int) topNextRoom, AllImages.COEF);
         }
-        if (blinkCounter > 0) {
-            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
-        } else {
-            g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF);
-        }
+        g.drawScaledImage(imageCurrentRoom, (int) leftCurrentRoom, (int) topCurrentRoom, AllImages.COEF, colorMatrix.getMatrix());
 
         EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (!entranceInfo.hidden) {
@@ -386,8 +379,7 @@ public class WorldMapManager implements IZoneManager {
         MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile == MapTile.DOOR;
+        return currentMapRoom.getTile(tileX, tileY) == MapTile.DOOR;
     }
 
     @Override
@@ -395,8 +387,12 @@ public class WorldMapManager implements IZoneManager {
         MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
         int tileX = LocationUtil.getTileXFromPositionX(x);
         int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile == MapTile.STAIRS;
+        return currentMapRoom.getTile(tileX, tileY) == MapTile.STAIRS;
+    }
+
+    @Override
+    public boolean isTileABombHole(float x, float y) {
+        return false;
     }
 
     @Override
@@ -830,6 +826,16 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
+    public void bombHasExploded(Bomb bomb) {
+        colorMatrix.activate();
+        openHiddenEntrance(bomb.hitbox, EntranceInfo.WALL);
+    }
+
+    @Override
+    public void fireHasJustFinished(Fire fire) {
+        openHiddenEntrance(fire.hitbox, EntranceInfo.BUSH);
+    }
+
     public void openHiddenEntrance(Hitbox hitox, int entranceType) {
         EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (entranceInfo.hidden && entranceInfo.hiddenStyle == entranceType) {
@@ -845,12 +851,6 @@ public class WorldMapManager implements IZoneManager {
                 saveManager.updateOpenedEntrances(currentAbscissa, currentOrdinate);
             }
         }
-    }
-
-
-    @Override
-    public void bombBlink() {
-        blinkCounter = INITIAL_BLINK_COUNTER;
     }
 
     /**
