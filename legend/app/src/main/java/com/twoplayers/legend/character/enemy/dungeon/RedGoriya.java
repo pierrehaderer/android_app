@@ -17,6 +17,7 @@ public class RedGoriya extends Goriya {
 
     private static final float SPEED = 0.6f;
     private static final int INITIAL_LIFE = 3;
+    private static final float DAMAGE = -0.5f;
 
     /**
      * Constructor
@@ -25,6 +26,7 @@ public class RedGoriya extends Goriya {
         super(s, z, l, e, es);
         life = INITIAL_LIFE;
         speed = SPEED;
+        damage = DAMAGE;
     }
 
     @Override

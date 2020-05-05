@@ -24,7 +24,6 @@ public abstract class Goriya extends Enemy {
         timeBeforeFirstMove = DungeonEnemyManager.TIME_BEFORE_FIRST_MOVE;
         timeBeforeAttack = enemyService.chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         hitbox = new Hitbox(x, y, 3, 3, 11, 11);
-        damage = -0.5f;
         currentAnimation = initialAnimation;
     }
 

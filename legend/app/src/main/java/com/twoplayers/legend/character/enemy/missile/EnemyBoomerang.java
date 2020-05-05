@@ -15,7 +15,7 @@ public class EnemyBoomerang extends Missile {
     public static final float INITIAL_BOOMERANG_COUNTER = 85f;
 
     public static final float INITIAL_SPEED = 4f;
-    private static final float DAMAGE = -0.5f;
+    private static final float DAMAGE = -1f;
 
     public float counter;
     public boolean isMovingForward;

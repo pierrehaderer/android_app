@@ -16,7 +16,8 @@ import java.util.HashMap;
 public class BlueGoriya extends Goriya {
 
     private static final float SPEED = 0.6f;
-    private static final int INITIAL_LIFE = 4;
+    private static final int INITIAL_LIFE = 5;
+    private static final float DAMAGE = -1f;
 
     /**
      * Constructor
@@ -25,6 +26,7 @@ public class BlueGoriya extends Goriya {
         super(s, z, l, e, es);
         life = INITIAL_LIFE;
         speed = SPEED;
+        damage = DAMAGE;
     }
 
     @Override
