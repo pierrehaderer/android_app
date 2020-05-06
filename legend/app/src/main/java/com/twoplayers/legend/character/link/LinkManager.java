@@ -281,6 +281,15 @@ public class LinkManager implements IManager {
         }
     }
 
+    /**
+     * Increase link life by 1
+     */
+    public void increaseLinkLife() {
+        if (link.life < link.lifeMax) {
+            link.life = Math.min(link.life + 1, link.lifeMax);
+        }
+    }
+
     public void removeRupees(int rupees) {
         link.coinCounter = 0;
         link.rupeesToRemove += rupees;

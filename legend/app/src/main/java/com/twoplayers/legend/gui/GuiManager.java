@@ -230,6 +230,9 @@ public class GuiManager implements IManager {
                     if (LocationUtil.inBounds(event, LEFT_C, TOP_C, WIDTH_BUTTON, HEIGHT_BUTTON)) {
                         cPressed = true;
                     }
+                    if (LocationUtil.inBounds(event, LEFT_HEARTS, TOP_HEARTS_UPPER_ROW, 8 * WIDTH_HEART, 3 * WIDTH_HEART) && event.type == Input.TouchEvent.TOUCH_DOWN) {
+                        linkManager.increaseLinkLife();
+                    }
                     logButtons(event);
                 }
             }
