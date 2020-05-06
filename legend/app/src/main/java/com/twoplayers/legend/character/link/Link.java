@@ -27,6 +27,8 @@ import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
+import com.twoplayers.legend.character.link.inventory.sword.SwordSplash;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.util.Coordinate;
 
@@ -81,7 +83,7 @@ public class Link {
     public float showItemCounter;
     public Item itemToShow;
 
-    protected float life;
+    public float life;
     public float lifeMax;
     public int rupees;
     public float coinCounter;
@@ -116,6 +118,8 @@ public class Link {
     public Compass compass;
 
     public Sword sword;
+    public ThrowingSword throwingSword;
+    public SwordSplash swordSplash;
     public Shield shield;
     public int secondItem;
     public boolean isUsingSecondItem;

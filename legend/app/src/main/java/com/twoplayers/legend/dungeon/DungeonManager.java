@@ -9,6 +9,7 @@ import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesDungeon;
@@ -830,6 +831,21 @@ public class DungeonManager implements IZoneManager {
     public boolean isLinkFarEnoughFromBorderToAttack(Link link) {
         return !LocationUtil.isTileAtBorder(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)
             && !LocationUtil.isTileAtBorderMinusOne(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE);
+    }
+
+    @Override
+    public boolean hasThrowingSwordHitBorder(ThrowingSword throwingSword) {
+        switch (throwingSword.orientation) {
+            case UP:
+                return throwingSword.y < LocationUtil.TOP_MAP + 3 * LocationUtil.HALF_TILE_SIZE;
+            case DOWN:
+                return throwingSword.y > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - 5 * LocationUtil.HALF_TILE_SIZE;
+            case LEFT:
+                return throwingSword.x < LocationUtil.LEFT_MAP + 3 * LocationUtil.HALF_TILE_SIZE;
+            case RIGHT:
+                return throwingSword.x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - 5 * LocationUtil.HALF_TILE_SIZE;
+        }
+        return true;
     }
 
     @Override

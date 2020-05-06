@@ -6,6 +6,7 @@ import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 
 import java.util.List;
 
@@ -22,8 +23,10 @@ public interface IEnemyManager extends IManager {
     List<Missile> getMissiles();
     /** Inform that an enemy has died */
     void enemyHasDied(Enemy enemy);
-    /** Enemy has been damaged */
+    /** Enemy has been hit by sword */
     void isHitBySword(Enemy enemy, Sword sword);
+    /** Enemy has been hit by throwing sword */
+    void isHitBySword(Enemy enemy, ThrowingSword throwingSword);
     /** Enemy has been hit by boomerang */
     void isHitByBoomerang(Enemy enemy);
     /** Enemy has been hit by fire */

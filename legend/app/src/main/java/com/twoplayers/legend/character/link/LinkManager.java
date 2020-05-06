@@ -10,6 +10,8 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.link.inventory.sword.SwordSplash;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.ItemService;
@@ -133,6 +135,8 @@ public class LinkManager implements IManager {
 
         link.sword = new Sword(imagesLink, game.getGraphics());
         link.sword.type = SwordType.WOOD;
+        link.throwingSword = new ThrowingSword(imagesLink, game.getGraphics());
+        link.swordSplash = new SwordSplash(imagesLink, game.getGraphics());
         link.shield = Shield.SMALL;
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
         link.isUsingSecondItem = false;
@@ -169,26 +173,13 @@ public class LinkManager implements IManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
-        // Draw link
-        if (link.isInvincible) {
-            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, colorMatrix.getMatrix());
-        } else {
-            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
-        }
-
-        // Draw item picked
-        if (link.isShowingItem) {
-            g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
-        }
-
-        // Draw empty tile
-        if (link.isEnteringADoor || link.isExitingADoor) {
-            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) link.underTheDoor.y, AllImages.COEF);
-        }
-
         // Draw the sword
         if (link.isAttacking) {
             g.drawAnimation(link.sword.getAnimation(), (int) link.sword.x, (int) link.sword.y);
+        }
+        // Draw the throwing sword
+        if (link.throwingSword.isActive) {
+            g.drawAnimation(link.throwingSword.getAnimation(), (int) link.throwingSword.x, (int) link.throwingSword.y);
         }
         // Draw the boomerang
         if (link.boomerang.isMovingForward || link.boomerang.isMovingBackward) {
@@ -209,12 +200,37 @@ public class LinkManager implements IManager {
         if (link.bomb.isActive) {
             g.drawAnimation(link.bomb.currentAnimation, (int) link.bomb.x, (int) link.bomb.y);
         }
+
+        // Draw link
+        if (link.isInvincible) {
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y, colorMatrix.getMatrix());
+        } else {
+            g.drawAnimation(link.currentAnimation, (int) link.x, (int) link.y);
+        }
+        // Draw item picked
+        if (link.isShowingItem) {
+            g.drawScaledImage(link.itemToShow.image, (int) link.x - 8, (int) (link.y - LocationUtil.TILE_SIZE) + 2, AllImages.COEF);
+        }
+        // Draw empty tile
+        if (link.isEnteringADoor || link.isExitingADoor) {
+            g.drawScaledImage(imagesLink.get("empty_tile"), (int) link.underTheDoor.x, (int) link.underTheDoor.y, AllImages.COEF);
+        }
+
+        // Draw the bomb clouds
         if (link.bombCloud.isActive) {
             for (int i = 0; i < 7; i++) {
                 float x = link.bombCloud.x + link.bombCloud.animationPositions[i].x;
                 float y = link.bombCloud.y + link.bombCloud.animationPositions[i].y;
                 g.drawAnimation(link.bombCloud.animations[i], (int) x, (int) y);
             }
+        }
+
+        // Draw the sword splash
+        if (link.swordSplash.isActive) {
+            g.drawAnimation(link.swordSplash.animations[0], (int) link.swordSplash.animationPositions[0].x, (int) link.swordSplash.animationPositions[0].y);
+            g.drawAnimation(link.swordSplash.animations[1], (int) link.swordSplash.animationPositions[1].x, (int) link.swordSplash.animationPositions[1].y);
+            g.drawAnimation(link.swordSplash.animations[2], (int) link.swordSplash.animationPositions[2].x, (int) link.swordSplash.animationPositions[2].y);
+            g.drawAnimation(link.swordSplash.animations[3], (int) link.swordSplash.animationPositions[3].x, (int) link.swordSplash.animationPositions[3].y);
         }
 
         // Draw the hitboxes

@@ -9,6 +9,7 @@ import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.link.inventory.ItemService;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -433,6 +434,22 @@ public class CaveManager implements IZoneManager {
 
     @Override
     public boolean isLinkFarEnoughFromBorderToAttack(Link link) {
+        return true;
+    }
+
+
+    @Override
+    public boolean hasThrowingSwordHitBorder(ThrowingSword throwingSword) {
+        switch (throwingSword.orientation) {
+            case UP:
+                return throwingSword.y < LocationUtil.TOP_MAP + LocationUtil.HALF_TILE_SIZE;
+            case DOWN:
+                return throwingSword.y > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - 3 * LocationUtil.HALF_TILE_SIZE;
+            case LEFT:
+                return throwingSword.x < LocationUtil.LEFT_MAP + LocationUtil.HALF_TILE_SIZE;
+            case RIGHT:
+                return throwingSword.x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - 3 * LocationUtil.HALF_TILE_SIZE;
+        }
         return true;
     }
 

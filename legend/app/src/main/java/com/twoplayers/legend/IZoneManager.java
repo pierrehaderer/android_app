@@ -1,11 +1,11 @@
 package com.twoplayers.legend;
 
 import com.kilobolt.framework.Image;
-import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Orientation;
 
@@ -48,6 +48,8 @@ public interface IZoneManager extends IManager {
     float getCurrentMiniOrdinate();
     /** is link too close to border to attack */
     boolean isLinkFarEnoughFromBorderToAttack(Link link);
+    /** has the throwing sword hit the border */
+    boolean hasThrowingSwordHitBorder(ThrowingSword throwingSword);
     /** check if link can move up or down */
     boolean upAndDownAuthorized(Link link);
     /** check if link can move left or right */

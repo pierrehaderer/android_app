@@ -9,6 +9,7 @@ import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,10 @@ public class CaveEnemyManager implements IEnemyManager {
 
     @Override
     public void isHitBySword(Enemy enemy, Sword sword) {
+    }
+
+    @Override
+    public void isHitBySword(Enemy enemy, ThrowingSword throwingSword) {
     }
 
     @Override

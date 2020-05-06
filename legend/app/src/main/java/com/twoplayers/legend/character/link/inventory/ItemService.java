@@ -42,7 +42,7 @@ public class ItemService {
         this.linkManager = linkManager;
         this.soundEffectManager = soundEffectManager;
 
-        swordService = new SwordService(enemyManager, soundEffectManager);
+        swordService = new SwordService(enemyManager, zoneManager, soundEffectManager);
         boomerangService = new BoomerangService(guiManager, enemyManager, soundEffectManager);
         arrowService = new ArrowService(enemyManager, soundEffectManager);
         lightService = new LightService(zoneManager, enemyManager, soundEffectManager);
@@ -86,6 +86,7 @@ public class ItemService {
             }
         }
         swordService.handleLinkAttack(link, deltaTime);
+        swordService.handleLinkThrowingSword(link, deltaTime);
         boomerangService.handleBoomerang(link, deltaTime);
         bombService.handleBomb(link, deltaTime);
         lightService.handleFire(link, deltaTime);
@@ -157,6 +158,7 @@ public class ItemService {
      * Method to hide all items and their effects from screen
      */
     public void hideItemsAndEffects(Link link) {
+        swordService.reset(link);
         boomerangService.reset(link);
         bombService.reset(link);
         arrowService.reset(link);

@@ -8,6 +8,7 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.enemy.MissileService;
 import com.twoplayers.legend.character.enemy.missile.EnemyArrow;
 import com.twoplayers.legend.character.enemy.missile.EnemySword;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.enemy.missile.Plasma;
@@ -266,6 +267,11 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public void isHitBySword(Enemy enemy, Sword sword) {
         enemy.isHitBySword(sword);
+    }
+
+    @Override
+    public void isHitBySword(Enemy enemy, ThrowingSword throwingSword) {
+        enemy.isHitByThrowingSword(throwingSword);
     }
 
     @Override

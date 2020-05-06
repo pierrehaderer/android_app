@@ -6,6 +6,7 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -21,7 +22,7 @@ public abstract class Enemy {
 
     public static final float PAUSE_BEFORE_FIRST_MOVE = 300f;
     public static final float INITIAL_STUN_COUNTER = 300f;
-    public static final float INITIAL_INVINCIBLE_COUNTER = 70f;
+    public static final float INITIAL_INVINCIBLE_COUNTER = 40f;
     public static final float MIN_TIME_BEFORE_ATTACK = 300.0f;
     public static final float MAX_TIME_BEFORE_ATTACK = 700.0f;
     public static final float PAUSE_BEFORE_ATTACK = 100f;
@@ -155,6 +156,13 @@ public abstract class Enemy {
     /**
      * This method is overridden if something special happens to the enemy
      */
+    public void isHitByThrowingSword(ThrowingSword throwingSword) {
+        enemyService.handleEnemyIsWounded(this, throwingSword.getSword().getType().damage, throwingSword.getHitbox(), throwingSword.getOrientation());
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy
+     */
     public void isHitByArrow(Arrow arrow) {
         enemyService.handleEnemyIsWounded(this, arrow.getType().damage, arrow.getHitbox(), arrow.getOrientation());
     }
@@ -204,5 +212,4 @@ public abstract class Enemy {
     public boolean isActive() {
         return isActive;
     }
-
 }
