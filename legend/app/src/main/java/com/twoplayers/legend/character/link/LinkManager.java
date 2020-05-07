@@ -105,22 +105,22 @@ public class LinkManager implements IManager {
 
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
-        link.boomerang.type = BoomerangType.WOOD;
+        link.boomerang.type = BoomerangType.NONE;
         link.bomb = new Bomb(imagesLink, game.getGraphics());
         link.bombCloud = new BombCloud(imagesLink, game.getGraphics());
         link.bombQuantity = 0;
         link.bombMax = 8;
-        link.bow = Bow.BOW;
+        link.bow = Bow.NONE;
         link.arrow = new Arrow(imagesLink, game.getGraphics());
         link.arrow.type = ArrowType.NONE;
-        link.light = Light.BLUE;
+        link.light = Light.NONE;
         link.lightCount = 0;
         link.timeBeforeUseLight = 0;
         link.fire1 = new Fire(imagesLink, game.getGraphics());
         link.fire2 = new Fire(imagesLink, game.getGraphics());
-        link.flute = Flute.FLUTE;
+        link.flute = Flute.NONE;
         link.meat = Meat.NONE;
-        link.potion = Potion.BLUE;
+        link.potion = Potion.NONE;
         link.scepter = Scepter.NONE;
 
         link.bracelet = Bracelet.NONE;
@@ -130,8 +130,8 @@ public class LinkManager implements IManager {
         link.ring = Ring.NONE;
         link.infiniteKey = InfiniteKey.NONE;
 
-        link.compass = Compass.COMPASS;
-        link.dungeonMap = DungeonMap.MAP;
+        link.compass = Compass.NONE;
+        link.dungeonMap = DungeonMap.NONE;
 
         link.sword = new Sword(imagesLink, game.getGraphics());
         link.sword.type = SwordType.WOOD;

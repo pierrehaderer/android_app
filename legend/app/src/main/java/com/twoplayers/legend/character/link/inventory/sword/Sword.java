@@ -6,7 +6,6 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.Link;
-import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.util.Orientation;
 
 import java.util.HashMap;
@@ -51,35 +50,44 @@ public class Sword {
         animations.get(SwordType.NONE).put(Orientation.LEFT, emptyAnimation);
         animations.get(SwordType.NONE).put(Orientation.RIGHT, emptyAnimation);
 
-        animations.put(SwordType.WOOD, new HashMap<Orientation, Animation>());
+        addSwordAnimations(imagesLink, g, SwordType.WOOD, "wood_sword");
+        addSwordAnimations(imagesLink, g, SwordType.WHITE, "white_sword");
+        addSwordAnimations(imagesLink, g, SwordType.MAGICAL, "magical_sword");
+    }
+
+    /**
+     * Initiate one sword animation
+     */
+    private void addSwordAnimations(ImagesLink imagesLink, Graphics g, SwordType swordType, String swordName) {
+        animations.put(swordType, new HashMap<Orientation, Animation>());
         Animation animationUp = g.newAnimation();
         animationUp.addFrame(imagesLink.get("empty"), Link.STEP_1_DURATION);
-        animationUp.addFrame(imagesLink.get("wood_sword_up_2"), 0, Math.round(-14 * AllImages.COEF), AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
-        animationUp.addFrame(imagesLink.get("wood_sword_up_3"), 0, Math.round(-14 * AllImages.COEF), AllImages.COEF, Link.STEP_3_DURATION);
-        animationUp.addFrame(imagesLink.get("wood_sword_up_4"), 0, Math.round(-14 * AllImages.COEF), AllImages.COEF, Link.STEP_4_DURATION);
+        animationUp.addFrame(imagesLink.get(swordName + "_up_2"), 0, Math.round(-14 * AllImages.COEF), AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
+        animationUp.addFrame(imagesLink.get(swordName + "_up_3"), 0, Math.round(-14 * AllImages.COEF), AllImages.COEF, Link.STEP_3_DURATION);
+        animationUp.addFrame(imagesLink.get(swordName + "_up_4"), 0, Math.round(-14 * AllImages.COEF), AllImages.COEF, Link.STEP_4_DURATION);
         animationUp.setOccurrences(1);
-        animations.get(SwordType.WOOD).put(Orientation.UP, animationUp);
+        animations.get(swordType).put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
         animationDown.addFrame(imagesLink.get("empty"), Link.STEP_1_DURATION);
-        animationDown.addFrame(imagesLink.get("wood_sword_down_2"), 0, Math.round(14 * AllImages.COEF), AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
-        animationDown.addFrame(imagesLink.get("wood_sword_down_3"), 0, Math.round(14 * AllImages.COEF), AllImages.COEF, Link.STEP_3_DURATION);
-        animationDown.addFrame(imagesLink.get("wood_sword_down_4"), 0, Math.round(14 * AllImages.COEF), AllImages.COEF, Link.STEP_4_DURATION);
+        animationDown.addFrame(imagesLink.get(swordName + "_down_2"), 0, Math.round(14 * AllImages.COEF), AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
+        animationDown.addFrame(imagesLink.get(swordName + "_down_3"), 0, Math.round(14 * AllImages.COEF), AllImages.COEF, Link.STEP_3_DURATION);
+        animationDown.addFrame(imagesLink.get(swordName + "_down_4"), 0, Math.round(14 * AllImages.COEF), AllImages.COEF, Link.STEP_4_DURATION);
         animationDown.setOccurrences(1);
-        animations.get(SwordType.WOOD).put(Orientation.DOWN, animationDown);
+        animations.get(swordType).put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
         animationLeft.addFrame(imagesLink.get("empty"), Link.STEP_1_DURATION);
-        animationLeft.addFrame(imagesLink.get("wood_sword_left_2"), Math.round(-14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
-        animationLeft.addFrame(imagesLink.get("wood_sword_left_3"), Math.round(-14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_3_DURATION);
-        animationLeft.addFrame(imagesLink.get("wood_sword_left_4"), Math.round(-14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_4_DURATION);
+        animationLeft.addFrame(imagesLink.get(swordName + "_left_2"), Math.round(-14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
+        animationLeft.addFrame(imagesLink.get(swordName + "_left_3"), Math.round(-14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_3_DURATION);
+        animationLeft.addFrame(imagesLink.get(swordName + "_left_4"), Math.round(-14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_4_DURATION);
         animationLeft.setOccurrences(1);
-        animations.get(SwordType.WOOD).put(Orientation.LEFT, animationLeft);
+        animations.get(swordType).put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
         animationRight.addFrame(imagesLink.get("empty"), Link.STEP_1_DURATION);
-        animationRight.addFrame(imagesLink.get("wood_sword_right_2"), Math.round(14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
-        animationRight.addFrame(imagesLink.get("wood_sword_right_3"), Math.round(14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_3_DURATION);
-        animationRight.addFrame(imagesLink.get("wood_sword_right_4"), Math.round(14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_4_DURATION);
+        animationRight.addFrame(imagesLink.get(swordName + "_right_2"), Math.round(14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_2_ATTACK_DURATION);
+        animationRight.addFrame(imagesLink.get(swordName + "_right_3"), Math.round(14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_3_DURATION);
+        animationRight.addFrame(imagesLink.get(swordName + "_right_4"), Math.round(14 * AllImages.COEF), 0, AllImages.COEF, Link.STEP_4_DURATION);
         animationRight.setOccurrences(1);
-        animations.get(SwordType.WOOD).put(Orientation.RIGHT, animationRight);
+        animations.get(swordType).put(Orientation.RIGHT, animationRight);
     }
 
     public SwordType getType() {

@@ -44,8 +44,8 @@ public class Cave {
         fireAnimation.addFrame(imagesCave.get("fire_1"), AllImages.COEF, 10);
         fireAnimation.addFrame(imagesCave.get("fire_2"), AllImages.COEF, 10);
         coinAnimation = g.newAnimation();
-        coinAnimation.addFrame(imagesItem.get("rupee_orange"), AllImages.COEF, 15);
-        coinAnimation.addFrame(imagesItem.get("rupee_blue"), AllImages.COEF, 15);
+        coinAnimation.addFrame(imagesItem.get("red_rupee"), AllImages.COEF, 15);
+        coinAnimation.addFrame(imagesItem.get("blue_rupee"), AllImages.COEF, 15);
     }
 
     public void addItem(Item item) {

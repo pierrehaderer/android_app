@@ -134,8 +134,8 @@ public class CaveManager implements IZoneManager {
             item.name = elements[0];
             if (isARupee(item)) {
                 item.animation = game.getGraphics().newAnimation();
-                item.animation.addFrame(imagesItem.get("rupee_blue"), AllImages.COEF, 15f);
-                item.animation.addFrame(imagesItem.get("rupee_orange"), AllImages.COEF, 15f);
+                item.animation.addFrame(imagesItem.get("blue_rupee"), AllImages.COEF, 15f);
+                item.animation.addFrame(imagesItem.get("red_rupee"), AllImages.COEF, 15f);
             } else {
                 item.image = imagesItem.get(item.name);
             }

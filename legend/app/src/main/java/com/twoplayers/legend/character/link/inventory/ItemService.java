@@ -252,9 +252,9 @@ public class ItemService {
             case "wood_sword":
                 return link.sword.type == SwordType.NONE;
             case "white_sword":
-                return link.sword.type != SwordType.WHITE && link.sword.type != SwordType.MAGICAL;
+                return link.sword.type != SwordType.WHITE && link.sword.type != SwordType.MAGICAL && link.lifeMax >= 6;
             case "magical_sword":
-                return link.sword.type != SwordType.MAGICAL;
+                return link.sword.type != SwordType.MAGICAL && link.lifeMax >= 12;
             case "big_heart":
                 return link.lifeMax < 16;
             case "taken_rupees":
