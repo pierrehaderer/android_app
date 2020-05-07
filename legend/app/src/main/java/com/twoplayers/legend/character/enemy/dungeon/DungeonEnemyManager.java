@@ -7,6 +7,7 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.enemy.MissileService;
 import com.twoplayers.legend.character.enemy.missile.EnemyBoomerang;
+import com.twoplayers.legend.character.enemy.missile.Plasma;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.enemy.missile.Missile;
@@ -112,6 +113,7 @@ public class DungeonEnemyManager implements IEnemyManager {
         enemyMap.put("BlackGel", BlackGel.class);
         enemyMap.put("RedGoriya", RedGoriya.class);
         enemyMap.put("BlueGoriya", BlueGoriya.class);
+        enemyMap.put("Aquamentus", Aquamentus.class);
     }
 
     /**
@@ -121,6 +123,7 @@ public class DungeonEnemyManager implements IEnemyManager {
         missileMap = new HashMap<>();
         missileMap.put(RedGoriya.class, EnemyBoomerang.class);
         missileMap.put(BlueGoriya.class, EnemyBoomerang.class);
+        missileMap.put(Aquamentus.class, Plasma.class);
     }
 
     /**
@@ -210,13 +213,12 @@ public class DungeonEnemyManager implements IEnemyManager {
     @Override
     public void spawnEnemies() {
         int currentSpawnCounter = spawnCounter++;
-        EnemyToSpawn[] enemiesToSpawn = dungeonEnemies.get(dungeonManager.getCoordinate());
-        for (EnemyToSpawn enemyToSpawn : enemiesToSpawn) {
+        for (EnemyToSpawn enemyToSpawn : dungeonEnemies.get(dungeonManager.getCoordinate())) {
             try {
                 if (enemyToSpawn.enemyClass != null) {
                     Constructor<? extends Enemy> constructor = enemyToSpawn.enemyClass.getConstructor(SoundEffectManager.class, IZoneManager.class, LinkManager.class, IEnemyManager.class, EnemyService.class);
                     Enemy enemy = constructor.newInstance(soundEffectManager, dungeonManager, linkManager, this, enemyService);
-                    Coordinate spawnCoordinate = enemyService.getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation, currentSpawnCounter);
+                    Coordinate spawnCoordinate = enemyService.getSpawnPosition(enemyToSpawn, linkManager.getLink().orientation.reverseOrientation(), currentSpawnCounter);
                     Logger.info("Spawning " + enemy.getClass().getSimpleName() + " at (" + spawnCoordinate.x + "," + spawnCoordinate.y + ").");
                     enemy.x = spawnCoordinate.x;
                     enemy.y = spawnCoordinate.y;

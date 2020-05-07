@@ -12,6 +12,8 @@ import com.twoplayers.legend.character.link.LinkManager;
 
 public abstract class Moblin extends Enemy {
 
+    private static final float SPEED = 0.6f;
+
     public Moblin(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
         super(s, z, l, e, es);
     }
@@ -22,9 +24,10 @@ public abstract class Moblin extends Enemy {
         nextTileX = x;
         nextTileY = y;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
-        timeBeforeAttack = enemyService.chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
+        enemyService.chooseTimeBeforeAttack(this, MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
+        speed = SPEED;
         currentAnimation = initialAnimation;
     }
 

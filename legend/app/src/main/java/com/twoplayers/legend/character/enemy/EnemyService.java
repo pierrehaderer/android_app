@@ -196,10 +196,10 @@ public class EnemyService {
      */
     public void handleEnemyHasBeenHit(Enemy enemy, float deltaTime) {
         if (enemy.hasBeenHit) {
-            Logger.info("Enemy " + this.getClass().getSimpleName() + " has been hit.");
+            Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit.");
             enemy.hasBeenHit = false;
             if (enemy.life <= 0) {
-                Logger.info("Enemy " + this.getClass().getSimpleName() + " is dead.");
+                Logger.info("Enemy " + enemy.getClass().getSimpleName() + " is dead.");
                 // Move hitbox away when enemy is dead
                 enemy.hitbox.x = 0;
                 enemy.hitbox.y = 0;
@@ -319,9 +319,9 @@ public class EnemyService {
             enemy.timeBeforeAttack -= deltaTime;
             if (enemy.timeBeforeAttack < 0) {
                 Logger.info("Enemy is attacking (" + enemy.x + "," + enemy.y + ")");
-                enemy.isAttacking = false;
                 enemy.enemyManager.spawnMissile(enemy);
-                enemy.timeBeforeAttack = chooseTimeBeforeAttack(minTime, maxTime);
+                enemy.isAttacking = false;
+                chooseTimeBeforeAttack(enemy, minTime, maxTime);
             }
         }
     }
@@ -335,15 +335,15 @@ public class EnemyService {
             if (enemy.timeBeforeAttack < 0) {
                 Logger.info("Enemy is attacking (" + enemy.x + "," + enemy.y + ")");
                 enemy.enemyManager.spawnMissile(enemy);
-                enemy.timeBeforeAttack = chooseTimeBeforeAttack(minTime, maxTime);
+                chooseTimeBeforeAttack(enemy, minTime, maxTime);
             }
         }
     }
     /**
      * Randomly choose a duration before the next attack
      */
-    public float chooseTimeBeforeAttack(float min, float max) {
-        return (float) ((max - min) * Math.random() + min);
+    public void chooseTimeBeforeAttack(Enemy enemy, float min, float max) {
+        enemy.timeBeforeAttack = (float) ((max - min) * Math.random() + min);
     }
 
     /**

@@ -49,7 +49,7 @@ public abstract class Enemy {
     protected float damage;
     protected int life;
 
-    // For enemies that can be stunned
+    // For enemies that can be hurt
     protected boolean isInvincible;
     protected float invicibleCounter;
 
@@ -135,9 +135,7 @@ public abstract class Enemy {
     /**
      * Update the enemy has it is existing in the room
      */
-    public void update(float deltaTime, Graphics g) {
-        enemyService.handleEnemyHasBeenHit(this, deltaTime);
-    }
+    public abstract void update(float deltaTime, Graphics g);
 
     /**
      * This method is overridden if something special happens to the enemy

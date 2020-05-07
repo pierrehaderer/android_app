@@ -181,7 +181,7 @@ public abstract class Keese extends Enemy {
      */
     private void chooseNextDestination() {
         int orientationChoice = (int) (Math.random() * 2);
-        orientation = orientation.getOrientationsBeside()[orientationChoice];
+        orientation = orientation.getOrientationsBesideAt45Degrees()[orientationChoice];
         distance = ((int) (Math.random() * MAX_DISTANCE)) * LocationUtil.HALF_TILE_SIZE;
     }
 

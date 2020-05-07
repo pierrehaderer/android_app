@@ -77,6 +77,44 @@ public enum Orientation {
 
     public Orientation[] getOrientationsBeside() {
         switch (this) {
+            case RIGHT:
+                return new Orientation[] {DEGREES_20, DEGREES_340};
+            case DEGREES_20:
+                return new Orientation[] {RIGHT, DEGREES_45};
+            case DEGREES_45:
+                return new Orientation[] {DEGREES_20, DEGREES_70};
+            case DEGREES_70:
+                return new Orientation[] {DEGREES_45, UP};
+            case UP:
+                return new Orientation[] {DEGREES_70, DEGREES_110};
+            case DEGREES_110:
+                return new Orientation[] {UP, DEGREES_135};
+            case DEGREES_135:
+                return new Orientation[] {DEGREES_110, DEGREES_160};
+            case DEGREES_160:
+                return new Orientation[] {DEGREES_135, LEFT};
+            case LEFT:
+                return new Orientation[] {DEGREES_160, DEGREES_200};
+            case DEGREES_200:
+                return new Orientation[] {LEFT, DEGREES_225};
+            case DEGREES_225:
+                return new Orientation[] {DEGREES_200, DEGREES_250};
+            case DEGREES_250:
+                return new Orientation[] {DEGREES_225, DOWN};
+            case DOWN:
+                return new Orientation[] {DEGREES_250, DEGREES_290};
+            case DEGREES_290:
+                return new Orientation[] {DOWN, DEGREES_315};
+            case DEGREES_315:
+                return new Orientation[] {DEGREES_290, DEGREES_340};
+            case DEGREES_340:
+                return new Orientation[] {DEGREES_315, RIGHT};
+        }
+        return new Orientation[] {DEGREES_45, DEGREES_135};
+    }
+
+    public Orientation[] getOrientationsBesideAt45Degrees() {
+        switch (this) {
             case UP:
                 return new Orientation[] {DEGREES_45, DEGREES_135};
             case DOWN:
@@ -95,6 +133,5 @@ public enum Orientation {
                 return new Orientation[] {DOWN, RIGHT};
         }
         return new Orientation[] {DEGREES_45, DEGREES_135};
-
     }
 }

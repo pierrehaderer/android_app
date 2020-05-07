@@ -22,7 +22,7 @@ public abstract class Octorok extends Enemy {
         nextTileX = x;
         nextTileY = y;
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
-        timeBeforeAttack = enemyService.chooseTimeBeforeAttack(MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
+        enemyService.chooseTimeBeforeAttack(this, MIN_TIME_BEFORE_ATTACK, MAX_TIME_BEFORE_ATTACK);
         hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
         currentAnimation = initialAnimation;

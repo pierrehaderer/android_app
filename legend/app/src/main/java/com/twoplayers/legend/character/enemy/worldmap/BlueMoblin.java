@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 public class BlueMoblin extends Moblin {
 
-    private static final float SPEED = 0.6f;
     private static final int INITIAL_LIFE = 3;
 
     /**
@@ -24,7 +23,6 @@ public class BlueMoblin extends Moblin {
     public BlueMoblin(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
         super(s, z, l, e, es);
         life = INITIAL_LIFE;
-        speed = SPEED;
     }
 
     @Override
