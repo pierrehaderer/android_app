@@ -45,6 +45,8 @@ public class Link {
     protected static final float INITIAL_INVINCIBLE_COUNT = 100f;
     public static final float INITIAL_SHOW_COUNT = 150f;
     public static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
+    public static final float CHANGE_ITEM_INITIAL_COUNT = 50f;
+
 
     public static final float STEP_1_DURATION = 8;
     public static final float STEP_2_ATTACK_DURATION = 25;
@@ -122,6 +124,7 @@ public class Link {
     public SwordSplash swordSplash;
     public Shield shield;
     public int secondItem;
+    public float changeItemCount;
     public boolean isUsingSecondItem;
 
     public Link(ImagesLink imagesLink, Graphics g) {

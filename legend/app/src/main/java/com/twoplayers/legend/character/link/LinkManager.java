@@ -105,22 +105,22 @@ public class LinkManager implements IManager {
 
         //TODO Change it when it can be collected
         link.boomerang = new Boomerang(imagesLink, game.getGraphics());
-        link.boomerang.type = BoomerangType.NONE;
+        link.boomerang.type = BoomerangType.WOOD;
         link.bomb = new Bomb(imagesLink, game.getGraphics());
         link.bombCloud = new BombCloud(imagesLink, game.getGraphics());
         link.bombQuantity = 0;
         link.bombMax = 8;
-        link.bow = Bow.NONE;
+        link.bow = Bow.BOW;
         link.arrow = new Arrow(imagesLink, game.getGraphics());
         link.arrow.type = ArrowType.NONE;
-        link.light = Light.NONE;
+        link.light = Light.BLUE;
         link.lightCount = 0;
         link.timeBeforeUseLight = 0;
         link.fire1 = new Fire(imagesLink, game.getGraphics());
         link.fire2 = new Fire(imagesLink, game.getGraphics());
-        link.flute = Flute.NONE;
+        link.flute = Flute.FLUTE;
         link.meat = Meat.NONE;
-        link.potion = Potion.NONE;
+        link.potion = Potion.BLUE;
         link.scepter = Scepter.NONE;
 
         link.bracelet = Bracelet.NONE;
@@ -139,6 +139,7 @@ public class LinkManager implements IManager {
         link.swordSplash = new SwordSplash(imagesLink, game.getGraphics());
         link.shield = Shield.SMALL;
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
+        link.changeItemCount = 0;
         link.isUsingSecondItem = false;
 
         colorMatrix = new ColorMatrixCharacter();
@@ -162,8 +163,11 @@ public class LinkManager implements IManager {
         // Link is paying something
         itemService.handleLinkPayment(link, deltaTime);
 
-        // Link is using the second object
+        // Link is using the items
         itemService.handleLinkUsingItem(link, deltaTime);
+
+        // Link is changing the second item
+        itemService.handleLinkChangingSecondItem(link, deltaTime);
 
         // Link is wounded
         linkService.handleLinkInvincible(link, deltaTime, colorMatrix);

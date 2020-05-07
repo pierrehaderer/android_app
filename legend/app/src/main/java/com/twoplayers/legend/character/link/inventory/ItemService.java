@@ -102,6 +102,19 @@ public class ItemService {
     }
 
     /**
+     * Handle link is changing the second item
+     */
+    public void handleLinkChangingSecondItem(Link link, float deltaTime) {
+        if (link.changeItemCount > 0) {
+            link.changeItemCount -= deltaTime;
+        }
+        if (guiManager.iscPressed() && link.changeItemCount <= 0) {
+            switchToNextItem(link);
+            link.changeItemCount = Link.CHANGE_ITEM_INITIAL_COUNT;
+        }
+    }
+
+    /**
      * Handle when link is picking an item
      */
     public void handleLinkPickingItem(Link link, float deltaTime) {
