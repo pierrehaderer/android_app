@@ -24,9 +24,10 @@ import com.twoplayers.legend.character.link.inventory.Meat;
 import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
-import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
+import com.twoplayers.legend.character.link.inventory.rod.Rod;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.character.link.inventory.sword.SwordSplash;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
@@ -99,7 +100,9 @@ public class Link {
     public Flute flute;
     public Meat meat;
     public Potion potion;
-    public Scepter scepter;
+    public Rod rod;
+    public RodWave rodWave;
+    public Fire rodFire;
 
     public Bracelet bracelet;
     public Raft raft;
@@ -303,8 +306,8 @@ public class Link {
         return ring;
     }
 
-    public Scepter getScepter() {
-        return scepter;
+    public Rod getRod() {
+        return rod;
     }
 
     public SpellBook getSpellBook() {

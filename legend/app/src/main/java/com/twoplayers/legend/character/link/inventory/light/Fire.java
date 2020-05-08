@@ -6,7 +6,6 @@ import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
-import com.twoplayers.legend.util.LocationUtil;
 
 public class Fire {
 
@@ -17,9 +16,8 @@ public class Fire {
     protected static final float SPEED = 0.4f;
 
     public boolean isActive;
-    protected float remainingMoves;
-    protected float timeBeforeDespawn;
-    protected boolean hasJustFinished;
+    public float remainingMoves;
+    public float timeBeforeDespawn;
 
     protected Orientation orientation;
     public float x;
@@ -33,7 +31,6 @@ public class Fire {
         isActive = false;
         remainingMoves = 0;
         timeBeforeDespawn = INITIAL_TIME_BEFORE_DESPAWN;
-        hasJustFinished = false;
         orientation = Orientation.UP;
         hitbox = new Hitbox(0, 0, 2, 3, 12, 12);
     }

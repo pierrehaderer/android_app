@@ -6,6 +6,8 @@ import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
+import com.twoplayers.legend.character.link.inventory.rod.Rod;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
@@ -177,6 +179,20 @@ public abstract class Enemy {
      */
     public void isHitByFire(Fire fire) {
         enemyService.handleEnemyIsWounded(this, Fire.DAMAGE_TO_ENEMY, fire.getHitbox(), fire.getOrientation());
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy
+     */
+    public void isHitByRod(Rod rod) {
+        enemyService.handleEnemyIsWounded(this, Rod.DAMAGE_TO_ENEMY, rod.getHitbox(), rod.getOrientation());
+    }
+
+    /**
+     * This method is overridden if something special happens to the enemy
+     */
+    public void isHitByRodWave(RodWave rodWave) {
+        enemyService.handleEnemyIsWounded(this, Rod.DAMAGE_TO_ENEMY, rodWave.getHitbox(), rodWave.getOrientation());
     }
 
     /**

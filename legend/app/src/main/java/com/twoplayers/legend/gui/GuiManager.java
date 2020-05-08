@@ -26,8 +26,8 @@ import com.twoplayers.legend.character.link.inventory.Meat;
 import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
-import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
+import com.twoplayers.legend.character.link.inventory.rod.RodType;
 import com.twoplayers.legend.character.link.inventory.sword.SwordType;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
@@ -115,8 +115,8 @@ public class GuiManager implements IManager {
     private static final int TOP_MEAT = 44;
     private static final int LEFT_POTION = 756;
     private static final int TOP_POTION = 44;
-    private static final int LEFT_SCEPTER = 778;
-    private static final int TOP_SCEPTER = 44;
+    private static final int LEFT_ROD = 778;
+    private static final int TOP_ROD = 44;
 
     private static final int LEFT_LADDER = 705;
     private static final int TOP_LADDER = 3;
@@ -324,7 +324,7 @@ public class GuiManager implements IManager {
                 g.drawScaledImage(imagesGui.get(link.getPotion().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
             case 8:
-                g.drawScaledImage(imagesGui.get(link.getScepter().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
+                g.drawScaledImage(imagesGui.get(link.getRod().getType().name),LEFT_ITEM_B, TOP_ITEM_B, COEF_SELECTED_ITEMS);
                 break;
         }
 
@@ -374,8 +374,8 @@ public class GuiManager implements IManager {
         if (link.getRing() != Ring.NONE) {
             g.drawImage(imagesGui.get(link.getRing().name),LEFT_RING, TOP_RING);
         }
-        if (link.getScepter() != Scepter.NONE) {
-            g.drawImage(imagesGui.get(link.getScepter().name),LEFT_SCEPTER, TOP_SCEPTER);
+        if (link.getRod().getType() != RodType.NONE) {
+            g.drawImage(imagesGui.get(link.getRod().getType().name), LEFT_ROD, TOP_ROD);
         }
         if (link.getSpellBook() != SpellBook.NONE) {
             g.drawImage(imagesGui.get(link.getSpellBook().name),LEFT_SPELLBOOK, TOP_SPELLBOOK);

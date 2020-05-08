@@ -8,6 +8,8 @@ import com.twoplayers.legend.character.link.inventory.arrow.ArrowService;
 import com.twoplayers.legend.character.link.inventory.bomb.BombService;
 import com.twoplayers.legend.character.link.inventory.boomerang.BoomerangService;
 import com.twoplayers.legend.character.link.inventory.light.LightService;
+import com.twoplayers.legend.character.link.inventory.rod.RodService;
+import com.twoplayers.legend.character.link.inventory.rod.RodType;
 import com.twoplayers.legend.character.link.inventory.sword.SwordService;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
@@ -38,6 +40,7 @@ public class ItemService {
     private BombService bombService;
     private ArrowService arrowService;
     private LightService lightService;
+    private RodService rodService;
 
     private float[] stepDuration;
 
@@ -55,6 +58,7 @@ public class ItemService {
         arrowService = new ArrowService(enemyManager, soundEffectManager);
         lightService = new LightService(zoneManager, enemyManager, soundEffectManager);
         bombService = new BombService(zoneManager, enemyManager, soundEffectManager, this);
+        rodService = new RodService(enemyManager, zoneManager, soundEffectManager);
 
         stepDuration = new float[]{STEP_0_DURATION, STEP_1_DURATION, STEP_2_DURATION, STEP_3_DURATION, STEP_4_DURATION};
     }
@@ -91,6 +95,7 @@ public class ItemService {
                     case 7:
                         break;
                     case 8:
+                        rodService.initiateRod(link);
                         break;
                 }
             }
@@ -102,6 +107,8 @@ public class ItemService {
         bombService.handleBomb(link, deltaTime);
         lightService.handleFire(link, deltaTime);
         arrowService.handleArrow(link, deltaTime);
+        rodService.handleLinkRod(link, deltaTime);
+        rodService.handleLinkRodWave(link, deltaTime);
     }
 
     /**
@@ -112,11 +119,11 @@ public class ItemService {
             link.currentAnimation.update(deltaTime);
             link.useItemStepHasChanged = false;
             link.useItemProgression += deltaTime;
-            while (link.useItemStep <= 4 && link.useItemProgression > stepDuration[link.useItemStep]) {
+            while (link.useItemStep < 5 && link.useItemProgression > stepDuration[link.useItemStep]) {
                 link.useItemStep++;
                 link.useItemStepHasChanged = true;
             }
-            if (link.useItemStep > 4) {
+            if (link.useItemStep == 5) {
                 link.isUsingItem = false;
                 link.switchToMoveAnimation(link.orientation);
             }
@@ -268,8 +275,8 @@ public class ItemService {
                 return link.ring == Ring.NONE;
             case "red_ring":
                 return link.ring != Ring.RED;
-            case "scepter":
-                return link.scepter == Scepter.NONE;
+            case "rod":
+                return link.rod.type == RodType.NONE;
             case "shield":
                 return link.shield == Shield.SMALL;
             case "spell_book":
@@ -359,8 +366,8 @@ public class ItemService {
             case "red_ring":
                 link.ring = Ring.RED;
                 break;
-            case "scepter":
-                link.scepter = Scepter.SCEPTER;
+            case "rod":
+                link.rod.type = RodType.ROD;
                 break;
             case "spell_book":
                 link.spellBook = SpellBook.BOOK;
@@ -397,7 +404,7 @@ public class ItemService {
             link.secondItem = 6;
         } else if (link.secondItem < 7 && link.potion != Potion.NONE) {
             link.secondItem = 7;
-        } else if (link.secondItem < 8 && link.scepter != Scepter.NONE) {
+        } else if (link.secondItem < 8 && link.rod.type != RodType.NONE) {
             link.secondItem = 8;
         }
 
@@ -418,7 +425,7 @@ public class ItemService {
                 link.secondItem = 6;
             } else if (link.potion != Potion.NONE) {
                 link.secondItem = 7;
-            } else if (link.scepter != Scepter.NONE) {
+            } else if (link.rod.type != RodType.NONE) {
                 link.secondItem = 8;
             }
         }

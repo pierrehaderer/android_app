@@ -5,6 +5,8 @@ import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.rod.Rod;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 
@@ -26,17 +28,22 @@ public interface IEnemyManager extends IManager {
     /** Enemy has been hit by sword */
     void isHitBySword(Enemy enemy, Sword sword);
     /** Enemy has been hit by throwing sword */
-    void isHitBySword(Enemy enemy, ThrowingSword throwingSword);
+    void isHitByThrowingSword(Enemy enemy, ThrowingSword throwingSword);
     /** Enemy has been hit by boomerang */
     void isHitByBoomerang(Enemy enemy);
     /** Enemy has been hit by fire */
     void isHitByFire(Enemy enemy, Fire fire);
     /** Enemy has has been hit by arrow */
     void isHitByArrow(Enemy enemy, Arrow arrow);
-    /** Enemy has has been hit by bombx */
+    /** Enemy has has been hit by bomb */
     void isHitByBomb(Enemy enemy, Bomb bomb);
+    /** Enemy has has been hit by rod */
+    void isHitByRod(Enemy enemy, Rod rod);
+    /** Enemy has has been hit by rod wave */
+    void isHitByRodWave(Enemy enemy, RodWave rodWave);
     /** Enemy has hit link */
     void hasHitLink(Enemy enemy);
     /** Missile has hit link */
     void hasHitLink(Missile missile);
+
 }

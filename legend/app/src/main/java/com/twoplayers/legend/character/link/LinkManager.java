@@ -10,6 +10,9 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.character.link.inventory.rod.Rod;
+import com.twoplayers.legend.character.link.inventory.rod.RodType;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.SwordSplash;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
@@ -34,7 +37,6 @@ import com.twoplayers.legend.character.link.inventory.Meat;
 import com.twoplayers.legend.character.link.inventory.Potion;
 import com.twoplayers.legend.character.link.inventory.Raft;
 import com.twoplayers.legend.character.link.inventory.Ring;
-import com.twoplayers.legend.character.link.inventory.Scepter;
 import com.twoplayers.legend.character.link.inventory.Shield;
 import com.twoplayers.legend.character.link.inventory.SpellBook;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
@@ -121,7 +123,10 @@ public class LinkManager implements IManager {
         link.flute = Flute.NONE;
         link.meat = Meat.NONE;
         link.potion = Potion.NONE;
-        link.scepter = Scepter.NONE;
+        link.rod = new Rod(imagesLink, game.getGraphics());
+        link.rod.type = RodType.ROD;
+        link.rodWave = new RodWave(imagesLink, game.getGraphics());
+        link.rodFire = new Fire(imagesLink, game.getGraphics());
 
         link.bracelet = Bracelet.NONE;
         link.raft = Raft.NONE;
@@ -192,6 +197,10 @@ public class LinkManager implements IManager {
         if (link.boomerang.isMovingForward || link.boomerang.isMovingBackward) {
             g.drawAnimation(link.boomerang.getAnimation(), (int) link.boomerang.x, (int) link.boomerang.y);
         }
+        // Draw the bomb
+        if (link.bomb.isActive) {
+            g.drawAnimation(link.bomb.currentAnimation, (int) link.bomb.x, (int) link.bomb.y);
+        }
         // Draw the fires from light
         if (link.fire1.isActive) {
             g.drawAnimation(link.fire1.animation, (int) link.fire1.x, (int) link.fire1.y);
@@ -203,9 +212,17 @@ public class LinkManager implements IManager {
         if (link.arrow.isActive || link.arrow.isAnImpact) {
             g.drawAnimation(link.arrow.currentAnimation, (int) link.arrow.x, (int) link.arrow.y);
         }
-        // Draw the bomb
-        if (link.bomb.isActive) {
-            g.drawAnimation(link.bomb.currentAnimation, (int) link.bomb.x, (int) link.bomb.y);
+        // Draw the rod
+        if (link.rod.isActive) {
+            g.drawScaledImage(link.rod.image, (int) link.rod.x, (int) link.rod.y, AllImages.COEF);
+        }
+        // Draw the rod wave
+        if (link.rodWave.isActive) {
+            g.drawAnimation(link.rodWave.getAnimation(), (int) link.rodWave.x, (int) link.rodWave.y);
+        }
+        // Draw the rod fire
+        if (link.rodFire.isActive) {
+            g.drawAnimation(link.rodFire.animation, (int) link.rodFire.x, (int) link.rodFire.y);
         }
 
         // Draw link

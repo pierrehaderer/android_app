@@ -75,8 +75,6 @@ public class LightService {
         if (link.timeBeforeUseLight > 0) {
             link.timeBeforeUseLight -= deltaTime;
         }
-        updateFire(link.fire1, deltaTime);
-        updateFire(link.fire2, deltaTime);
         for (Enemy enemy : enemyManager.getEnemies()) {
             if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible()) {
                 if (link.fire1.isActive && LocationUtil.areColliding(link.fire1.hitbox, enemy.getHitbox())) {
@@ -87,20 +85,15 @@ public class LightService {
                     Logger.info("Link has hit enemy with fire 2.");
                     enemyManager.isHitByFire(enemy, link.fire2);
                 }
+                if (link.rodFire.isActive && LocationUtil.areColliding(link.rodFire.hitbox, enemy.getHitbox())) {
+                    Logger.info("Link has hit enemy with fire of the rod.");
+                    enemyManager.isHitByFire(enemy, link.rodFire);
+                }
             }
         }
-        if (link.fire1.hasJustFinished) {
-            zoneManager.fireHasJustFinished(link.fire1);
-            link.fire1.hasJustFinished = false;
-            link.fire1.isActive = false;
-            link.fire1.hitbox.relocate(0, 0);
-        }
-        if (link.fire2.hasJustFinished) {
-            zoneManager.fireHasJustFinished(link.fire2);
-            link.fire2.hasJustFinished = false;
-            link.fire2.isActive = false;
-            link.fire2.hitbox.relocate(0, 0);
-        }
+        updateFire(link.fire1, deltaTime);
+        updateFire(link.fire2, deltaTime);
+        updateFire(link.rodFire, deltaTime);
     }
 
 
@@ -134,7 +127,9 @@ public class LightService {
             } else {
                 fire.timeBeforeDespawn -= deltaTime;
                 if (fire.timeBeforeDespawn < 0) {
-                    fire.hasJustFinished = true;
+                    zoneManager.fireHasJustFinished(fire);
+                    fire.isActive = false;
+                    fire.hitbox.relocate(0, 0);
                 }
             }
         }

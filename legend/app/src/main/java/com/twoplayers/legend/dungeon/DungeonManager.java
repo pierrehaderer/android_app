@@ -9,6 +9,7 @@ import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Orientation;
 import com.twoplayers.legend.assets.image.AllImages;
@@ -848,6 +849,21 @@ public class DungeonManager implements IZoneManager {
         return true;
     }
 
+
+    @Override
+    public boolean hasRodWaveHitBorder(RodWave rodWave) {
+        switch (rodWave.orientation) {
+            case UP:
+                return rodWave.y < LocationUtil.TOP_MAP + 2 * LocationUtil.TILE_SIZE;
+            case DOWN:
+                return rodWave.y > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - 3 * LocationUtil.TILE_SIZE;
+            case LEFT:
+                return rodWave.x < LocationUtil.LEFT_MAP + 2 * LocationUtil.TILE_SIZE;
+            case RIGHT:
+                return rodWave.x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - 3 * LocationUtil.TILE_SIZE;
+        }
+        return true;
+    }
     @Override
     public boolean upAndDownAuthorized(Link link) {
         return link.x > LocationUtil.LEFT_MAP + 6 * LocationUtil.QUARTER_TILE_SIZE + LocationUtil.OBSTACLE_TOLERANCE

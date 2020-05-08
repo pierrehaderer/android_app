@@ -9,6 +9,7 @@ import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
 import com.twoplayers.legend.character.link.inventory.ItemService;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Orientation;
@@ -449,6 +450,21 @@ public class CaveManager implements IZoneManager {
                 return throwingSword.x < LocationUtil.LEFT_MAP + LocationUtil.HALF_TILE_SIZE;
             case RIGHT:
                 return throwingSword.x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - 3 * LocationUtil.HALF_TILE_SIZE;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean hasRodWaveHitBorder(RodWave rodWave) {
+        switch (rodWave.orientation) {
+            case UP:
+                return rodWave.y < LocationUtil.TOP_MAP;
+            case DOWN:
+                return rodWave.y > LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - LocationUtil.TILE_SIZE;
+            case LEFT:
+                return rodWave.x < LocationUtil.LEFT_MAP;
+            case RIGHT:
+                return rodWave.x > LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - LocationUtil.TILE_SIZE;
         }
         return true;
     }

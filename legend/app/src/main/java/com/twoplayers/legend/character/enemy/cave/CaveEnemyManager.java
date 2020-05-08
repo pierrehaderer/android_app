@@ -8,6 +8,8 @@ import com.twoplayers.legend.character.enemy.missile.Missile;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
+import com.twoplayers.legend.character.link.inventory.rod.Rod;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 
@@ -71,7 +73,7 @@ public class CaveEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void isHitBySword(Enemy enemy, ThrowingSword throwingSword) {
+    public void isHitByThrowingSword(Enemy enemy, ThrowingSword throwingSword) {
     }
 
     @Override
@@ -88,6 +90,14 @@ public class CaveEnemyManager implements IEnemyManager {
 
     @Override
     public void isHitByBomb(Enemy enemy, Bomb bomb) {
+    }
+
+    @Override
+    public void isHitByRod(Enemy enemy, Rod rod) {
+    }
+
+    @Override
+    public void isHitByRodWave(Enemy enemy, RodWave rodWave) {
     }
 
     @Override

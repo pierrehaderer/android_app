@@ -8,6 +8,8 @@ import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.character.enemy.MissileService;
 import com.twoplayers.legend.character.enemy.missile.EnemyArrow;
 import com.twoplayers.legend.character.enemy.missile.EnemySword;
+import com.twoplayers.legend.character.link.inventory.rod.Rod;
+import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.ColorMatrixCharacter;
 import com.twoplayers.legend.character.enemy.missile.Missile;
@@ -270,7 +272,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
     }
 
     @Override
-    public void isHitBySword(Enemy enemy, ThrowingSword throwingSword) {
+    public void isHitByThrowingSword(Enemy enemy, ThrowingSword throwingSword) {
         enemy.isHitByThrowingSword(throwingSword);
     }
 
@@ -292,6 +294,17 @@ public class WorldMapEnemyManager implements IEnemyManager {
     @Override
     public void isHitByBomb(Enemy enemy, Bomb bomb) {
         enemy.isHitByBomb(bomb);
+    }
+
+    @Override
+    public void isHitByRod(Enemy enemy, Rod rod) {
+        enemy.isHitByRod(rod);
+
+    }
+
+    @Override
+    public void isHitByRodWave(Enemy enemy, RodWave rodWave) {
+        enemy.isHitByRodWave(rodWave);
     }
 
     @Override

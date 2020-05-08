@@ -159,7 +159,7 @@ public class LinkService {
     public void handleLinkWounded(Link link, float deltaTime) {
         if (!link.isInvincible && !link.isShowingItem) {
             Hitbox woundingHitbox = null;
-            Fire[] fireList = new Fire[] {link.fire1, link.fire2};
+            Fire[] fireList = new Fire[] {link.fire1, link.fire2, link.rodFire};
             for (Fire fire : fireList) {
                 if (woundingHitbox == null && fire.isActive && LocationUtil.areColliding(link.hitbox, fire.hitbox)) {
                     Logger.info("Link has collided with fire.");
