@@ -34,6 +34,7 @@ public class ThrowingSword {
     public ThrowingSword(ImagesLink imagesLink, Graphics g) {
         initAnimations(imagesLink, g);
         orientation = Orientation.UP;
+        isActive = false;
         hitbox = new Hitbox(0, 0, 2, 2, 12, 12);
     }
 
@@ -44,28 +45,28 @@ public class ThrowingSword {
         animations = new HashMap<>();
 
         Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesLink.get("sword_up_1"), AllImages.COEF, 3);
-        animationUp.addFrame(imagesLink.get("sword_up_2"), AllImages.COEF, 3);
-        animationUp.addFrame(imagesLink.get("sword_up_3"), AllImages.COEF, 3);
-        animationUp.addFrame(imagesLink.get("sword_up_4"), AllImages.COEF, 3);
+        animationUp.addFrame(imagesLink.get("throwing_sword_up_1"), AllImages.COEF, 3);
+        animationUp.addFrame(imagesLink.get("throwing_sword_up_2"), AllImages.COEF, 3);
+        animationUp.addFrame(imagesLink.get("throwing_sword_up_3"), AllImages.COEF, 3);
+        animationUp.addFrame(imagesLink.get("throwing_sword_up_4"), AllImages.COEF, 3);
         animations.put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesLink.get("sword_down_1"), AllImages.COEF, 3);
-        animationDown.addFrame(imagesLink.get("sword_down_2"), AllImages.COEF, 3);
-        animationDown.addFrame(imagesLink.get("sword_down_3"), AllImages.COEF, 3);
-        animationDown.addFrame(imagesLink.get("sword_down_4"), AllImages.COEF, 3);
+        animationDown.addFrame(imagesLink.get("throwing_sword_down_1"), AllImages.COEF, 3);
+        animationDown.addFrame(imagesLink.get("throwing_sword_down_2"), AllImages.COEF, 3);
+        animationDown.addFrame(imagesLink.get("throwing_sword_down_3"), AllImages.COEF, 3);
+        animationDown.addFrame(imagesLink.get("throwing_sword_down_4"), AllImages.COEF, 3);
         animations.put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesLink.get("sword_left_1"), AllImages.COEF, 3);
-        animationLeft.addFrame(imagesLink.get("sword_left_2"), AllImages.COEF, 3);
-        animationLeft.addFrame(imagesLink.get("sword_left_3"), AllImages.COEF, 3);
-        animationLeft.addFrame(imagesLink.get("sword_left_4"), AllImages.COEF, 3);
+        animationLeft.addFrame(imagesLink.get("throwing_sword_left_1"), AllImages.COEF, 3);
+        animationLeft.addFrame(imagesLink.get("throwing_sword_left_2"), AllImages.COEF, 3);
+        animationLeft.addFrame(imagesLink.get("throwing_sword_left_3"), AllImages.COEF, 3);
+        animationLeft.addFrame(imagesLink.get("throwing_sword_left_4"), AllImages.COEF, 3);
         animations.put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesLink.get("sword_right_1"), AllImages.COEF, 3);
-        animationRight.addFrame(imagesLink.get("sword_right_2"), AllImages.COEF, 3);
-        animationRight.addFrame(imagesLink.get("sword_right_3"), AllImages.COEF, 3);
-        animationRight.addFrame(imagesLink.get("sword_right_4"), AllImages.COEF, 3);
+        animationRight.addFrame(imagesLink.get("throwing_sword_right_1"), AllImages.COEF, 3);
+        animationRight.addFrame(imagesLink.get("throwing_sword_right_2"), AllImages.COEF, 3);
+        animationRight.addFrame(imagesLink.get("throwing_sword_right_3"), AllImages.COEF, 3);
+        animationRight.addFrame(imagesLink.get("throwing_sword_right_4"), AllImages.COEF, 3);
         animations.put(Orientation.RIGHT, animationRight);
     }
 

@@ -43,7 +43,7 @@ public class LinkService {
      * Handle link movement based on the arrows pressed. Return true if link change the room
      */
     public void handleLinkMovement(Link link, float deltaTime) {
-        if (!link.isAttacking && !link.isUsingSecondItem && !link.isPushed && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
+        if (!link.isUsingItem && !link.isPushed && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
             // Movement of Link
             boolean linkHasNotMovedYet = true;
             if (guiManager.isUpPressed() && guiManager.areButtonsActivated() && zoneManager.upAndDownAuthorized(link)) {
@@ -288,7 +288,7 @@ public class LinkService {
             link.mustPlayExitSomewhereSound = true;
             link.exitSomewhereDistance = LocationUtil.TILE_SIZE;
             link.isPushed = false;
-            link.isAttacking = false;
+            link.isUsingItem = false;
             link.isInvincible = false;
             link.currentAnimation = link.moveAnimations.get(Orientation.UP);
             int tileX = LocationUtil.getTileXFromPositionX(link.x + LocationUtil.HALF_TILE_SIZE);
@@ -311,7 +311,7 @@ public class LinkService {
             link.enterSomewhereDistance = 0;
             link.exitSomewhereDistance = 0;
             link.isPushed = false;
-            link.isAttacking = false;
+            link.isUsingItem = false;
             link.isInvincible = false;
         }
     }
@@ -325,7 +325,7 @@ public class LinkService {
             Logger.info("Link is entering a bomb hole.");
             linkManager.hideItemsAndEffects();
             link.isPushed = false;
-            link.isAttacking = false;
+            link.isUsingItem = false;
             link.isInvincible = false;
             zoneManager.changeRoom(link.orientation);
         }
@@ -394,15 +394,16 @@ public class LinkService {
     private void shiftLinkX(Link link, float nextX) {
         if (nextX != link.x) {
             if (LocationUtil.isLeftOutOfMap(nextX)) {
-                link.x = LocationUtil.LEFT_MAP;
+                nextX = LocationUtil.LEFT_MAP;
             } else if (LocationUtil.isRightOutOfMap(nextX + LocationUtil.TILE_SIZE)) {
-                link.x = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - LocationUtil.TILE_SIZE;
-            } else {
-                link.x = nextX;
+                nextX = LocationUtil.LEFT_MAP + LocationUtil.WIDTH_MAP - LocationUtil.TILE_SIZE;
             }
+            if (link.sword.isActive) {
+                link.sword.x += nextX - link.x;
+                link.sword.getHitbox().x += nextX - link.x;
+            }
+            link.x = nextX;
             link.hitbox.x = link.x + link.hitbox.x_offset;
-            link.sword.x = link.x;
-            link.sword.getHitbox().x = link.x + link.sword.getHitbox().x_offset;
         }
     }
 
@@ -412,15 +413,16 @@ public class LinkService {
     private void shiftLinkY(Link link, float nextY) {
         if (nextY != link.y) {
             if (LocationUtil.isUpOutOfMap(nextY)) {
-                link.y = LocationUtil.TOP_MAP;
+                nextY = LocationUtil.TOP_MAP;
             } else if (LocationUtil.isDownOutOfMap(nextY + LocationUtil.TILE_SIZE)) {
-                link.y = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - LocationUtil.TILE_SIZE;
-            } else {
-                link.y = nextY;
+                nextY = LocationUtil.TOP_MAP + LocationUtil.HEIGHT_MAP - LocationUtil.TILE_SIZE;
             }
+            if (link.sword.isActive) {
+                link.sword.y += nextY - link.y;
+                link.sword.getHitbox().y += nextY - link.y;
+            }
+            link.y = nextY;
             link.hitbox.y = link.y + link.hitbox.y_offset;
-            link.sword.y = link.y;
-            link.sword.getHitbox().y = link.y + link.sword.getHitbox().y_offset;
         }
     }
 

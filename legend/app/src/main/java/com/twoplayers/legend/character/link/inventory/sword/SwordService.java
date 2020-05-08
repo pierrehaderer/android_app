@@ -38,14 +38,13 @@ public class SwordService {
      */
     public void initiateSword(Link link) {
         if (link.sword.type != SwordType.NONE) {
-            link.switchToUseAnimation();
+            Logger.info("Link is attacking with its sword.");
+            link.startToUseItem();
+            link.sword.isActive = true;
             link.sword.x = link.x;
             link.sword.y = link.y;
             link.sword.orientation = link.orientation;
-            link.sword.getAnimation().reset();
-            link.sword.getHitbox().relocate(link.x, link.y);
-            link.isAttacking = true;
-            link.attackProgression = 0;
+            link.sword.getHitbox().relocate(link.sword.x, link.sword.y);
             if (link.life == link.lifeMax && !link.throwingSword.isActive) {
                 link.throwingSword.isActive = true;
                 link.throwingSword.delayBeforeActive = ThrowingSword.INITIAL_DELAY;
@@ -63,16 +62,25 @@ public class SwordService {
     /**
      * Handle link attack
      */
-    public void handleLinkAttack(Link link, float deltaTime) {
-        if (link.isAttacking) {
-            link.sword.getAnimation().update(deltaTime);
-            link.attackProgression += deltaTime;
-            if (link.attackProgression > Link.STEP_1_DURATION && link.attackProgression < Link.STEP_1_DURATION + Link.STEP_2_ATTACK_DURATION) {
-                // Sword hitbox is active
+    public void handleLinkSword(Link link, float deltaTime) {
+        Sword sword = link.sword;
+        if (sword.isActive) {
+            // Update sword position and image
+            if (link.useItemStepHasChanged) {
+                if (link.useItemStep == 0 || link.useItemStep > 3) {
+                    sword.image = sword.emptyImage;
+                } else {
+                    sword.image = sword.images.get(sword.type).get(sword.orientation);
+                    sword.x = link.x + sword.positionDeltaX.get(link.orientation)[link.useItemStep];
+                    sword.y = link.y + sword.positionDeltaY.get(link.orientation)[link.useItemStep];
+                }
+            }
+            // Handle sword hitting enemies
+            if (link.useItemStep > 2) {
                 for (Enemy enemy : enemyManager.getEnemies()) {
-                    if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(link.sword.getHitbox(), enemy.getHitbox())) {
+                    if (enemy.isActive() && !enemy.isDead() && !enemy.isInvincible() && LocationUtil.areColliding(sword.getHitbox(), enemy.getHitbox())) {
                         Logger.info("Enemy " + enemy.getClass().getSimpleName() + " has been hit by link sword.");
-                        enemyManager.isHitBySword(enemy, link.sword);
+                        enemyManager.isHitBySword(enemy, sword);
                     }
                 }
             }

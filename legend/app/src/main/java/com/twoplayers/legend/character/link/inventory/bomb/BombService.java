@@ -7,7 +7,6 @@ import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.inventory.ItemService;
-import com.twoplayers.legend.map.EntranceInfo;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -44,8 +43,7 @@ public class BombService {
         Bomb bomb = link.bomb;
         if (link.bombQuantity > 0 && !bomb.isActive) {
             Logger.info("Link is using a bomb.");
-            link.isUsingSecondItem = true;
-            link.switchToUseAnimation();
+            link.startToUseItem();
             link.bombQuantity--;
             if (link.bombQuantity == 0) {
                 link.secondItem = 0;

@@ -22,6 +22,12 @@ import com.twoplayers.legend.util.LocationUtil;
 
 public class ItemService {
 
+    public static final float STEP_0_DURATION = 8;
+    public static final float STEP_1_DURATION = 20;
+    public static final float STEP_2_DURATION = 23;
+    public static final float STEP_3_DURATION = 26;
+    public static final float STEP_4_DURATION = 35;
+
     private GuiManager guiManager;
     private IZoneManager zoneManager;
     private LinkManager linkManager;
@@ -32,6 +38,8 @@ public class ItemService {
     private BombService bombService;
     private ArrowService arrowService;
     private LightService lightService;
+
+    private float[] stepDuration;
 
     /**
      * Constructor
@@ -47,14 +55,16 @@ public class ItemService {
         arrowService = new ArrowService(enemyManager, soundEffectManager);
         lightService = new LightService(zoneManager, enemyManager, soundEffectManager);
         bombService = new BombService(zoneManager, enemyManager, soundEffectManager, this);
+
+        stepDuration = new float[]{STEP_0_DURATION, STEP_1_DURATION, STEP_2_DURATION, STEP_3_DURATION, STEP_4_DURATION};
     }
 
     /**
      * Handle link use the second item
      */
     public void handleLinkUsingItem(Link link, float deltaTime) {
-        if (!link.isAttacking && !link.isUsingSecondItem && guiManager.areButtonsActivated()
-                && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
+        if (!link.isUsingItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem
+                && guiManager.areButtonsActivated() && zoneManager.isLinkFarEnoughFromBorderToAttack(link)) {
 
             if (guiManager.isaPressed() && guiManager.areButtonsActivated()) {
                 swordService.initiateSword(link);
@@ -85,17 +95,29 @@ public class ItemService {
                 }
             }
         }
-        swordService.handleLinkAttack(link, deltaTime);
+        updateLinkUsingItem(link, deltaTime);
+        swordService.handleLinkSword(link, deltaTime);
         swordService.handleLinkThrowingSword(link, deltaTime);
         boomerangService.handleBoomerang(link, deltaTime);
         bombService.handleBomb(link, deltaTime);
         lightService.handleFire(link, deltaTime);
         arrowService.handleArrow(link, deltaTime);
-        if (link.isUsingSecondItem || link.isAttacking) {
+    }
+
+    /**
+     * Update link variables and link animation when he is using item
+     */
+    private void updateLinkUsingItem(Link link, float deltaTime) {
+        if (link.isUsingItem) {
             link.currentAnimation.update(deltaTime);
-            if (link.currentAnimation.isOver()) {
-                link.isUsingSecondItem = false;
-                link.isAttacking = false;
+            link.useItemStepHasChanged = false;
+            link.useItemProgression += deltaTime;
+            while (link.useItemStep <= 4 && link.useItemProgression > stepDuration[link.useItemStep]) {
+                link.useItemStep++;
+                link.useItemStepHasChanged = true;
+            }
+            if (link.useItemStep > 4) {
+                link.isUsingItem = false;
                 link.switchToMoveAnimation(link.orientation);
             }
         }
@@ -112,6 +134,9 @@ public class ItemService {
             switchToNextItem(link);
             link.changeItemCount = Link.CHANGE_ITEM_INITIAL_COUNT;
         }
+        if (!guiManager.iscPressed() && link.changeItemCount > 0) {
+            link.changeItemCount = 0;
+        }
     }
 
     /**
@@ -119,7 +144,7 @@ public class ItemService {
      */
     public void handleLinkPickingItem(Link link, float deltaTime) {
         for (Item item : zoneManager.getItems()) {
-            if (!link.isAttacking && !link.isUsingSecondItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
+            if (!link.isUsingItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
                 if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.rupees - link.rupeesToRemove >= item.price && linkCanPickItem(link, item)) {
                     link.isPushed = false;
                     item.hideItemForTheZone();

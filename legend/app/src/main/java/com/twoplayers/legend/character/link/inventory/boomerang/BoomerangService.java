@@ -40,8 +40,7 @@ public class BoomerangService {
         Boomerang boomerang = link.boomerang;
         if (!boomerang.isMovingForward && !boomerang.isMovingBackward) {
             Logger.info("Link is using boomerang.");
-            link.isUsingSecondItem = true;
-            link.switchToUseAnimation();
+            link.startToUseItem();
             boomerang.isMovingForward = true;
             boomerang.counter = Boomerang.INITIAL_WOOD_BOOMERANG_COUNTER;
             boomerang.soundCounter = 0;
@@ -186,9 +185,8 @@ public class BoomerangService {
             }
             if (LocationUtil.areColliding(link.hitbox, boomerang.hitbox)) {
                 boomerang.isMovingBackward = false;
-                if (!link.isAttacking && !link.isShowingItem) {
-                    link.isUsingSecondItem = true;
-                    link.switchToUseAnimation();
+                if (!link.isUsingItem && !link.isShowingItem) {
+                    link.startToUseItem();
                 }
             }
         }

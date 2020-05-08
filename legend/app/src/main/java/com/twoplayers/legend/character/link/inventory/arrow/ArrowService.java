@@ -37,8 +37,7 @@ public class ArrowService {
         Arrow arrow = link.arrow;
         if (!arrow.isActive && !arrow.isAnImpact && link.rupees > 0) {
             Logger.info("Link is using bow and arrow.");
-            link.isUsingSecondItem = true;
-            link.switchToUseAnimation();
+            link.startToUseItem();
             link.rupees--;
             soundEffectManager.play("coin_remove");
             arrow.isActive = true;

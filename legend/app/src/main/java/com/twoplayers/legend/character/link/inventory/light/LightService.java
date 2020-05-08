@@ -5,7 +5,6 @@ import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.link.Link;
-import com.twoplayers.legend.map.EntranceInfo;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
@@ -38,8 +37,7 @@ public class LightService {
     public void initiateFireFromLight(Link link) {
         if (link.timeBeforeUseLight <= 0 && ((link.light == Light.BLUE && link.lightCount == 0) || (link.light == Light.RED && (!link.fire1.isActive || !link.fire2.isActive)))) {
             Logger.info("Link is using light.");
-            link.isUsingSecondItem = true;
-            link.switchToUseAnimation();
+            link.startToUseItem();
             link.lightCount++;
             link.timeBeforeUseLight = Link.INITIAL_TIME_BEFORE_USE_LIGHT;
             soundEffectManager.play("fire");

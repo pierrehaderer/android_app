@@ -6,6 +6,7 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.ImagesLink;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.Item;
+import com.twoplayers.legend.character.link.inventory.ItemService;
 import com.twoplayers.legend.character.link.inventory.arrow.Arrow;
 import com.twoplayers.legend.character.link.inventory.arrow.Bow;
 import com.twoplayers.legend.character.link.inventory.Bracelet;
@@ -47,13 +48,6 @@ public class Link {
     public static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
     public static final float CHANGE_ITEM_INITIAL_COUNT = 50f;
 
-
-    public static final float STEP_1_DURATION = 8;
-    public static final float STEP_2_ATTACK_DURATION = 25;
-    public static final float STEP_2_USE_DURATION = 12;
-    public static final float STEP_3_DURATION = 3;
-    public static final float STEP_4_DURATION = 3;
-
     public static final int PICK_ANIMATION_BIG = 0;
     public static final int PICK_ANIMATION_SMALL = 1;
 
@@ -68,8 +62,6 @@ public class Link {
     public Orientation orientation;
     protected Coordinate underTheDoor;
 
-    public boolean isAttacking;
-    public float attackProgression;
     public boolean isPushed;
     protected float pushX;
     protected float pushY;
@@ -125,7 +117,10 @@ public class Link {
     public Shield shield;
     public int secondItem;
     public float changeItemCount;
-    public boolean isUsingSecondItem;
+    public boolean isUsingItem;
+    public int useItemStep;
+    public boolean useItemStepHasChanged;
+    public float useItemProgression;
 
     public Link(ImagesLink imagesLink, Graphics g) {
         initMoveAnimations(imagesLink, g);
@@ -163,31 +158,27 @@ public class Link {
     private void initUseAnimations(ImagesLink imagesLink, Graphics g) {
         useAnimations = new HashMap<>();
         Animation animationUp = g.newAnimation();
-        animationUp.addFrame(imagesLink.get("link_sword_up_1"), AllImages.COEF, STEP_1_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_2"), AllImages.COEF, STEP_2_USE_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_3"), AllImages.COEF, STEP_3_DURATION);
-        animationUp.addFrame(imagesLink.get("link_sword_up_4"), AllImages.COEF, STEP_4_DURATION);
+        animationUp.addFrame(imagesLink.get("link_use_up"), AllImages.COEF, ItemService.STEP_1_DURATION);
+        animationUp.addFrame(imagesLink.get("link_up_2"), AllImages.COEF, ItemService.STEP_2_DURATION - ItemService.STEP_1_DURATION);
+        animationUp.addFrame(imagesLink.get("link_up_1"), AllImages.COEF, ItemService.STEP_3_DURATION - ItemService.STEP_2_DURATION);
         animationUp.setOccurrences(1);
         useAnimations.put(Orientation.UP, animationUp);
         Animation animationDown = g.newAnimation();
-        animationDown.addFrame(imagesLink.get("link_sword_down_1"), AllImages.COEF, STEP_1_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_2"), AllImages.COEF, STEP_2_USE_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_3"), AllImages.COEF, STEP_3_DURATION);
-        animationDown.addFrame(imagesLink.get("link_sword_down_4"), AllImages.COEF, STEP_4_DURATION);
+        animationDown.addFrame(imagesLink.get("link_use_down"), AllImages.COEF, ItemService.STEP_1_DURATION);
+        animationDown.addFrame(imagesLink.get("link_down_2"), AllImages.COEF, ItemService.STEP_2_DURATION - ItemService.STEP_1_DURATION);
+        animationDown.addFrame(imagesLink.get("link_down_1"), AllImages.COEF, ItemService.STEP_3_DURATION - ItemService.STEP_2_DURATION);
         animationDown.setOccurrences(1);
         useAnimations.put(Orientation.DOWN, animationDown);
         Animation animationLeft = g.newAnimation();
-        animationLeft.addFrame(imagesLink.get("link_sword_left_1"), AllImages.COEF, STEP_1_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_2"), AllImages.COEF, STEP_2_USE_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_3"), AllImages.COEF, STEP_3_DURATION);
-        animationLeft.addFrame(imagesLink.get("link_sword_left_4"), AllImages.COEF, STEP_4_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_use_left"), AllImages.COEF, ItemService.STEP_1_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_left_2"), AllImages.COEF, ItemService.STEP_2_DURATION - ItemService.STEP_1_DURATION);
+        animationLeft.addFrame(imagesLink.get("link_left_1"), AllImages.COEF, ItemService.STEP_3_DURATION - ItemService.STEP_2_DURATION);
         animationLeft.setOccurrences(1);
         useAnimations.put(Orientation.LEFT, animationLeft);
         Animation animationRight = g.newAnimation();
-        animationRight.addFrame(imagesLink.get("link_sword_right_1"), AllImages.COEF, STEP_1_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_2"), AllImages.COEF, STEP_2_USE_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_3"), AllImages.COEF, STEP_3_DURATION);
-        animationRight.addFrame(imagesLink.get("link_sword_right_4"), AllImages.COEF, STEP_4_DURATION);
+        animationRight.addFrame(imagesLink.get("link_use_right"), AllImages.COEF, ItemService.STEP_1_DURATION);
+        animationRight.addFrame(imagesLink.get("link_right_2"), AllImages.COEF, ItemService.STEP_2_DURATION - ItemService.STEP_1_DURATION);
+        animationRight.addFrame(imagesLink.get("link_right_1"), AllImages.COEF, ItemService.STEP_3_DURATION - ItemService.STEP_2_DURATION);
         animationRight.setOccurrences(1);
         useAnimations.put(Orientation.RIGHT, animationRight);
     }
@@ -208,7 +199,10 @@ public class Link {
     /**
      * Switch Link animation to useAnimation
      */
-    public void switchToUseAnimation() {
+    public void startToUseItem() {
+        isUsingItem = true;
+        useItemProgression = 0;
+        useItemStep = 0;
         currentAnimation = useAnimations.get(orientation);
         currentAnimation.reset();
     }

@@ -81,7 +81,7 @@ public class LinkManager implements IManager {
         Logger.debug("Spawning link at (" + link.x + "," + link.y + ")");
         link.orientation = (link.isExitingADoor) ? Orientation.DOWN : Orientation.UP;
         link.currentAnimation = link.moveAnimations.get(link.orientation);
-        link.isAttacking = false;
+        link.isUsingItem = false;
         link.isInvincible = false;
         link.isEnteringADoor = false;
         link.enterSomewhereDistance = 0;
@@ -140,7 +140,10 @@ public class LinkManager implements IManager {
         link.shield = Shield.SMALL;
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
         link.changeItemCount = 0;
-        link.isUsingSecondItem = false;
+        link.isUsingItem = false;
+        link.useItemStep = 0;
+        link.useItemStepHasChanged = false;
+        link.useItemProgression = 0;
 
         colorMatrix = new ColorMatrixCharacter();
     }
@@ -178,8 +181,8 @@ public class LinkManager implements IManager {
     @Override
     public void paint(float deltaTime, Graphics g) {
         // Draw the sword
-        if (link.isAttacking) {
-            g.drawAnimation(link.sword.getAnimation(), (int) link.sword.x, (int) link.sword.y);
+        if (link.sword.isActive) {
+            g.drawScaledImage(link.sword.image, (int) link.sword.x, (int) link.sword.y, AllImages.COEF);
         }
         // Draw the throwing sword
         if (link.throwingSword.isActive) {
