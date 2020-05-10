@@ -141,6 +141,7 @@ public class LinkManager implements IManager {
         link.sword = new Sword(imagesLink, game.getGraphics());
         link.sword.type = SwordType.WOOD;
         link.throwingSword = new ThrowingSword(imagesLink, game.getGraphics());
+        link.throwingSword.sword = link.sword;
         link.swordSplash = new SwordSplash(imagesLink, game.getGraphics());
         link.shield = Shield.SMALL;
         link.secondItem = (link.boomerang.type == BoomerangType.NONE) ? 0 : 1;
