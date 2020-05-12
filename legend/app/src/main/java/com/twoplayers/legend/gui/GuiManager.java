@@ -161,6 +161,7 @@ public class GuiManager implements IManager {
     private int leftCursor;
     private int topCursor;
 
+    private float time;
     /**
      * Load this manager
      */
@@ -196,10 +197,13 @@ public class GuiManager implements IManager {
         cPressed = false;
 
         buttonsActivated = true;
+        time = 0;
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
+        time += deltaTime;
+
         for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
             if (event.type == Input.TouchEvent.TOUCH_DOWN || event.type == Input.TouchEvent.TOUCH_DRAGGED) {
                 if (buttonsActivated) {
@@ -391,6 +395,7 @@ public class GuiManager implements IManager {
 
         // Draw debug info
         g.drawString("Attempt: " + saveManager.getSave().getAttempt(), DEBUGX, DEBUGY, TextUtil.getDebugPaint());
+        g.drawString("Time: " + (int) time, DEBUGX, DEBUGY + 20, TextUtil.getDebugPaint());
     }
 
     /**
