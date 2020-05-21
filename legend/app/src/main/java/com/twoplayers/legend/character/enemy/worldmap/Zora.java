@@ -93,6 +93,7 @@ public class Zora extends Enemy {
         // The enemy appears
         if (isSpawning) {
             if (spawnCounter <= 0) {
+                life = 2; // Zora regain its life when it respawn
                 isActive = true;
                 isLethal = true;
                 isSpawning = false;
