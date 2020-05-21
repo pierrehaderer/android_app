@@ -61,14 +61,14 @@ public class LocationUtil {
     /**
      * Compute the directions where pushingHitbox is pushing pushedHitbox
      */
-    public static Float[] computePushDirections(Hitbox pushingHitbox, Hitbox pushedHitbox, Orientation pushedOrientation) {
+    public static Float[] computePushDirections(Hitbox pushingHitbox, Hitbox pushedHitbox, Orientation orientation) {
         float deltaX = 0;
         float deltaY = 0;
-        if (pushedOrientation == Orientation.UP || pushedOrientation == Orientation.DOWN) {
+        if (orientation == Orientation.UP || orientation == Orientation.DOWN || orientation == Orientation.ANY) {
             deltaY = (pushedHitbox.y + pushedHitbox.height / 2) - (pushingHitbox.y + pushingHitbox.height / 2);
             deltaY = (deltaY == 0) ? 1 : deltaY / Math.abs(deltaY);
         }
-        if (pushedOrientation == Orientation.LEFT || pushedOrientation == Orientation.RIGHT) {
+        if (orientation == Orientation.LEFT || orientation == Orientation.RIGHT) {
             deltaX = (pushedHitbox.x + pushedHitbox.width / 2) - (pushingHitbox.x + pushingHitbox.width / 2);
             deltaX = (deltaX == 0) ? 1 : deltaX / Math.abs(deltaX);
         }

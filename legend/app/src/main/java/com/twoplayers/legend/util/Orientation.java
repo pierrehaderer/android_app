@@ -65,10 +65,17 @@ public enum Orientation {
         switch (this) {
             case UP:
             case DOWN:
-                return (orientation == UP || orientation == DOWN);
+                return (orientation == UP || orientation == DOWN || orientation == ANY
+                        || orientation == DEGREES_45 || orientation == DEGREES_135 || orientation == DEGREES_225 || orientation == DEGREES_315);
             case LEFT:
             case RIGHT:
-                return (orientation == LEFT || orientation == RIGHT);
+                return (orientation == LEFT || orientation == RIGHT || orientation == ANY
+                        || orientation == DEGREES_45 || orientation == DEGREES_135 || orientation == DEGREES_225 || orientation == DEGREES_315);
+            case DEGREES_45:
+            case DEGREES_135:
+            case DEGREES_225:
+            case DEGREES_315:
+                return (orientation == UP || orientation == DOWN || orientation == LEFT || orientation == RIGHT || orientation == ANY);
             case ANY:
                 return true;
         }

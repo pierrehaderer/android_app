@@ -1,25 +1,27 @@
-package com.twoplayers.legend.character.enemy.dungeon;
+package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
+import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.image.IImagesEnemy;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.EnemyService;
+import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Orientation;
 
-public abstract class Keese extends Enemy {
+public class Peahat extends Enemy {
 
     private static final float MIN_TIME_BEFORE_STOP = 200f;
     private static final float MAX_TIME_BEFORE_STOP = 1200f;
     private static final float INITIAL_TIME_BEFORE_RESTART = 200f;
     private static final int MAX_DISTANCE = 12;
-    private static final float MAX_SPEED = 1.2f;
+    private static final float MAX_SPEED = 0.8f;
     private static final float ACCELERATION = 0.005f;
 
     private float timeBeforeStop;
@@ -32,39 +34,48 @@ public abstract class Keese extends Enemy {
 
     protected Animation moveAnimation;
 
-    public Keese(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
+    public Peahat(SoundEffectManager s, IZoneManager z, LinkManager l, IEnemyManager e, EnemyService es) {
         super(s, z, l, e, es);
     }
 
     @Override
     public void init(IImagesEnemy imagesEnemy, Graphics g) {
         initAnimations(imagesEnemy, g);
-        timeBeforeFirstMove = DungeonEnemyManager.TIME_BEFORE_FIRST_MOVE;
         timeBeforeStop = 0;
         timeBeforeRestart = 0;
         isStarting = true;
         isStopping = false;
-        life = 1;
+        life = 2;
         hitbox = new Hitbox(x, y, 3, 3, 11, 11);
         damage = -0.5f;
-        orientation = Orientation.getRandomOrientation(Math.random());
         chooseNextDestination();
-        currentAnimation = initialAnimation;
+        orientation = Orientation.UP;
+        isLethal = true;
+        isActive = true;
+        currentAnimation = moveAnimation;
     }
 
     /**
      * Initialise the move animations
      */
-    protected abstract void initAnimations(IImagesEnemy imagesEnemy, Graphics g);
+    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+        initialAnimation = enemyService.getFastCloudAnimation(imagesEnemy, g);
+        deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
+
+        moveAnimation = g.newAnimation();
+        moveAnimation.addFrame(imagesEnemy.get("peahat_1"), AllImages.COEF, 3);
+        moveAnimation.addFrame(imagesEnemy.get("peahat_2"), AllImages.COEF, 3);
+    }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        handleKeeseAppears(deltaTime);
         enemyService.handleEnemyHasBeenHit(this, deltaTime);
+        enemyService.handleEnemyIsPushed(this, deltaTime);
 
         if (isActive) {
             if (isStarting) {
                 speed += ACCELERATION * deltaTime;
+                isInvincible = true;
                 goStraightAhead(deltaTime);
                 if (speed >= MAX_SPEED) {
                     isStarting = false;
@@ -82,6 +93,7 @@ public abstract class Keese extends Enemy {
                 goStraightAhead(deltaTime);
                 if (speed <= 0) {
                     speed = 0;
+                    isInvincible = false;
                     isStopping = false;
                     timeBeforeRestart = INITIAL_TIME_BEFORE_RESTART;
                 }
@@ -93,24 +105,6 @@ public abstract class Keese extends Enemy {
                     isStopping = true;
                     speed = MAX_SPEED;
                 }
-            }
-        }
-    }
-
-    /**
-     * Handle when enemy appears
-     */
-    private void handleKeeseAppears(float deltaTime) {
-        if (timeBeforeFirstMove > 0) {
-            timeBeforeFirstMove -= deltaTime;
-            if (timeBeforeFirstMove <= 60) {
-                currentAnimation.update(deltaTime);
-            }
-            if (timeBeforeFirstMove <= 0) {
-                isLethal = true;
-                isActive = true;
-                isInvincible = false;
-                currentAnimation = moveAnimation;
             }
         }
     }
@@ -166,7 +160,7 @@ public abstract class Keese extends Enemy {
      * Check if enemy is to close from the wall and should turn around
      */
     private boolean shouldTurnAround(float nextX, float nextY) {
-        return LocationUtil.isTileAtBorderMinusOne(nextX, nextY) || LocationUtil.isTileAtBorderMinusOne(nextX + LocationUtil.TILE_SIZE, nextY + LocationUtil.TILE_SIZE) ;
+        return LocationUtil.isTileAtBorder(nextX, nextY) || LocationUtil.isTileAtBorder(nextX + LocationUtil.TILE_SIZE, nextY + LocationUtil.TILE_SIZE) ;
     }
 
     /**
@@ -186,7 +180,7 @@ public abstract class Keese extends Enemy {
     }
 
     @Override
-    public void isHitByBoomerang() {
-        enemyService.handleEnemyIsWounded(this, 1, new Hitbox(), Orientation.UP);
+    public boolean shouldBlink() {
+        return isInvincible && (speed == 0);
     }
 }

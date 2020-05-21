@@ -200,7 +200,7 @@ public class DungeonEnemyManager implements IEnemyManager {
         }
         for (Enemy enemy : enemies) {
             if (!enemy.isDead) {
-                if (enemy.isInvincible()) {
+                if (enemy.shouldBlink()) {
                     g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y), colorMatrix.getMatrix());
                 } else {
                     g.drawAnimation(enemy.currentAnimation, Math.round(enemy.x), Math.round(enemy.y));

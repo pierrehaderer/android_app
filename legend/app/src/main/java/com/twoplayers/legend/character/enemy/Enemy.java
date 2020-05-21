@@ -196,6 +196,13 @@ public abstract class Enemy {
     }
 
     /**
+     * This method is overridden if something special happens to the enemy
+     */
+    public boolean shouldBlink() {
+        return isInvincible;
+    }
+
+    /**
      * This method is overridden if something special happens to the enemy which is hitting link
      */
     public void hasHitLink() {

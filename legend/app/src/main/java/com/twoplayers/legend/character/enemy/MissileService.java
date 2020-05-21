@@ -82,8 +82,8 @@ public class MissileService {
                 missile.hitbox.x += deltaTime * missile.speed;
                 break;
             default:
-                missile.y += deltaTime * missile.speed * Math.sin(missile.orientation.angle);
                 missile.x += deltaTime * missile.speed * Math.cos(missile.orientation.angle);
+                missile.y -= deltaTime * missile.speed * Math.sin(missile.orientation.angle);
                 missile.hitbox.relocate(missile.x, missile.y);
                 break;
         }

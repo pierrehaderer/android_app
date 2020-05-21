@@ -117,6 +117,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         enemyMap.put("Zora", Zora.class);
         enemyMap.put("RedLynel", RedLynel.class);
         enemyMap.put("BlueLynel", BlueLynel.class);
+        enemyMap.put("Peahat", Peahat.class);
     }
 
     /**
@@ -205,7 +206,7 @@ public class WorldMapEnemyManager implements IEnemyManager {
         }
         for (Enemy enemy : enemies) {
             if (!enemy.isDead) {
-                if (enemy.isInvincible()) {
+                if (enemy.shouldBlink()) {
                     g.drawAnimation(enemy.currentAnimation, (int) enemy.x, (int) enemy.y, colorMatrix.getMatrix());
                 } else {
                     g.drawAnimation(enemy.currentAnimation, (int) enemy.x, (int) enemy.y);

@@ -286,25 +286,26 @@ public class EnemyService {
             enemy.hasSpawned = false;
         }
 
+        Orientation pushedOrientation = null;
+
         // For enemies that are attacking on tile
         if (enemy.isAttacking) {
             float deltaX = enemy.x - LocationUtil.getXFromGrid(LocationUtil.getTileXFromPositionX(enemy.x));
             float deltaY = enemy.x - LocationUtil.getYFromGrid(LocationUtil.getTileYFromPositionY(enemy.y));
             if (deltaX < ATTACK_TOLERANCE && deltaY < ATTACK_TOLERANCE) {
-                enemy.isPushed = true;
-                enemy.pushCounter = INITIAL_PUSH_DISTANCE;
-                Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, orientation);
-                enemy.pushX = pushDirections[0];
-                enemy.pushY = pushDirections[1];
-                Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
+                pushedOrientation = orientation;
             }
         }
 
-        // For enemies that are moving on tile
+        // For enemies that are moving on tile and for Peahat
         if (enemy.orientation.isSameAs(orientation)) {
+            pushedOrientation = orientation;
+        }
+
+        if (pushedOrientation != null) {
             enemy.isPushed = true;
             enemy.pushCounter = INITIAL_PUSH_DISTANCE;
-            Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, enemy.orientation);
+            Float[] pushDirections = LocationUtil.computePushDirections(hitbox, enemy.hitbox, pushedOrientation);
             enemy.pushX = pushDirections[0];
             enemy.pushY = pushDirections[1];
             Logger.info("Enemy push direction : " + enemy.pushX + ", " + enemy.pushY);
