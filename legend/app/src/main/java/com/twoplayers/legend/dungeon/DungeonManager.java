@@ -244,7 +244,7 @@ public class DungeonManager implements IZoneManager {
                     bloc.x -= blocDistance;
                     break;
                 case RIGHT:
-                    bloc.y += blocDistance;
+                    bloc.x += blocDistance;
                     break;
             }
         }
@@ -335,7 +335,7 @@ public class DungeonManager implements IZoneManager {
 
         colorMatrix.update(deltaTime);
     }
-    
+
     @Override
     public void paint(float deltaTime, Graphics g) {
         if (transitionRunning) {
