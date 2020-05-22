@@ -45,5 +45,6 @@ public interface IEnemyManager extends IManager {
     void hasHitLink(Enemy enemy);
     /** Missile has hit link */
     void hasHitLink(Missile missile);
-
+    /** Check if there are remaining enemies */
+    boolean noMoreEnemy();
 }

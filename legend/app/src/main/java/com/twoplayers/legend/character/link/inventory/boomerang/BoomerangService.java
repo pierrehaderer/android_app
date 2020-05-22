@@ -132,9 +132,9 @@ public class BoomerangService {
                 boomerang.isMovingBackward = true;
                 boomerang.isMovingForward = false;
             }
-            if (LocationUtil.isUpOutOfMap(boomerang.y + LocationUtil.QUARTER_TILE_SIZE)
+            if (LocationUtil.isUpOutOfMap(boomerang.y + LocationUtil.HALF_TILE_SIZE)
                     || LocationUtil.isDownOutOfMap(boomerang.y)
-                    || LocationUtil.isLeftOutOfMap(boomerang.x + LocationUtil.QUARTER_TILE_SIZE)
+                    || LocationUtil.isLeftOutOfMap(boomerang.x + LocationUtil.HALF_TILE_SIZE)
                     || LocationUtil.isRightOutOfMap(boomerang.x)) {
                 // TODO add hit animation
                 Logger.info("Boomerang is out of room and starts to move backward at position (" + boomerang.x + "," + boomerang.y + ")");

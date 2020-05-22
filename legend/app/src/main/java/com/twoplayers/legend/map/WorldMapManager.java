@@ -36,7 +36,6 @@ import java.util.Properties;
 public class WorldMapManager implements IZoneManager {
 
     private static final float TRANSITION_SPEED = 4.0f;
-    private static final float INITIAL_BLINK_COUNTER = 20f;
 
     private boolean shouldInitialize = true;
 
@@ -359,24 +358,6 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
-    public boolean isTileWalkable(float x, float y) {
-        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile.walkable;
-    }
-
-    @Override
-    public boolean isTileBlockingMissile(float x, float y) {
-        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        MapTile tile = currentMapRoom.getTile(tileX, tileY);
-        return tile.isblockingMissile;
-    }
-
-    @Override
     public boolean isTileADoor(float x, float y) {
         MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
         int tileX = LocationUtil.getTileXFromPositionX(x);
@@ -398,12 +379,39 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
+    public boolean isTileWalkable(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile.walkable;
+    }
+
+    @Override
+    public boolean isTileBlockingMissile(float x, float y) {
+        MapRoom currentMapRoom = worldMap[currentAbscissa][currentOrdinate];
+        int tileX = LocationUtil.getTileXFromPositionX(x);
+        int tileY = LocationUtil.getTileYFromPositionY(y);
+        MapTile tile = currentMapRoom.getTile(tileX, tileY);
+        return tile.isblockingMissile;
+    }
+
+    @Override
     public boolean checkKeyDoor(Orientation orientation, float x, float y) {
         return false;
     }
 
     @Override
     public void openKeyDoor(Orientation orientation) {
+    }
+
+    @Override
+    public boolean checkPushableBlock(Orientation orientation, float x, float y) {
+        return false;
+    }
+
+    @Override
+    public void pushBloc(Orientation orientation) {
     }
 
     /**

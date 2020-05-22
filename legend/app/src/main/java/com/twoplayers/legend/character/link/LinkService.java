@@ -57,13 +57,17 @@ public class LinkService {
                     shiftLinkX(link, nextX);
                     moveLinkY(link, deltaY);
                 }
+                if (LocationUtil.isUpOutOfMap(link.y)) {
+                    linkManager.hideItemsAndEffects();
+                    zoneManager.changeRoom(Orientation.UP);
+                }
                 if (checkAndOpenKeyDoor(link, nextX, link.y + deltaY)) {
                     linkHasNotMovedYet = false;
                     shiftLinkX(link, nextX);
                 }
-                if (LocationUtil.isUpOutOfMap(link.y)) {
-                    linkManager.hideItemsAndEffects();
-                    zoneManager.changeRoom(Orientation.UP);
+                if (checkAndPushBlock(link, nextX, link.y + deltaY, deltaTime)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkX(link, nextX);
                 }
                 // Check if link is entering somewhere
                 checkAndInitDoorEntering(link);
@@ -81,13 +85,17 @@ public class LinkService {
                     shiftLinkX(link, nextX);
                     moveLinkY(link, deltaY);
                 }
-                if (checkAndOpenKeyDoor(link, nextX, link.y + deltaY)) {
-                    linkHasNotMovedYet = false;
-                    shiftLinkX(link, nextX);
-                }
                 if (LocationUtil.isDownOutOfMap(link.y + LocationUtil.TILE_SIZE)) {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.DOWN);
+                }
+                if (checkAndPushBlock(link, nextX, link.y + deltaY, deltaTime)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkX(link, nextX);
+                }
+                if (checkAndOpenKeyDoor(link, nextX, link.y + deltaY)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkX(link, nextX);
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
@@ -103,13 +111,17 @@ public class LinkService {
                     shiftLinkY(link, nextY);
                     moveLinkX(link, deltaX);
                 }
+                if (LocationUtil.isLeftOutOfMap(link.x)) {
+                    linkManager.hideItemsAndEffects();
+                    zoneManager.changeRoom(Orientation.LEFT);
+                }
                 if (checkAndOpenKeyDoor(link, link.x + deltaX, nextY)) {
                     linkHasNotMovedYet = false;
                     shiftLinkY(link, nextY);
                 }
-                if (LocationUtil.isLeftOutOfMap(link.x)) {
-                    linkManager.hideItemsAndEffects();
-                    zoneManager.changeRoom(Orientation.LEFT);
+                if (checkAndPushBlock(link, link.x + deltaX, nextY, deltaTime)) {
+                    linkHasNotMovedYet = false;
+                    shiftLinkY(link, nextY);
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
@@ -125,12 +137,15 @@ public class LinkService {
                     shiftLinkY(link, nextY);
                     moveLinkX(link, deltaX);
                 }
-                if (checkAndOpenKeyDoor(link, link.x + deltaX, nextY)) {
-                    shiftLinkY(link, nextY);
-                }
                 if (LocationUtil.isRightOutOfMap(link.x + LocationUtil.TILE_SIZE)) {
                     linkManager.hideItemsAndEffects();
                     zoneManager.changeRoom(Orientation.RIGHT);
+                }
+                if (checkAndOpenKeyDoor(link, link.x + deltaX, nextY)) {
+                    shiftLinkY(link, nextY);
+                }
+                if (checkAndPushBlock(link, link.x + deltaX, nextY, deltaTime)) {
+                    shiftLinkY(link, nextY);
                 }
                 // Check if link is entering somewhere
                 checkStairsEntering(link);
@@ -342,6 +357,29 @@ public class LinkService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check and push a bloc
+     */
+    private boolean checkAndPushBlock(Link link, float x, float y, float deltaTime) {
+        if (link.isPushingBloc) {
+            link.pushBlocTimer -= deltaTime;
+            if (link.pushBlocTimer < 0) {
+                // Time to really push the bloc
+                zoneManager.pushBloc(link.orientation);
+                soundEffectManager.play("find_secret");
+            }
+        }
+        if (zoneManager.checkPushableBlock(link.orientation, x, y) && enemyManager.noMoreEnemy()) {
+            if (!link.isPushingBloc) {
+                link.pushBlocTimer = Link.INITIAL_PUSH_BLOC_TIMER;
+                link.isPushingBloc = true;
+            }
+        } else {
+            link.isPushingBloc = false;
+        }
+        return link.isPushingBloc;
     }
 
     /**

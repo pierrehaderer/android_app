@@ -21,18 +21,22 @@ public interface IZoneManager extends IManager {
     boolean isTileStairs(float x, float y);
     /** Check if a tile is a bomb hole */
     boolean isTileABombHole(float x, float y);
+    /** Check if a tile is walkable */
+    boolean isTileWalkable(float x, float y);
+    /** Check if a tile is blocking missiles */
+    boolean isTileBlockingMissile(float x, float y);
     /** Check if a door is in front of link */
     boolean checkKeyDoor(Orientation orientation, float x, float y);
     /** Open the door in front of link */
     void openKeyDoor(Orientation orientation);
+    /** Check if a pushable bloc is in front of link */
+    boolean checkPushableBlock(Orientation orientation, float x, float y);
+    /** Try to push the block in front of link */
+    void pushBloc(Orientation orientation);
     /** Return true if the mapScreen has been explored */
     boolean isExplored(int x, int y);
     /** Get the list of items on the screen */
     List<Item> getItems();
-    /** Check if a tile is walkable */
-    boolean isTileWalkable(float x, float y);
-    /** Check if a tile is walkable */
-    boolean isTileBlockingMissile(float x, float y);
     /** Check if a position is valid */
     boolean isUpValid(float x, float y);
     /** Check if a position is valid */

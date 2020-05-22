@@ -48,6 +48,7 @@ public class Link {
     public static final float INITIAL_SHOW_COUNT = 150f;
     public static final float INITIAL_TIME_BEFORE_USE_LIGHT = 80f;
     public static final float CHANGE_ITEM_INITIAL_COUNT = 50f;
+    public static final float INITIAL_PUSH_BLOC_TIMER = 20.0f;
 
     public static final int PICK_ANIMATION_BIG = 0;
     public static final int PICK_ANIMATION_SMALL = 1;
@@ -77,6 +78,8 @@ public class Link {
     public boolean isShowingItem;
     public float showItemCounter;
     public Item itemToShow;
+    public boolean isPushingBloc;
+    public float pushBlocTimer;
 
     public float life;
     public float lifeMax;

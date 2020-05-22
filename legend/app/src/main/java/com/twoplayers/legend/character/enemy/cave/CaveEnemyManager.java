@@ -108,4 +108,9 @@ public class CaveEnemyManager implements IEnemyManager {
     public void hasHitLink(Missile missile) {
     }
 
+    @Override
+    public boolean noMoreEnemy() {
+        return false;
+    }
+
 }

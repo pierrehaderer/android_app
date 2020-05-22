@@ -317,4 +317,14 @@ public class WorldMapEnemyManager implements IEnemyManager {
     public void hasHitLink(Missile missile) {
         missile.hasHitLink();
     }
+
+    @Override
+    public boolean noMoreEnemy() {
+        for (Enemy enemy : enemies) {
+            if (!enemy.isDead) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

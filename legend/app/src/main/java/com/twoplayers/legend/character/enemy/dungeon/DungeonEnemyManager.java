@@ -29,7 +29,6 @@ import com.twoplayers.legend.character.link.inventory.sword.Sword;
 import com.twoplayers.legend.dungeon.DungeonManager;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
-import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
 import java.lang.reflect.Constructor;
@@ -258,6 +257,7 @@ public class DungeonEnemyManager implements IEnemyManager {
 
     @Override
     public void enemyHasDied(Enemy enemy) {
+        // Remove boomerangs
         for (Missile missile : missiles) {
             if (missile instanceof EnemyBoomerang && missile.creator == enemy) {
                 missile.isActive = false;
@@ -316,4 +316,13 @@ public class DungeonEnemyManager implements IEnemyManager {
         missile.hasHitLink();
     }
 
+    @Override
+    public boolean noMoreEnemy() {
+        for (Enemy enemy : enemies) {
+            if (!enemy.isDead) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
