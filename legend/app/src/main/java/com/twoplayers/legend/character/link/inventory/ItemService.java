@@ -161,7 +161,7 @@ public class ItemService {
                     link.showItemCounter = Link.INITIAL_SHOW_COUNT;
                     link.switchToPickAnimation(item.pickAnimation);
                     soundEffectManager.play("collect_item");
-                    putItemInInventory(link, item);
+                    putItemInInventory(link, item, zoneManager.getDungeonId());
                 }
             }
         }
@@ -246,9 +246,9 @@ public class ItemService {
             case "bracelet":
                 return link.bracelet == Bracelet.NONE;
             case "compass":
-                return link.compass == Compass.NONE;
+                return true;
             case "dungeon_map":
-                return link.dungeonMap == DungeonMap.NONE;
+                return true;
             case "flute":
                 return link.flute == Flute.NONE;
             case "key":
@@ -298,7 +298,7 @@ public class ItemService {
     /**
      * Give the corresponding item to link
      */
-    public void putItemInInventory(Link link, Item item) {
+    public void putItemInInventory(Link link, Item item, String dungeonId) {
         switch (item.name) {
             case "wood_arrow":
                 link.arrow.type = ArrowType.WOOD;
@@ -322,10 +322,10 @@ public class ItemService {
                 link.bracelet = Bracelet.BRACELET;
                 break;
             case "compass":
-                link.compass = Compass.COMPASS;
+                link.compasses[Integer.parseInt(dungeonId)] = Compass.COMPASS;
                 break;
             case "dungeon_map":
-                link.dungeonMap = DungeonMap.MAP;
+                link.dungeonMaps[Integer.parseInt(dungeonId)] = DungeonMap.MAP;
                 break;
             case "flute":
                 link.flute = Flute.FLUTE;

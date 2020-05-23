@@ -23,11 +23,15 @@ public class DungeonRoom {
         return content[x][y];
     }
 
-    public void addALine(String row) {
+    public boolean addALine(String row) {
+        boolean isARealRoom = false;
         for (int i = 0; i < 16; i++) {
-            content[i][j] = DungeonTile.getEnum(row.charAt(i));
+            char character = row.charAt(i);
+            isARealRoom |= (character != 'x');
+            content[i][j] = DungeonTile.getEnum(character);
         }
         j++;
+        return isARealRoom;
     }
 
     public void changeTile(int i, int j, DungeonTile dungeonTile) {

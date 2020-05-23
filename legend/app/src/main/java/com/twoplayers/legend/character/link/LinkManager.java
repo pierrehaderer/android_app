@@ -47,6 +47,8 @@ import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Logger;
 
+import java.util.Arrays;
+
 public class LinkManager implements IManager {
 
     private boolean initNotDone = true;
@@ -135,8 +137,12 @@ public class LinkManager implements IManager {
         link.ring = Ring.NONE;
         link.infiniteKey = InfiniteKey.NONE;
 
-        link.compass = Compass.NONE;
-        link.dungeonMap = DungeonMap.NONE;
+        link.compasses = new Compass[10];
+        Arrays.fill(link.compasses, Compass.NONE);
+        link.compasses[1] = Compass.COMPASS;
+        link.dungeonMaps = new DungeonMap[10];
+        Arrays.fill(link.dungeonMaps, DungeonMap.NONE);
+        link.dungeonMaps[1] = DungeonMap.MAP;
 
         link.sword = new Sword(imagesLink, game.getGraphics());
         link.sword.type = SwordType.WOOD;

@@ -8,6 +8,7 @@ import com.twoplayers.legend.character.link.inventory.light.Fire;
 import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Coordinate;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.Orientation;
 
 import java.util.List;
@@ -35,6 +36,12 @@ public interface IZoneManager extends IManager {
     void pushBloc(Orientation orientation);
     /** Return true if the mapScreen has been explored */
     boolean isExplored(int x, int y);
+    /** Get the dungeon id */
+    String getDungeonId();
+    /** Tells if the room is a real room in the dungeon */
+    boolean isARealRoom(int i, int j);
+    /** Obtain the location of the triforce */
+    Location getTriforceLocation();
     /** Get the list of items on the screen */
     List<Item> getItems();
     /** Check if a position is valid */

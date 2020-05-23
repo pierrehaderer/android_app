@@ -428,6 +428,21 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
+    public String getDungeonId() {
+        return "0";
+    }
+
+    @Override
+    public boolean isARealRoom(int i, int j) {
+        return true;
+    }
+
+    @Override
+    public Location getTriforceLocation() {
+        return new Location();
+    }
+
+    @Override
     public Image getMiniMap() {
         return imagesCave.get("empty");
     }

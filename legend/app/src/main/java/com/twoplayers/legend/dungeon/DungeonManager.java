@@ -36,7 +36,7 @@ import java.util.Properties;
 
 public class DungeonManager implements IZoneManager {
 
-    private static final float INITIAL_IMMOBILISATION_COUNTER = 50f;
+    private static final float INITIAL_STUN_COUNTER = 50f;
     private static final float TRANSITION_SPEED = 4.0f;
 
     private ImagesDungeon imagesDungeon;
@@ -50,8 +50,11 @@ public class DungeonManager implements IZoneManager {
 
     /** dungeonRooms that represent the whole dungeon in this game */
     private DungeonRoom[][] dungeonRooms;
+    private boolean[][] dungeonRealRooms;
     private Boolean[][] exploredRooms;
     private Map<DungeonDoorPlacement, DungeonDoor>[][] dungeonDoors;
+    private DungeonTreasure[][] dungeonTreasures;
+    private Location triforceLocation;
     private DungeonBloc[][] dungeonBlocs;
 
     private boolean shouldInitialize = true;
@@ -89,7 +92,7 @@ public class DungeonManager implements IZoneManager {
             shouldInitialize = false;
             init(game);
         }
-        stunCounter = INITIAL_IMMOBILISATION_COUNTER;
+        stunCounter = INITIAL_STUN_COUNTER;
 
         dungeon = new Dungeon(dungeonInfo);
         Location start = dungeonInfo.startLocation;
@@ -98,6 +101,7 @@ public class DungeonManager implements IZoneManager {
         saveManager.updateDungeonExploredRooms(dungeon.id, start.x, start.y);
         initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"));
         initDungeonDoors(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + "_doors.properties"));
+        initDungeonTreasures(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + "_treasures.properties"));
 
         musicManager.clear();
         musicManager.plan(100, "dungeon_loop", true);
@@ -145,6 +149,7 @@ public class DungeonManager implements IZoneManager {
      */
     private void initDungeon(List<String> dungeonFileContent) {
         dungeonRooms = new DungeonRoom[8][8];
+        dungeonRealRooms = new boolean[8][8];
         exploredRooms = new Boolean[8][8];
         Boolean[][] savedExploredRooms = saveManager.getSave().getDungeonSave(dungeon.id).getExploredRooms();
 
@@ -161,7 +166,8 @@ public class DungeonManager implements IZoneManager {
         for (int index1 = 0; index1 < 8; index1 = index1) {
             String line = dungeonFileContent.get(indexLine++);
             for (int index2 = 0; index2 < 8; index2++) {
-                dungeonRooms[index2][index1].addALine(line.substring(17 * index2, 17 * index2 + 16));
+                boolean isARealRoom = dungeonRooms[index2][index1].addALine(line.substring(17 * index2, 17 * index2 + 16));
+                dungeonRealRooms[index2][index1] |= isARealRoom;
             }
             // Jump over the delimiter line and go to next line of mapRooms
             if (indexLine % 12 == 11) {
@@ -210,6 +216,30 @@ public class DungeonManager implements IZoneManager {
                     if (type == DungeonDoorType.PUSH) {
                         Location location =  new Location(dungeonDoorInfo[2]);
                         dungeonBlocs[abscissa][ordinate] = new DungeonBloc(imagesDungeon, location, dungeon.id);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Init the treasures of the dungeon
+     */
+    private void initDungeonTreasures(Properties treasuresProperties) {
+        dungeonTreasures = new DungeonTreasure[8][8];
+
+        // Parse the properties to add the treasures
+        for (String key : treasuresProperties.stringPropertyNames()) {
+            String treasureProperty = ((String) treasuresProperties.get(key)).trim();
+            if (treasureProperty.length() > 0) {
+                int abscissa = Integer.parseInt(key.substring(1,2));
+                int ordinate = Integer.parseInt(key.substring(2,3));
+                String[] dungeonTreasure = treasureProperty.split("\\|");
+                if ("ITEM".equals(dungeonTreasure[0])) {
+                    Logger.info("Adding treasure (" + abscissa + "," + ordinate + ") : " + treasureProperty);
+                    dungeonTreasures[abscissa][ordinate] = new DungeonTreasure(dungeonTreasure[0], dungeonTreasure[1], dungeonTreasure[2]);
+                    if ("triforce".equals(dungeonTreasure[2])) {
+                        triforceLocation = new Location(abscissa, ordinate);
                     }
                 }
             }
@@ -947,6 +977,24 @@ public class DungeonManager implements IZoneManager {
     }
 
     @Override
+    public String getDungeonId() {
+        return dungeon.id;
+    }
+
+    @Override
+    public boolean isARealRoom(int i, int j) {
+        if (i < 0 || i > 8) {
+            return false;
+        }
+        return dungeonRealRooms[i][j];
+    }
+
+    @Override
+    public Location getTriforceLocation() {
+        return triforceLocation;
+    }
+
+    @Override
     public Image getMiniMap() {
         return imagesDungeon.get("mini_dungeon" + dungeon.id);
     }
@@ -1130,4 +1178,5 @@ public class DungeonManager implements IZoneManager {
     private String generateOpenedDoorKey(int abscissa, int ordinate, String placement) {
         return abscissa + "_" + ordinate + "_" + placement;
     }
+
 }

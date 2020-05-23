@@ -806,6 +806,21 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
+    public String getDungeonId() {
+        return "0";
+    }
+
+    @Override
+    public boolean isARealRoom(int i, int j) {
+        return true;
+    }
+
+    @Override
+    public Location getTriforceLocation() {
+        return new Location();
+    }
+
+    @Override
     public Image getMiniMap() {
         return imagesWorldMap.get("mini_world_map");
     }

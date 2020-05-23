@@ -114,8 +114,8 @@ public class Link {
     public Ring ring;
     public SpellBook spellBook;
 
-    public DungeonMap dungeonMap;
-    public Compass compass;
+    public DungeonMap[] dungeonMaps;
+    public Compass[] compasses;
 
     public Sword sword;
     public ThrowingSword throwingSword;
@@ -269,12 +269,12 @@ public class Link {
         return bracelet;
     }
 
-    public Compass getCompass() {
-        return compass;
+    public Compass[] getCompasses() {
+        return compasses;
     }
 
-    public DungeonMap getDungeonMap() {
-        return dungeonMap;
+    public DungeonMap[] getDungeonMaps() {
+        return dungeonMaps;
     }
 
     public Flute getFlute() {

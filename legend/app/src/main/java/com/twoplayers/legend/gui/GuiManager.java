@@ -1,5 +1,6 @@
 package com.twoplayers.legend.gui;
 
+import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.graphics.Color;
 
 import com.kilobolt.framework.Game;
@@ -131,10 +132,11 @@ public class GuiManager implements IManager {
     private static final int LEFT_SPELLBOOK = 783;
     private static final int TOP_SPELLBOOK = 3;
 
-    private static final int LEFT_COMPASS = 755;
-    private static final int TOP_COMPASS = 80;
-    private static final int LEFT_DUNGEONMAP = 712;
-    private static final int TOP_DUNGEONMAP = 80;
+    private static final int LEFT_COMPASS = 31;
+    private static final int TOP_COMPASS = 27;
+    private static final int LEFT_DUNGEONMAP = 35;
+    private static final int TOP_DUNGEONMAP = 59;
+    private static final int UNVISITED_DUNGEON_ROOM_COLOR = -9544205;
 
     private static final int DEBUGY = 112;
     private static final int DEBUGX = 8;
@@ -161,7 +163,8 @@ public class GuiManager implements IManager {
     private int leftCursor;
     private int topCursor;
 
-    private float time;
+    private GuiElements guiElements;
+
     /**
      * Load this manager
      */
@@ -197,12 +200,13 @@ public class GuiManager implements IManager {
         cPressed = false;
 
         buttonsActivated = true;
-        time = 0;
+        guiElements = new GuiElements(imagesGui, game.getGraphics());
     }
 
     @Override
     public void update(float deltaTime, Graphics g) {
-        time += deltaTime;
+        guiElements.time += deltaTime;
+        guiElements.triforceAnimation.update(deltaTime);
 
         for (Input.TouchEvent event : game.getInput().getTouchEvents()) {
             if (event.type == Input.TouchEvent.TOUCH_DOWN || event.type == Input.TouchEvent.TOUCH_DRAGGED) {
@@ -259,23 +263,41 @@ public class GuiManager implements IManager {
 
     @Override
     public void paint(float deltaTime, Graphics g) {
+        Link link = linkManager.getLink();
+
         // Draw background GUI
         g.drawImage(imagesGui.get("gui"), 0, 0);
 
         // Draw mini map
         g.drawImage(zoneManager.getMiniMap(), LEFT_MINI_MAP, TOP_MINI_MAP);
-        float miniX = LEFT_MINI_MAP + zoneManager.getCurrentMiniAbscissa() + 5;
-        float miniY = TOP_MINI_MAP + zoneManager.getCurrentMiniOrdinate() + 3;
-        g.drawRect((int) miniX, (int) miniY, 8, 7, Color.BLUE);
+        int dungeonId = Integer.parseInt(zoneManager.getDungeonId());
+        DungeonMap dungeonMap = link.getDungeonMaps()[dungeonId];
+        if (dungeonMap != DungeonMap.NONE) {
+            g.drawImage(imagesGui.get(dungeonMap.name), LEFT_DUNGEONMAP, TOP_DUNGEONMAP);
+        }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 8; j++) {
                 if (!zoneManager.isExplored(i, j)) {
-                    g.drawRect(LEFT_MINI_MAP + 16 * i, TOP_MINI_MAP + 11 * j, 18, 13, Color.DKGRAY);
+                    if (dungeonMap != DungeonMap.NONE && zoneManager.isARealRoom(i - 4, j)) {
+                        g.drawRect(LEFT_MINI_MAP + 16 * i, TOP_MINI_MAP + 11 * j, 17, 12, UNVISITED_DUNGEON_ROOM_COLOR);
+                    } else {
+                        g.drawRect(LEFT_MINI_MAP + 16 * i, TOP_MINI_MAP + 11 * j, 17, 12, Color.BLACK);
+                    }
                 }
             }
         }
-
-        Link link = linkManager.getLink();
+        // Draw compass
+        Compass compass = link.getCompasses()[dungeonId];
+        if (compass != Compass.NONE) {
+            g.drawImage(imagesGui.get(compass.name), LEFT_COMPASS, TOP_COMPASS);
+            int triforceX = LEFT_MINI_MAP + 64 + zoneManager.getTriforceLocation().x * 16 + 5;
+            int triforceY = TOP_MINI_MAP + zoneManager.getTriforceLocation().y * 11 + 3;
+            g.drawAnimation(guiElements.triforceAnimation, triforceX, triforceY);
+        }
+        // Draw link position on mini map
+        float miniX = LEFT_MINI_MAP + zoneManager.getCurrentMiniAbscissa() + 5;
+        float miniY = TOP_MINI_MAP + zoneManager.getCurrentMiniOrdinate() + 3;
+        g.drawRect((int) miniX, (int) miniY, 8, 7, Color.BLUE);
 
         // Draw link life
         float linkLifeMax = link.getLifeMax();
@@ -348,12 +370,6 @@ public class GuiManager implements IManager {
         if (link.getBracelet() != Bracelet.NONE) {
             g.drawImage(imagesGui.get(link.getBracelet().name),LEFT_BRACELET, TOP_BRACELET);
         }
-        if (link.getCompass() != Compass.NONE) {
-            g.drawImage(imagesGui.get(link.getCompass().name),LEFT_COMPASS, TOP_COMPASS);
-        }
-        if (link.getDungeonMap() != DungeonMap.NONE) {
-            g.drawImage(imagesGui.get(link.getDungeonMap().name),LEFT_DUNGEONMAP, TOP_DUNGEONMAP);
-        }
         if (link.getFlute() != Flute.NONE) {
             g.drawImage(imagesGui.get(link.getFlute().name),LEFT_FLUTE, TOP_FLUTE);
         }
@@ -395,7 +411,7 @@ public class GuiManager implements IManager {
 
         // Draw debug info
         g.drawString("Attempt: " + saveManager.getSave().getAttempt(), DEBUGX, DEBUGY, TextUtil.getDebugPaint());
-        g.drawString("Time: " + (int) time, DEBUGX, DEBUGY + 20, TextUtil.getDebugPaint());
+        g.drawString("Time: " + (int) guiElements.time, DEBUGX, DEBUGY + 20, TextUtil.getDebugPaint());
     }
 
     /**
