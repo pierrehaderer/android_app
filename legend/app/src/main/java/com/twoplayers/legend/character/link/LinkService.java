@@ -221,12 +221,12 @@ public class LinkService {
             if (link.orientation == Orientation.UP || link.orientation == Orientation.DOWN) {
                 float deltaY = Link.PUSH_SPEED * link.pushY * deltaTime;
                 if (deltaY < 0) {
-                    if (zoneManager.isUpValid(link.x, link.y + deltaY)) {
+                    if (zoneManager.isUpValid(link.x, link.y + deltaY / 3) && zoneManager.isUpValid(link.x, link.y + 2 * deltaY / 3) && zoneManager.isUpValid(link.x, link.y + deltaY)) {
                         moveLinkY(link, deltaY);
                     }
                 }
                 if (deltaY > 0) {
-                    if (zoneManager.isDownValid(link.x, link.y + deltaY)) {
+                    if (zoneManager.isDownValid(link.x, link.y + deltaY / 2) && zoneManager.isDownValid(link.x, link.y + deltaY)) {
                         moveLinkY(link, deltaY);
                     }
                 }
@@ -236,12 +236,12 @@ public class LinkService {
             if (link.orientation == Orientation.LEFT || link.orientation == Orientation.RIGHT) {
                 float deltaX = Link.PUSH_SPEED * link.pushX * deltaTime;
                 if (deltaX < 0) {
-                    if (zoneManager.isLeftValid(link.x + deltaX, link.y)) {
+                    if (zoneManager.isLeftValid(link.x + deltaX / 2, link.y) && zoneManager.isLeftValid(link.x + deltaX, link.y)) {
                         moveLinkX(link, deltaX);
                     }
                 }
                 if (deltaX > 0) {
-                    if (zoneManager.isRightValid(link.x + deltaX, link.y)) {
+                    if (zoneManager.isRightValid(link.x + deltaX / 2, link.y) && zoneManager.isRightValid(link.x + deltaX, link.y)) {
                         moveLinkX(link, deltaX);
                     }
                 }

@@ -255,13 +255,23 @@ public class EnemyService {
 
             float deltaY = enemy.pushY * distance;
             boolean pushed = false;
-            if ((deltaY < 0 && zoneManager.isUpValid(enemy.x, enemy.y + deltaY)) || (deltaY > 0 && zoneManager.isDownValid(enemy.x, enemy.y + deltaY))) {
+            if (deltaY < 0 && zoneManager.isUpValid(enemy.x, enemy.y + deltaY / 3) && zoneManager.isUpValid(enemy.x, enemy.y + 2 * deltaY / 3) && zoneManager.isUpValid(enemy.x, enemy.y + deltaY)) {
+                pushed = true;
+                enemy.y += deltaY;
+                enemy.hitbox.y += deltaY;
+            }
+            if (deltaY > 0 && zoneManager.isDownValid(enemy.x, enemy.y + deltaY / 2) && zoneManager.isDownValid(enemy.x, enemy.y + deltaY)) {
                 pushed = true;
                 enemy.y += deltaY;
                 enemy.hitbox.y += deltaY;
             }
             float deltaX = enemy.pushX * distance;
-            if ((deltaX < 0 && zoneManager.isLeftValid(enemy.x + deltaX, enemy.y)) || (deltaX > 0 && zoneManager.isRightValid(enemy.x + deltaX, enemy.y))) {
+            if (deltaX < 0 && zoneManager.isLeftValid(enemy.x + deltaX / 2, enemy.y) && zoneManager.isLeftValid(enemy.x + deltaX, enemy.y)) {
+                pushed = true;
+                enemy.x += deltaX;
+                enemy.hitbox.x += deltaX;
+            }
+            if (deltaX > 0 && zoneManager.isRightValid(enemy.x + deltaX / 2, enemy.y) && zoneManager.isRightValid(enemy.x + deltaX, enemy.y)) {
                 pushed = true;
                 enemy.x += deltaX;
                 enemy.hitbox.x += deltaX;
