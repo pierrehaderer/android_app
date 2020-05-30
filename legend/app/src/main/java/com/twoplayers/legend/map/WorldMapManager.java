@@ -193,6 +193,7 @@ public class WorldMapManager implements IZoneManager {
                         caveInfo.hitbox.relocate(caveInfo.entrance.x, caveInfo.entrance.y);
                         caveInfo.message1 = entranceArray[4];
                         caveInfo.message2 = entranceArray[5];
+                        caveInfo.message3 = "";
                         caveInfo.npcName = (entranceArray[6].length() > 0) ? entranceArray[6] : CaveInfo.DEFAULT_NPC;
                         for (int index = 7; index < entranceArray.length; index++) {
                             caveInfo.itemsAndPrices.add(entranceArray[index]);

@@ -12,6 +12,7 @@ public class CaveInfo extends EntranceInfo {
     public CaveType type;
     public String message1;
     public String message2;
+    public String message3;
     public String npcName;
     public List<String> itemsAndPrices;
 

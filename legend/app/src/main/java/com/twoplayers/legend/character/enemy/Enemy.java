@@ -10,7 +10,7 @@ import com.twoplayers.legend.character.link.inventory.rod.Rod;
 import com.twoplayers.legend.character.link.inventory.rod.RodWave;
 import com.twoplayers.legend.character.link.inventory.sword.ThrowingSword;
 import com.twoplayers.legend.util.Orientation;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
@@ -132,7 +132,7 @@ public abstract class Enemy {
     /**
      * Initialize enemy after spawn
      */
-    public abstract void init(IImagesEnemy imagesEnemy, Graphics g);
+    public abstract void init(IImages imagesEnemy, Graphics g);
 
     /**
      * Update the enemy has it is existing in the room

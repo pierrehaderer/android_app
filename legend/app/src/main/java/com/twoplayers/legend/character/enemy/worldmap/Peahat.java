@@ -5,12 +5,11 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.EnemyService;
-import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.util.LocationUtil;
 import com.twoplayers.legend.util.Orientation;
@@ -39,7 +38,7 @@ public class Peahat extends Enemy {
     }
 
     @Override
-    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+    public void init(IImages imagesEnemy, Graphics g) {
         initAnimations(imagesEnemy, g);
         timeBeforeStop = 0;
         timeBeforeRestart = 0;
@@ -58,7 +57,7 @@ public class Peahat extends Enemy {
     /**
      * Initialise the move animations
      */
-    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+    protected void initAnimations(IImages imagesEnemy, Graphics g) {
         initialAnimation = enemyService.getFastCloudAnimation(imagesEnemy, g);
         deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
 

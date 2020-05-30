@@ -6,6 +6,7 @@ public enum DungeonTile {
 
     PATH(' ', true),
     BLOC('x', false),
+    LIMIT('_', false),
     WATER('w', false),
     DOOR_LEFT('e', false),
     DOOR_RIGHT('f', false),

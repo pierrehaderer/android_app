@@ -3,7 +3,7 @@ package com.twoplayers.legend.character.enemy.worldmap;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
@@ -17,7 +17,7 @@ public abstract class Octorok extends Enemy {
     }
 
     @Override
-    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+    public void init(IImages imagesEnemy, Graphics g) {
         initAnimations(imagesEnemy, g);
         nextTileX = x;
         nextTileY = y;
@@ -31,7 +31,7 @@ public abstract class Octorok extends Enemy {
     /**
      * Initialise the move animations
      */
-    protected abstract void initAnimations(IImagesEnemy imagesEnemy, Graphics g);
+    protected abstract void initAnimations(IImages imagesEnemy, Graphics g);
 
     @Override
     public void update(float deltaTime, Graphics g) {

@@ -4,7 +4,7 @@ import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
@@ -48,7 +48,7 @@ public abstract class Tektite extends Enemy {
     }
 
     @Override
-    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+    public void init(IImages imagesEnemy, Graphics g) {
         initAnimations(imagesEnemy, g);
         initDestinationTree();
         timeBeforeFirstMove = (float) Math.random() * PAUSE_BEFORE_FIRST_MOVE;
@@ -66,7 +66,7 @@ public abstract class Tektite extends Enemy {
     /**
      * Initialise the move animations
      */
-    protected abstract void initAnimations(IImagesEnemy imagesEnemy, Graphics g);
+    protected abstract void initAnimations(IImages imagesEnemy, Graphics g);
 
     /**
      * Initialize the tree of destination which will ease the randow choice of destination

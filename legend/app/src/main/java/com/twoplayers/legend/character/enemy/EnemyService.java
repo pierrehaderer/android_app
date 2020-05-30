@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.link.LinkManager;
@@ -124,21 +124,21 @@ public class EnemyService {
     /**
      * Generate a initial slow animation with cloud
      */
-    public Animation getSlowCloudAnimation(IImagesEnemy imagesEnemy, Graphics g) {
+    public Animation getSlowCloudAnimation(IImages imagesEnemy, Graphics g) {
         return createCloudAnimation(imagesEnemy, g, 36);
     }
 
     /**
      * Generate a initial slow animation with cloud
      */
-    public Animation getFastCloudAnimation(IImagesEnemy imagesEnemy, Graphics g) {
+    public Animation getFastCloudAnimation(IImages imagesEnemy, Graphics g) {
         return createCloudAnimation(imagesEnemy, g, 12);
     }
 
     /**
      * Genearate death animation
      */
-    public Animation getDeathAnimation(IImagesEnemy imagesEnemy, Graphics g) {
+    public Animation getDeathAnimation(IImages imagesEnemy, Graphics g) {
         Animation animation = g.newAnimation();
         animation.addFrame(imagesEnemy.get("enemy_death_1"), AllImages.COEF, 10);
         animation.addFrame(imagesEnemy.get("enemy_death_2"), AllImages.COEF, 10);
@@ -151,7 +151,7 @@ public class EnemyService {
     /**
      * Generate a initial animation with cloud
      */
-    private Animation createCloudAnimation(IImagesEnemy imagesEnemy, Graphics g, int firstStepDuration) {
+    private Animation createCloudAnimation(IImages imagesEnemy, Graphics g, int firstStepDuration) {
         Animation animationCloud = g.newAnimation();
         animationCloud.addFrame(imagesEnemy.get("cloud_1"), AllImages.COEF, firstStepDuration);
         animationCloud.addFrame(imagesEnemy.get("cloud_2"), AllImages.COEF, 12);

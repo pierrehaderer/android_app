@@ -3,7 +3,7 @@ package com.twoplayers.legend.character.enemy.missile;
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.MissileService;
 import com.twoplayers.legend.util.Orientation;
@@ -25,7 +25,7 @@ public class EnemyBoomerang extends Missile {
     }
 
     @Override
-    public void init(IImagesEnemy imagesEnemyWorldMap, Graphics g) {
+    public void init(IImages imagesEnemyWorldMap, Graphics g) {
         initAnimations(imagesEnemyWorldMap, g);
         hitbox = new Hitbox(x,y,0,0,8,8);
         isActive = true;
@@ -40,7 +40,7 @@ public class EnemyBoomerang extends Missile {
     /**
      * Init animations
      */
-    public void initAnimations(IImagesEnemy imagesEnemyWorldMap, Graphics g) {
+    public void initAnimations(IImages imagesEnemyWorldMap, Graphics g) {
         Animation animation = g.newAnimation();
         animation.addFrame(imagesEnemyWorldMap.get("empty"), AllImages.COEF, 5f);
         animation.addFrame(imagesEnemyWorldMap.get("wood_boomerang_1"), AllImages.COEF, 4f);

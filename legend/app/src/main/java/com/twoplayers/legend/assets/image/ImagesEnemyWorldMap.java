@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ImagesEnemyWorldMap implements IImagesEnemy {
+public class ImagesEnemyWorldMap implements IImages {
 
     private Map<String, Image> images = new HashMap<>();
 

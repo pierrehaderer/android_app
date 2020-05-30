@@ -5,7 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IEnemyManager;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.assets.image.AllImages;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
@@ -36,7 +36,7 @@ public class BlueLeever extends Enemy {
     }
 
     @Override
-    public void init(IImagesEnemy imagesEnemy, Graphics g) {
+    public void init(IImages imagesEnemy, Graphics g) {
         initAnimations(imagesEnemy, g);
         nextTileX = x;
         nextTileY = y;
@@ -51,7 +51,7 @@ public class BlueLeever extends Enemy {
     /**
      * Initialise the move animations
      */
-    protected void initAnimations(IImagesEnemy imagesEnemy, Graphics g) {
+    protected void initAnimations(IImages imagesEnemy, Graphics g) {
         deathAnimation = enemyService.getDeathAnimation(imagesEnemy, g);
 
         spawnAnimation = g.newAnimation();

@@ -2,7 +2,7 @@ package com.twoplayers.legend.character.enemy.missile;
 
 import com.kilobolt.framework.Animation;
 import com.kilobolt.framework.Graphics;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.character.Hitbox;
 import com.twoplayers.legend.character.enemy.Enemy;
 import com.twoplayers.legend.character.enemy.MissileService;
@@ -39,7 +39,7 @@ public abstract class Missile {
     /**
      * Initialize missile
      */
-    public abstract void init(IImagesEnemy imagesEnemyWorldMap, Graphics g);
+    public abstract void init(IImages imagesEnemyWorldMap, Graphics g);
 
     /**
      * Update the missile position and animation, check despawn condition

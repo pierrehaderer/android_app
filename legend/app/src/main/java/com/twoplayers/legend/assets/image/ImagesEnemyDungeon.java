@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ImagesEnemyDungeon implements IImagesEnemy {
+public class ImagesEnemyDungeon implements IImages {
 
     private Map<String, Image> images = new HashMap<>();
 

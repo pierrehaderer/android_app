@@ -2,7 +2,7 @@ package com.twoplayers.legend.character.enemy;
 
 import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IZoneManager;
-import com.twoplayers.legend.assets.image.IImagesEnemy;
+import com.twoplayers.legend.assets.image.IImages;
 import com.twoplayers.legend.character.enemy.missile.EmptyMissile;
 import com.twoplayers.legend.character.enemy.missile.EnemyBoomerang;
 import com.twoplayers.legend.character.enemy.missile.Missile;
@@ -27,7 +27,7 @@ public class MissileService {
     /**
      * Spawn a missile from the provided enemy
      */
-    public Missile spawnMissile(IImagesEnemy imagesEnemy, Graphics graphics, Enemy enemy, Class<? extends Missile> missileClass) {
+    public Missile spawnMissile(IImages imagesEnemy, Graphics graphics, Enemy enemy, Class<? extends Missile> missileClass) {
         try {
             Constructor<? extends Missile> constructor = missileClass.getConstructor(MissileService.class);
             Missile missile = constructor.newInstance(this);

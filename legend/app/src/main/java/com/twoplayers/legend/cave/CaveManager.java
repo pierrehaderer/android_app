@@ -108,14 +108,6 @@ public class CaveManager implements IZoneManager {
     private void initCave(Game game, CaveInfo caveInfo) {
         cave = new Cave(imagesCave, imagesItem, game.getGraphics(), caveInfo);
 
-        cave.npc = new Npc();
-        cave.npc.name = caveInfo.npcName;
-        Logger.info("Loading cave with NPC '" + cave.npc.name + "'");
-        cave.npc.image = imagesCave.get(cave.npc.name);
-        cave.npc.x = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
-        cave.npc.y = LocationUtil.getYFromGrid(4);
-        cave.npc.hitbox.relocate(cave.npc.x, cave.npc.y);
-
         float[] itemPositionsX = new float[3];
         if (caveInfo.itemsAndPrices.size() == 1) {
             itemPositionsX[0] = LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE;
@@ -161,11 +153,13 @@ public class CaveManager implements IZoneManager {
             }
         }
         textCounter += deltaTime * TEXT_SPEED;
-        textCounter = Math.min(textCounter, cave.message1.length() + cave.message2.length());
-        int end1 = (int) Math.min(textCounter, cave.message1.length());
-        int end2 = (int) Math.max(0, Math.min(textCounter - cave.message1.length(), cave.message2.length()));
-        cave.displayedMessage1 = cave.message1.substring(0, end1);
-        cave.displayedMessage2 = cave.message2.substring(0, end2);
+        textCounter = Math.min(textCounter, cave.npc.message1.length() + cave.npc.message2.length() + cave.npc.message3.length());
+        int end1 = (int) Math.min(textCounter, cave.npc.message1.length());
+        int end2 = (int) Math.max(0, Math.min(textCounter - cave.npc.message1.length(), cave.npc.message2.length()));
+        int end3 = (int) Math.max(0, Math.min(textCounter - cave.npc.message1.length() - cave.npc.message2.length(), cave.npc.message3.length()));
+        cave.npc.displayedMessage1 = cave.npc.message1.substring(0, end1);
+        cave.npc.displayedMessage2 = cave.npc.message2.substring(0, end2);
+        cave.npc.displayedMessage3 = cave.npc.message3.substring(0, end3);
         if (textSoundCounter < (int) textCounter) {
             textSoundCounter = (int) textCounter;
             soundEffectManager.play("text");
@@ -178,10 +172,12 @@ public class CaveManager implements IZoneManager {
     @Override
     public void paint(float deltaTime, Graphics g) {
         g.drawScaledImage(imagesCave.get("cave"), LocationUtil.LEFT_MAP, LocationUtil.TOP_MAP, AllImages.COEF, colorMatrix.getMatrix());
-        float message1X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message1.length() / 22f) * LocationUtil.TILE_SIZE;
-        float message2X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.message2.length() / 22f) * LocationUtil.TILE_SIZE;
-        g.drawString(cave.displayedMessage1, (int) message1X, (int) LocationUtil.getYFromGrid(3), TextUtil.getPaint());
-        g.drawString(cave.displayedMessage2, (int) message2X, (int) (LocationUtil.getYFromGrid(3) + LocationUtil.HALF_TILE_SIZE), TextUtil.getPaint());
+        float message1X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.npc.message1.length() / 22f) * LocationUtil.TILE_SIZE;
+        float message2X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.npc.message2.length() / 22f) * LocationUtil.TILE_SIZE;
+        float message3X = LocationUtil.LEFT_MAP + 2.2f * LocationUtil.TILE_SIZE + 6.5f * (1f - cave.npc.message3.length() / 22f) * LocationUtil.TILE_SIZE;
+        g.drawString(cave.npc.displayedMessage1, (int) message1X, (int) (LocationUtil.getYFromGrid(2) + LocationUtil.HALF_TILE_SIZE), TextUtil.getPaint());
+        g.drawString(cave.npc.displayedMessage2, (int) message2X, (int) (LocationUtil.getYFromGrid(3)), TextUtil.getPaint());
+        g.drawString(cave.npc.displayedMessage3, (int) message3X, (int) (LocationUtil.getYFromGrid(3) + LocationUtil.HALF_TILE_SIZE), TextUtil.getPaint());
         g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(5), (int) cave.npc.y);
         g.drawAnimation(cave.fireAnimation, (int) LocationUtil.getXFromGrid(10), (int) cave.npc.y);
         g.drawScaledImage(cave.npc.image, (int) cave.npc.x, (int) cave.npc.y, AllImages.COEF);

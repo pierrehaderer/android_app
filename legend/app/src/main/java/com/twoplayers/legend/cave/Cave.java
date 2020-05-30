@@ -10,6 +10,7 @@ import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.Location;
+import com.twoplayers.legend.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +18,6 @@ import java.util.List;
 public class Cave {
 
     protected CaveType type;
-    protected String message1;
-    protected String message2;
-    protected String displayedMessage1;
-    protected String displayedMessage2;
     protected Npc npc;
     protected Location location;
     protected Coordinate exit;
@@ -31,14 +28,15 @@ public class Cave {
 
     public Cave(ImagesCave imagesCave, ImagesItem imagesItem, Graphics g, CaveInfo caveInfo) {
         type = caveInfo.type;
-        message1 = caveInfo.message1;
-        message2 = caveInfo.message2;
         location = caveInfo.location;
         exit = caveInfo.exit;
 
         items = new ArrayList<>();
-        displayedMessage1 = "";
-        displayedMessage2 = "";
+
+        npc = new Npc(imagesCave, caveInfo.npcName, caveInfo.message1, caveInfo.message2, caveInfo.message3);
+        npc.name = caveInfo.npcName;
+        Logger.info("Loading cave with NPC '" + npc.name + "'");
+
 
         fireAnimation = g.newAnimation();
         fireAnimation.addFrame(imagesCave.get("fire_1"), AllImages.COEF, 10);
