@@ -22,7 +22,7 @@ public class Item {
         hitbox = new Hitbox(0, 0, 5, 5, 6, 6);
     }
 
-    public void hideItemForTheZone() {
+    public void hideItem() {
         hidden = true;
         hitbox = new Hitbox();
     }

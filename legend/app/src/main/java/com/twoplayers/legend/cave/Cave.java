@@ -19,7 +19,7 @@ public class Cave {
 
     protected CaveType type;
     protected Npc npc;
-    protected Location location;
+    protected Location locationOnWorldMap;
     protected Coordinate exit;
     protected List<Item> items;
 
@@ -28,8 +28,8 @@ public class Cave {
 
     public Cave(ImagesCave imagesCave, ImagesItem imagesItem, Graphics g, CaveInfo caveInfo) {
         type = caveInfo.type;
-        location = caveInfo.location;
-        exit = caveInfo.exit;
+        locationOnWorldMap = caveInfo.entranceLocationOnTheWorldMap;
+        exit = caveInfo.exitCoordinateOnTheWorldMap;
 
         items = new ArrayList<>();
 

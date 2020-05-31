@@ -14,11 +14,8 @@ import com.twoplayers.legend.util.Logger;
 
 public class DungeonLoadingScreen extends Screen {
 
-    public static final int WIDTH_PHONE_SCREEN = 800;
-    public static final int HEIGHT_PHONE_SCREEN = 480;
-
-    private static final int INITIAL_DUNGEON_POSITION_X = 7;
-    private static final int INITIAL_DUNGEON_POSITION_Y = 9;
+    private static final int WIDTH_PHONE_SCREEN = 800;
+    private static final int HEIGHT_PHONE_SCREEN = 480;
 
     private boolean notLoaded;
 
@@ -30,9 +27,7 @@ public class DungeonLoadingScreen extends Screen {
         Logger.info("Entering DungeonLoadingScreen.");
         notLoaded = true;
         this.dungeonInfo = dungeonInfo;
-        float positionX = LocationUtil.getXFromGrid(INITIAL_DUNGEON_POSITION_X) + LocationUtil.HALF_TILE_SIZE;
-        float positionY = LocationUtil.getYFromGrid(INITIAL_DUNGEON_POSITION_Y);
-        linkPosition = new Coordinate(positionX, positionY);
+        linkPosition = dungeonInfo.linkStartCoordinateInTheDungeon;
 
     }
 

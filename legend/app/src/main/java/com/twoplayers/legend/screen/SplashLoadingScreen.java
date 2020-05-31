@@ -12,10 +12,10 @@ import com.kilobolt.framework.Screen;
 
 public class SplashLoadingScreen extends Screen {
 
-    public static final int LEFT_SCREEN = 150;
-    public static final int TOP_SCREEN = 0;
-    public static final int WIDTH_SCREEN = 548;
-    public static final int HEIGHT_SCREEN = 480;
+    private static final int LEFT_SCREEN = 150;
+    private static final int TOP_SCREEN = 0;
+    private static final int WIDTH_SCREEN = 548;
+    private static final int HEIGHT_SCREEN = 480;
 
     private ImageOther imageOther;
     private SoundEffectManager soundEffectManager;

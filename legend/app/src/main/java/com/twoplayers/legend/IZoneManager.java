@@ -44,6 +44,8 @@ public interface IZoneManager extends IManager {
     Location getTriforceLocation();
     /** Get the list of items on the screen */
     List<Item> getItems();
+    /** Inform that link has picked an item */
+    void linkHasPickedItem(Item item);
     /** Check if a position is valid */
     boolean isUpValid(float x, float y);
     /** Check if a position is valid */

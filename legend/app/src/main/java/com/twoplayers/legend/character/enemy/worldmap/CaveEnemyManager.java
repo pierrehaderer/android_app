@@ -1,4 +1,4 @@
-package com.twoplayers.legend.character.enemy.cave;
+package com.twoplayers.legend.character.enemy.worldmap;
 
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Graphics;

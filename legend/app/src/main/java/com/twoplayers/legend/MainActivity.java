@@ -7,8 +7,10 @@ import com.twoplayers.legend.assets.image.AllImages;
 import com.twoplayers.legend.assets.save.SaveManager;
 import com.twoplayers.legend.assets.sound.MusicManager;
 import com.twoplayers.legend.assets.sound.SoundEffectManager;
+import com.twoplayers.legend.basement.BasementManager;
 import com.twoplayers.legend.cave.CaveManager;
-import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
+import com.twoplayers.legend.character.enemy.dungeon.BasementEnemyManager;
+import com.twoplayers.legend.character.enemy.worldmap.CaveEnemyManager;
 import com.twoplayers.legend.character.enemy.dungeon.DungeonEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.character.enemy.worldmap.WorldMapEnemyManager;
@@ -31,9 +33,11 @@ public class MainActivity extends AndroidGame {
     private WorldMapManager worldMapManager;
     private CaveManager caveManager;
     private DungeonManager dungeonManager;
+    private BasementManager basementManager;
     private WorldMapEnemyManager worldMapEnemyManager;
     private CaveEnemyManager caveEnemyManager;
     private DungeonEnemyManager dungeonEnemyManager;
+    private BasementEnemyManager basementEnemyManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
     private SaveManager saveManager;
@@ -48,9 +52,11 @@ public class MainActivity extends AndroidGame {
         worldMapManager = new WorldMapManager();
         caveManager = new CaveManager();
         dungeonManager = new DungeonManager();
+        basementManager = new BasementManager();
         worldMapEnemyManager = new WorldMapEnemyManager();
         caveEnemyManager = new CaveEnemyManager();
         dungeonEnemyManager = new DungeonEnemyManager();
+        basementEnemyManager = new BasementEnemyManager();
         linkManager = new LinkManager();
         guiManager = new GuiManager();
         saveManager = new SaveManager();
@@ -103,6 +109,8 @@ public class MainActivity extends AndroidGame {
             return worldMapManager;
         } else if (location == LocationUtil.ZONE_CAVE) {
             return caveManager;
+        } else if (location == LocationUtil.ZONE_BASEMENT) {
+            return basementManager;
         }
         return dungeonManager;
     }
@@ -115,6 +123,8 @@ public class MainActivity extends AndroidGame {
             return worldMapEnemyManager;
         } else if (location == LocationUtil.ZONE_CAVE) {
             return caveEnemyManager;
+        } else if (location == LocationUtil.ZONE_BASEMENT) {
+            return basementEnemyManager;
         }
         return dungeonEnemyManager;
     }
@@ -147,6 +157,10 @@ public class MainActivity extends AndroidGame {
         return dungeonManager;
     }
 
+    public BasementManager getBasementManager() {
+        return basementManager;
+    }
+
     public WorldMapEnemyManager getWorldMapEnemyManager() {
         return worldMapEnemyManager;
     }
@@ -157,6 +171,10 @@ public class MainActivity extends AndroidGame {
 
     public DungeonEnemyManager getDungeonEnemyManager() {
         return dungeonEnemyManager;
+    }
+
+    public BasementEnemyManager getBasementEnemyManager() {
+        return basementEnemyManager;
     }
 
     public LinkManager getLinkManager() {

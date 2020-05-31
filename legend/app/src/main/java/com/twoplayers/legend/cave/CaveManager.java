@@ -5,7 +5,8 @@ import com.kilobolt.framework.Graphics;
 import com.kilobolt.framework.Image;
 import com.twoplayers.legend.IZoneManager;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.character.enemy.cave.CaveEnemyManager;
+import com.twoplayers.legend.assets.sound.MusicManager;
+import com.twoplayers.legend.character.enemy.worldmap.CaveEnemyManager;
 import com.twoplayers.legend.character.link.inventory.ItemService;
 import com.twoplayers.legend.character.link.inventory.bomb.Bomb;
 import com.twoplayers.legend.character.link.inventory.light.Fire;
@@ -20,7 +21,6 @@ import com.twoplayers.legend.assets.sound.SoundEffectManager;
 import com.twoplayers.legend.character.Item;
 import com.twoplayers.legend.character.link.Link;
 import com.twoplayers.legend.character.link.LinkManager;
-import com.twoplayers.legend.character.npc.Npc;
 import com.twoplayers.legend.map.CaveInfo;
 import com.twoplayers.legend.util.Coordinate;
 import com.twoplayers.legend.util.FileUtil;
@@ -46,11 +46,12 @@ public class CaveManager implements IZoneManager {
     private LinkManager linkManager;
     private GuiManager guiManager;
     private CaveEnemyManager caveEnemyManager;
+    private MusicManager musicManager;
+    private SoundEffectManager soundEffectManager;
     private ItemService itemService;
 
     private ImagesCave imagesCave;
     private ImagesItem imagesItem;
-    private SoundEffectManager soundEffectManager;
 
     private CaveRoom caveRoom;
     private Cave cave;
@@ -74,6 +75,7 @@ public class CaveManager implements IZoneManager {
         textSoundCounter = 0;
         stunCounter = INITIAL_IMMOBILISATION_COUNTER;
         hasExitedZone = false;
+        musicManager.stop();
     }
 
     /**
@@ -83,23 +85,31 @@ public class CaveManager implements IZoneManager {
         linkManager = ((MainActivity) game).getLinkManager();
         guiManager = ((MainActivity) game).getGuiManager();
         caveEnemyManager = ((MainActivity) game).getCaveEnemyManager();
+        musicManager = ((MainActivity) game).getMusicManager();
+        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
         itemService = new ItemService(guiManager, this, linkManager, caveEnemyManager, soundEffectManager);
 
         imagesCave = ((MainActivity) game).getAllImages().getImagesCave();
         imagesCave.load(((MainActivity) game).getAssetManager(), game.getGraphics());
         imagesItem = ((MainActivity) game).getAllImages().getImagesItem();
         imagesItem.load(((MainActivity) game).getAssetManager(), game.getGraphics());
-        soundEffectManager = ((MainActivity) game).getSoundEffectManager();
 
+        initCaveRoom((MainActivity) game);
+
+        colorMatrix = new ColorMatrixZone();
+    }
+
+    /**
+     * Initialize the cave room
+     */
+    private void initCaveRoom(MainActivity game) {
         CaveTile.initHashMap();
-        List<String> caveFileContent = FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/cave.txt");
+        List<String> caveFileContent = FileUtil.extractLinesFromAsset(game.getAssetManager(), "other/cave.txt");
         caveRoom = new CaveRoom();
         for (int index = 0; index < 11; index++) {
             String line = caveFileContent.get(index);
             caveRoom.addALine(line);
         }
-
-        colorMatrix = new ColorMatrixZone();
     }
 
     /**
@@ -228,10 +238,7 @@ public class CaveManager implements IZoneManager {
 
     @Override
     public boolean isTileWalkable(float x, float y) {
-        int tileX = LocationUtil.getTileXFromPositionX(x);
-        int tileY = LocationUtil.getTileYFromPositionY(y);
-        CaveTile tile = caveRoom.getTile(tileX, tileY);
-        return tile.walkable;
+        return false;
     }
 
     @Override
@@ -419,6 +426,11 @@ public class CaveManager implements IZoneManager {
     }
 
     @Override
+    public void linkHasPickedItem(Item item) {
+        item.hideItem();
+    }
+
+    @Override
     public boolean isExplored(int x, int y) {
         return false;
     }
@@ -457,7 +469,6 @@ public class CaveManager implements IZoneManager {
     public boolean isLinkFarEnoughFromBorderToAttack(Link link) {
         return true;
     }
-
 
     @Override
     public boolean hasThrowingSwordHitBorder(ThrowingSword throwingSword) {
@@ -522,7 +533,7 @@ public class CaveManager implements IZoneManager {
      * Obtain the location of the cave
      */
     public Location getCaveLocation() {
-        return cave.location;
+        return cave.locationOnWorldMap;
     }
 
     /**

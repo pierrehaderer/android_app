@@ -13,8 +13,8 @@ import com.twoplayers.legend.util.Logger;
 
 public class CaveLoadingScreen extends Screen {
 
-    public static final int WIDTH_PHONE_SCREEN = 800;
-    public static final int HEIGHT_PHONE_SCREEN = 480;
+    private static final int WIDTH_PHONE_SCREEN = 800;
+    private static final int HEIGHT_PHONE_SCREEN = 480;
 
     private static final int INITIAL_CAVE_POSITION_X = 7;
     private static final int INITIAL_CAVE_POSITION_Y = 10;

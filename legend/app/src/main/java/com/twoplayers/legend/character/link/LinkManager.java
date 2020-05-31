@@ -112,7 +112,7 @@ public class LinkManager implements IManager {
         link.boomerang.type = BoomerangType.NONE;
         link.bomb = new Bomb(imagesLink, game.getGraphics());
         link.bombCloud = new BombCloud(imagesLink, game.getGraphics());
-        link.bombQuantity = 0;
+        link.bombQuantity = 4;
         link.bombMax = 8;
         link.bow = Bow.NONE;
         link.arrow = new Arrow(imagesLink, game.getGraphics());

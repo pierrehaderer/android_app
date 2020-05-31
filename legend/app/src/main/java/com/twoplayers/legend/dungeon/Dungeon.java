@@ -17,9 +17,9 @@ public class Dungeon {
     protected Animation fireAnimation;
 
     public Dungeon(IImages imagesDungeon, Graphics g, DungeonInfo dungeonInfo) {
-        id = dungeonInfo.id;
-        location = dungeonInfo.location;
-        exit = dungeonInfo.exit;
+        id = dungeonInfo.dungeonId;
+        location = dungeonInfo.entranceLocationOnTheWorldMap;
+        exit = dungeonInfo.exitCoordinateOnTheWorldMap;
 
         fireAnimation = g.newAnimation();
         fireAnimation.addFrame(imagesDungeon.get("fire_1"), AllImages.COEF, 10);

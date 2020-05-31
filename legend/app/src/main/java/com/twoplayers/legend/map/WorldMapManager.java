@@ -174,12 +174,14 @@ public class WorldMapManager implements IZoneManager {
                         dungeonInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
                         dungeonInfo.style = EntranceInfo.getStyle(entranceArray[2]);
                         dungeonInfo.hidden = (dungeonInfo.hiddenStyle != dungeonInfo.style);
-                        dungeonInfo.location = new Location(i, j);
-                        dungeonInfo.entrance = new Coordinate(entranceArray[3]);
-                        dungeonInfo.exit = findExit(i, j, dungeonInfo);
-                        dungeonInfo.hitbox.relocate(dungeonInfo.entrance.x, dungeonInfo.entrance.y);
-                        dungeonInfo.id = entranceArray[4];
-                        dungeonInfo.startLocation = new Location(entranceArray[5]);
+                        dungeonInfo.entranceLocationOnTheWorldMap = new Location(i, j);
+                        dungeonInfo.entranceCoordinateOnTheWorldMap = new Coordinate(entranceArray[3]);
+                        dungeonInfo.exitCoordinateOnTheWorldMap = findExit(i, j, dungeonInfo);
+                        dungeonInfo.hitbox.relocate(dungeonInfo.entranceCoordinateOnTheWorldMap.x, dungeonInfo.entranceCoordinateOnTheWorldMap.y);
+                        dungeonInfo.dungeonId = entranceArray[4];
+                        dungeonInfo.linkStartLocationInTheDungeon = new Location(entranceArray[5]);
+                        dungeonInfo.linkStartCoordinateInTheDungeon = new Coordinate(LocationUtil.getXFromGrid(7) + LocationUtil.HALF_TILE_SIZE, LocationUtil.getYFromGrid(9));
+                        dungeonInfo.startMusic = true;
                         worldMapEntrances[i][j] = dungeonInfo;
                     } else {
                         CaveInfo caveInfo = new CaveInfo();
@@ -187,10 +189,10 @@ public class WorldMapManager implements IZoneManager {
                         caveInfo.hiddenStyle = EntranceInfo.getStyle(entranceArray[1]);
                         caveInfo.style = EntranceInfo.getStyle(entranceArray[2]);
                         caveInfo.hidden = (caveInfo.hiddenStyle != caveInfo.style);
-                        caveInfo.location = new Location(i, j);
-                        caveInfo.entrance = new Coordinate(entranceArray[3]);
-                        caveInfo.exit = findExit(i, j, caveInfo);
-                        caveInfo.hitbox.relocate(caveInfo.entrance.x, caveInfo.entrance.y);
+                        caveInfo.entranceLocationOnTheWorldMap = new Location(i, j);
+                        caveInfo.entranceCoordinateOnTheWorldMap = new Coordinate(entranceArray[3]);
+                        caveInfo.exitCoordinateOnTheWorldMap = findExit(i, j, caveInfo);
+                        caveInfo.hitbox.relocate(caveInfo.entranceCoordinateOnTheWorldMap.x, caveInfo.entranceCoordinateOnTheWorldMap.y);
                         caveInfo.message1 = entranceArray[4];
                         caveInfo.message2 = entranceArray[5];
                         caveInfo.message3 = "";
@@ -212,8 +214,8 @@ public class WorldMapManager implements IZoneManager {
                 // Update the info if the entrance has already been opened
                 if (savedOpenedEntrances[i][j]) {
                     worldMapEntrances[i][j].hidden = false;
-                    int tileX = LocationUtil.getTileXFromPositionX(worldMapEntrances[i][j].entrance.x);
-                    int tileY = LocationUtil.getTileYFromPositionY(worldMapEntrances[i][j].entrance.y);
+                    int tileX = LocationUtil.getTileXFromPositionX(worldMapEntrances[i][j].entranceCoordinateOnTheWorldMap.x);
+                    int tileY = LocationUtil.getTileYFromPositionY(worldMapEntrances[i][j].entranceCoordinateOnTheWorldMap.y);
                     MapTile mapTile = (worldMapEntrances[i][j].style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
                     worldMap[i][j].changeTile(tileX, tileY, mapTile);
                 }
@@ -226,18 +228,18 @@ public class WorldMapManager implements IZoneManager {
      */
     private Coordinate findExit(int i, int j, EntranceInfo entranceInfo) {
         if (entranceInfo.style == EntranceInfo.DOOR) {
-            return new Coordinate(entranceInfo.entrance.x, entranceInfo.entrance.y + LocationUtil.TILE_SIZE + 1);
+            return new Coordinate(entranceInfo.entranceCoordinateOnTheWorldMap.x, entranceInfo.entranceCoordinateOnTheWorldMap.y + LocationUtil.TILE_SIZE + 1);
         }
-        int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
-        int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
+        int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entranceCoordinateOnTheWorldMap.x);
+        int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entranceCoordinateOnTheWorldMap.y);
         MapRoom mapRoom = worldMap[i][j];
         if (mapRoom.getTile(tileX - 1, tileY).walkable) {
-            return entranceInfo.exit = new Coordinate(entranceInfo.entrance.x - LocationUtil.TILE_SIZE, entranceInfo.entrance.y);
+            return entranceInfo.exitCoordinateOnTheWorldMap = new Coordinate(entranceInfo.entranceCoordinateOnTheWorldMap.x - LocationUtil.TILE_SIZE, entranceInfo.entranceCoordinateOnTheWorldMap.y);
         }
         if (mapRoom.getTile(tileX - 1, tileY + 1).walkable) {
-            return entranceInfo.exit = new Coordinate(entranceInfo.entrance.x - LocationUtil.TILE_SIZE, entranceInfo.entrance.y + LocationUtil.TILE_SIZE);
+            return entranceInfo.exitCoordinateOnTheWorldMap = new Coordinate(entranceInfo.entranceCoordinateOnTheWorldMap.x - LocationUtil.TILE_SIZE, entranceInfo.entranceCoordinateOnTheWorldMap.y + LocationUtil.TILE_SIZE);
         }
-        return entranceInfo.exit = new Coordinate(entranceInfo.entrance.x - LocationUtil.TILE_SIZE, entranceInfo.entrance.y - LocationUtil.TILE_SIZE);
+        return entranceInfo.exitCoordinateOnTheWorldMap = new Coordinate(entranceInfo.entranceCoordinateOnTheWorldMap.x - LocationUtil.TILE_SIZE, entranceInfo.entranceCoordinateOnTheWorldMap.y - LocationUtil.TILE_SIZE);
     }
 
     @Override
@@ -305,8 +307,8 @@ public class WorldMapManager implements IZoneManager {
 
         EntranceInfo entranceInfo = worldMapEntrances[currentAbscissa][currentOrdinate];
         if (!entranceInfo.hidden) {
-            float x = entranceInfo.entrance.x + leftCurrentRoom - LocationUtil.LEFT_MAP;
-            float y = entranceInfo.entrance.y + topCurrentRoom - LocationUtil.TOP_MAP;
+            float x = entranceInfo.entranceCoordinateOnTheWorldMap.x + leftCurrentRoom - LocationUtil.LEFT_MAP;
+            float y = entranceInfo.entranceCoordinateOnTheWorldMap.y + topCurrentRoom - LocationUtil.TOP_MAP;
             if (entranceInfo.style == EntranceInfo.DOOR) {
                 g.drawScaledImage(imagesWorldMap.get("door"), (int) x, (int) y, AllImages.COEF);
             } else if (entranceInfo.style == EntranceInfo.STAIRS) {
@@ -802,6 +804,11 @@ public class WorldMapManager implements IZoneManager {
     }
 
     @Override
+    public void linkHasPickedItem(Item item) {
+        item.hideItem();
+    }
+
+    @Override
     public boolean isExplored(int x, int y) {
         return exploredRooms[x][y];
     }
@@ -899,8 +906,8 @@ public class WorldMapManager implements IZoneManager {
                 soundEffectManager.play("find_secret");
                 // Enable walking on the tile
                 MapTile mapTile = (entranceInfo.style == EntranceInfo.STAIRS) ? MapTile.STAIRS : MapTile.DOOR;
-                int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entrance.x);
-                int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entrance.y);
+                int tileX = LocationUtil.getTileXFromPositionX(entranceInfo.entranceCoordinateOnTheWorldMap.x);
+                int tileY = LocationUtil.getTileYFromPositionY(entranceInfo.entranceCoordinateOnTheWorldMap.y);
                 worldMap[currentAbscissa][currentOrdinate].changeTile(tileX, tileY, mapTile);
                 // Add the entrance in the list of the entrances opened
                 entranceInfo.hidden = false;

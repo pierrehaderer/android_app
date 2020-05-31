@@ -31,4 +31,9 @@ public class Location {
     public boolean is(int x, int y) {
         return this.x == x && this.y == y;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(x) + y;
+    }
 }

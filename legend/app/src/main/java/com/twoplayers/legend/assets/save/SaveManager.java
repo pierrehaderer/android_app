@@ -5,6 +5,7 @@ import com.kilobolt.framework.Graphics;
 import com.twoplayers.legend.IManager;
 import com.twoplayers.legend.MainActivity;
 import com.twoplayers.legend.util.FileUtil;
+import com.twoplayers.legend.util.Location;
 import com.twoplayers.legend.util.Logger;
 
 import java.io.IOException;
@@ -87,4 +88,18 @@ public class SaveManager implements IManager {
         saveState();
     }
 
+    public void updateOpenedBasements(String dungeonId, String key) {
+        save.getDungeonSave(dungeonId).openedBasements.add(key);
+        saveState();
+    }
+
+    public void increaseItemTaken(String dungeonId, Location basementLocationInTheDungeon) {
+        String key = basementLocationInTheDungeon.toString();
+        if (save.getDungeonSave(dungeonId).itemsTaken.containsKey(key)) {
+            save.getDungeonSave(dungeonId).itemsTaken.put(key, save.getDungeonSave(dungeonId).itemsTaken.get(key) + 1);
+        } else {
+            save.getDungeonSave(dungeonId).itemsTaken.put(key, 1);
+        }
+        saveState();
+    }
 }

@@ -58,6 +58,7 @@ public class DungeonManager implements IZoneManager {
     private Map<DungeonDoorPlacement, DungeonDoor>[][] doors;
     private DungeonTreasure[][] treasures;
     private Map<String, Npc> npcs;
+    private Map<String, BasementInfo> basements;
     private Location triforceLocation;
     private DungeonBloc[][] dungeonBlocs;
 
@@ -102,16 +103,25 @@ public class DungeonManager implements IZoneManager {
         stunCounter = INITIAL_STUN_COUNTER;
 
         dungeon = new Dungeon(imagesDungeon, game.getGraphics(), dungeonInfo);
-        Location start = dungeonInfo.startLocation;
+        Location start = dungeonInfo.linkStartLocationInTheDungeon;
         hasExitedZone = false;
 
-        saveManager.updateDungeonExploredRooms(dungeon.id, start.x, start.y);
-        initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"));
+        rooms = new DungeonRoom[8][8];
+        realRooms = new boolean[8][8];
+        exploredRooms = new Boolean[8][8];
+        treasures = new DungeonTreasure[8][8];
+        npcs = new HashMap<>();
+        basements = new HashMap<>();
+        doors = new Map[8][8];
+        dungeonBlocs = new DungeonBloc[8][8];
+        initDungeon(FileUtil.extractLinesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + ".txt"), start);
         initDungeonDoors(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + "_doors.properties"));
-        initDungeonElements(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + "_elements.properties"));
+        initDungeonElements(FileUtil.extractPropertiesFromAsset(((MainActivity) game).getAssetManager(), "other/dungeon" + dungeon.id + "_elements.properties"), dungeonInfo);
 
-        musicManager.clear();
-        musicManager.plan(100, "dungeon_loop", true);
+        if (dungeonInfo.startMusic) {
+            musicManager.clear();
+            musicManager.plan(100, "dungeon_loop", true);
+        }
 
         currentAbscissa = start.x;
         currentOrdinate = start.y;
@@ -154,10 +164,7 @@ public class DungeonManager implements IZoneManager {
     /**
      * Create all the DungeonRoom objects from the world_map file
      */
-    private void initDungeon(List<String> dungeonFileContent) {
-        rooms = new DungeonRoom[8][8];
-        realRooms = new boolean[8][8];
-        exploredRooms = new Boolean[8][8];
+    private void initDungeon(List<String> dungeonFileContent, Location start) {
         Boolean[][] savedExploredRooms = saveManager.getSave().getDungeonSave(dungeon.id).getExploredRooms();
 
         // Initialise the mapRooms
@@ -166,6 +173,12 @@ public class DungeonManager implements IZoneManager {
                 rooms[i][j] = new DungeonRoom();
                 exploredRooms[i][j] = savedExploredRooms[i][j];
             }
+        }
+
+        // Explore the first room of the dungeon if not already explored
+        if (!exploredRooms[start.x][start.y]) {
+            exploredRooms[start.x][start.y] = true;
+            saveManager.updateDungeonExploredRooms(dungeon.id, start.x, start.y);
         }
 
         // Fill the mapRooms, line by line
@@ -188,9 +201,7 @@ public class DungeonManager implements IZoneManager {
      * Init the doors of the dungeon
      */
     private void initDungeonDoors(Properties doorsProperties) {
-        doors = new Map[8][8];
         List<String> openedDoors = saveManager.getSave().getDungeonSave(dungeon.id).getOpenedDoors();
-        dungeonBlocs = new DungeonBloc[8][8];
 
         // Init dungeonDoors
         for (int i = 0; i < 8; i++) {
@@ -232,10 +243,8 @@ public class DungeonManager implements IZoneManager {
     /**
      * Init the elements of the dungeon
      */
-    private void initDungeonElements(Properties elementsProperties) {
-        treasures = new DungeonTreasure[8][8];
-        npcs = new HashMap<>();
-
+    private void initDungeonElements(Properties elementsProperties, DungeonInfo dungeonInfo) {
+        List<String> openBasements = saveManager.getSave().getDungeonSave(dungeon.id).getOpenedBasements();
         // Parse the properties to add the elements
         for (String key : elementsProperties.stringPropertyNames()) {
             String elementProperty = ((String) elementsProperties.get(key)).trim();
@@ -250,10 +259,22 @@ public class DungeonManager implements IZoneManager {
                         triforceLocation = new Location(abscissa, ordinate);
                     }
                 }
+                if ("BASEMENT".equals(elementAsArray[0])) {
+                    if ("PUSH".equals(elementAsArray[1])) {
+                        String[] pushLocationAsArray = elementAsArray[2].split(",");
+                        Location pushLocation = new Location(Integer.parseInt(pushLocationAsArray[0]), Integer.parseInt(pushLocationAsArray[1]));
+                        dungeonBlocs[abscissa][ordinate] = new DungeonBloc(imagesDungeon, pushLocation, dungeon.id);
+                    }
+                    Location basementLocationInTheDungeon = new Location(abscissa, ordinate);
+                    String[] locationAsArray = elementAsArray[4].split(",");
+                    Location stairsLocationInTheRoom = new Location(Integer.parseInt(locationAsArray[0]), Integer.parseInt(locationAsArray[1]));
+                    String[] exitAsArray = elementAsArray[5].split(",");
+                    Coordinate linkExitCoordinateInTheDungeon = new Coordinate(LocationUtil.getXFromGrid(Integer.parseInt(exitAsArray[0])), LocationUtil.getYFromGrid(Integer.parseInt(exitAsArray[1])));
+                    basements.put(key, new BasementInfo(dungeonInfo, elementAsArray[3], basementLocationInTheDungeon, stairsLocationInTheRoom, linkExitCoordinateInTheDungeon, openBasements.contains(key)));
+                }
                 if ("NPC".equals(elementAsArray[0])) {
                     Logger.info("Adding NPC (" + abscissa + "," + ordinate + ") : " + elementProperty);
-                    Npc npc = new Npc(imagesDungeon, elementAsArray[4], elementAsArray[1], elementAsArray[2], elementAsArray[3]);
-                    npcs.put(key, npc);
+                    npcs.put(key, new Npc(imagesDungeon, elementAsArray[4], elementAsArray[1], elementAsArray[2], elementAsArray[3]));
                 }
             }
         }
@@ -268,10 +289,12 @@ public class DungeonManager implements IZoneManager {
             }
         }
 
+        // Open noMoreEnemy doors if all the enemies have been killed
         if (!transitionRunning && dungeonEnemyManager.noMoreEnemy()) {
             openNoMoreEnemyDoors();
         }
 
+        // Handle NPC if there is one
         if (!transitionRunning && npc != null) {
             textCounter += deltaTime * TEXT_SPEED;
             textCounter = Math.min(textCounter, npc.message1.length() + npc.message2.length() + npc.message3.length());
@@ -288,6 +311,7 @@ public class DungeonManager implements IZoneManager {
             dungeon.fireAnimation.update(deltaTime);
         }
 
+        // Handle pushable bloc if there is one
         DungeonBloc bloc = dungeonBlocs[currentAbscissa][currentOrdinate];
         if (bloc != null && bloc.count > 0) {
             float blocDistance = Math.min(DungeonBloc.BLOC_SPEED * deltaTime,  bloc.count);
@@ -558,6 +582,12 @@ public class DungeonManager implements IZoneManager {
 
     @Override
     public boolean isTileStairs(float x, float y) {
+        BasementInfo basementInfo = basements.get(getCoordinate());
+        if (basementInfo != null && basementInfo.isOpen) {
+            int tileX = LocationUtil.getTileXFromPositionX(x);
+            int tileY = LocationUtil.getTileYFromPositionY(y);
+            return (basementInfo.stairsLocationInTheRoom.x == tileX && basementInfo.stairsLocationInTheRoom.y == tileY);
+        }
         return false;
     }
 
@@ -674,6 +704,13 @@ public class DungeonManager implements IZoneManager {
                 dungeonDoor.isOpen = true;
                 updateDungeonRoomsWithDoorOpen(currentAbscissa, currentOrdinate, dungeonDoor.placement, dungeonDoor.type);
             }
+        }
+
+        // Opens the basement
+        BasementInfo basementInfo = basements.get(getCoordinate());
+        if (basementInfo != null && !basementInfo.isOpen) {
+            basementInfo.isOpen = true;
+            saveManager.updateOpenedBasements(dungeon.id, getCoordinate());
         }
     }
 
@@ -1025,6 +1062,11 @@ public class DungeonManager implements IZoneManager {
     }
 
     @Override
+    public void linkHasPickedItem(Item item) {
+        item.hideItem();
+    }
+
+    @Override
     public boolean isExplored(int x, int y) {
         if (3 < x && x < 12) {
             return exploredRooms[x - 4][y];
@@ -1229,10 +1271,16 @@ public class DungeonManager implements IZoneManager {
     }
 
     /**
+     * Obtain the information on the basement in the current room
+     */
+    public BasementInfo getBasementInfo() {
+        return basements.get(getCoordinate());
+    }
+
+    /**
      * generate a unique key for an opened door
      */
     private String generateOpenedDoorKey(int abscissa, int ordinate, String placement) {
         return abscissa + "_" + ordinate + "_" + placement;
     }
-
 }

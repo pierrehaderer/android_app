@@ -154,7 +154,7 @@ public class ItemService {
             if (!link.isUsingItem && !link.isEnteringADoor && !link.isExitingADoor && !link.isShowingItem) {
                 if (LocationUtil.areColliding(link.hitbox, item.hitbox) && link.rupees - link.rupeesToRemove >= item.price && linkCanPickItem(link, item)) {
                     link.isPushed = false;
-                    item.hideItemForTheZone();
+                    zoneManager.linkHasPickedItem(item);
                     linkManager.removeRupees(item.price);
                     link.itemToShow = item;
                     link.isShowingItem = true;

@@ -9,6 +9,7 @@ public class LocationUtil {
     public static final int ZONE_WORLD_MAP = 0;
     public static final int ZONE_CAVE = 1;
     public static final int ZONE_DUNGEON = 2;
+    public static final int ZONE_BASEMENT = 3;
 
     public static final int LEFT_MAP = 150;
     public static final int TOP_MAP = 103;

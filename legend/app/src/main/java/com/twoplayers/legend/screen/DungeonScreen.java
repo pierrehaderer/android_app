@@ -43,6 +43,9 @@ public class DungeonScreen extends Screen {
         if (dungeonManager.hasExitedZone()) {
             game.setScreen(new WorldMapLoadingScreen(game, dungeonManager.getDungeonLocation(), dungeonManager.getDungeonExit()));
         }
+        if (linkManager.hasFinishedEnteringSomewhere()) {
+            game.setScreen(new BasementLoadingScreen(game, dungeonManager.getBasementInfo()));
+        }
 
     }
 

@@ -319,11 +319,10 @@ public class LinkService {
         if (zoneManager.isTileStairs(link.x + LocationUtil.HALF_TILE_SIZE, link.y + LocationUtil.HALF_TILE_SIZE)) {
             Logger.info("Link is entering stairs.");
             guiManager.deactivateButtons();
-            musicManager.stop();
             enemyManager.unloadEnemies();
             linkManager.hideItemsAndEffects();
             link.isEnteringADoor = true;
-            link.enterSomewhereDistance = 0;
+            link.enterSomewhereDistance = -1;
             link.exitSomewhereDistance = 0;
             link.isPushed = false;
             link.isUsingItem = false;

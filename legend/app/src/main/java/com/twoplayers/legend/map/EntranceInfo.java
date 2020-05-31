@@ -15,16 +15,16 @@ public class EntranceInfo {
     public int hiddenStyle;
     public int style;
     public boolean hidden;
-    public Location location;
-    public Coordinate entrance;
-    public Coordinate exit;
+    public Location entranceLocationOnTheWorldMap;
+    public Coordinate entranceCoordinateOnTheWorldMap;
+    public Coordinate exitCoordinateOnTheWorldMap;
     public Hitbox hitbox;
 
     public EntranceInfo() {
         style = DOOR;
-        location = new Location();
-        entrance = new Coordinate();
-        exit = new Coordinate();
+        entranceLocationOnTheWorldMap = new Location();
+        entranceCoordinateOnTheWorldMap = new Coordinate();
+        exitCoordinateOnTheWorldMap = new Coordinate();
         hitbox = new Hitbox(0,0,0,0,16,16);
     }
 

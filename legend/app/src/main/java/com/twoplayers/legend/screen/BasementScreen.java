@@ -5,47 +5,49 @@ import android.graphics.Color;
 import com.kilobolt.framework.Game;
 import com.kilobolt.framework.Screen;
 import com.twoplayers.legend.MainActivity;
-import com.twoplayers.legend.cave.CaveManager;
-import com.twoplayers.legend.character.enemy.worldmap.CaveEnemyManager;
+import com.twoplayers.legend.basement.BasementManager;
+import com.twoplayers.legend.character.enemy.dungeon.BasementEnemyManager;
 import com.twoplayers.legend.character.link.LinkManager;
 import com.twoplayers.legend.gui.GuiManager;
 import com.twoplayers.legend.util.Logger;
 
-public class CaveScreen extends Screen {
+public class BasementScreen extends Screen {
 
     public static final int WIDTH_PHONE_SCREEN = 800;
     public static final int HEIGHT_PHONE_SCREEN = 480;
 
-    private CaveManager caveManager;
-    private CaveEnemyManager caveEnemyManager;
+    private BasementManager basementManager;
+    private BasementEnemyManager basementEnemyManager;
     private LinkManager linkManager;
     private GuiManager guiManager;
 
-    public CaveScreen(Game game) {
+    public BasementScreen(Game game) {
         super(game);
-        Logger.info("Entering CaveScreen.");
-        caveManager = ((MainActivity) game).getCaveManager();
-        caveEnemyManager = ((MainActivity) game).getCaveEnemyManager();
+        Logger.info("Entering BasementScreen.");
+        basementManager = ((MainActivity) game).getBasementManager();
+        basementEnemyManager = ((MainActivity) game).getBasementEnemyManager();
         linkManager = ((MainActivity) game).getLinkManager();
         guiManager = ((MainActivity) game).getGuiManager();
     }
 
     @Override
     public void update(float deltaTime) {
-        caveManager.update(deltaTime, game.getGraphics());
-        caveEnemyManager.update(deltaTime, game.getGraphics());
+        basementManager.update(deltaTime, game.getGraphics());
+        basementEnemyManager.update(deltaTime, game.getGraphics());
         linkManager.update(deltaTime, game.getGraphics());
         guiManager.update(deltaTime, game.getGraphics());
-        if (caveManager.hasExitedZone()) {
-            game.setScreen(new WorldMapLoadingScreen(game, caveManager.getCaveLocation(), caveManager.getCaveExit()));
+        if (basementManager.hasExitedZone()) {
+            game.setScreen(new DungeonLoadingScreen(game, basementManager.getDungeonInfo()));
         }
     }
 
     @Override
     public void paint(float deltaTime) {
         game.getGraphics().drawRect(0, 0, WIDTH_PHONE_SCREEN + 1, HEIGHT_PHONE_SCREEN + 1, Color.BLACK);
-        caveManager.paint(deltaTime, game.getGraphics());
+        basementManager.paint(deltaTime, game.getGraphics());
+        basementEnemyManager.paint(deltaTime, game.getGraphics());
         linkManager.paint(deltaTime, game.getGraphics());
+        basementManager.paintCache(game.getGraphics());
         guiManager.paint(deltaTime, game.getGraphics());
     }
 
